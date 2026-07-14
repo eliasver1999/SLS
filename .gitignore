@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+/backend/vendor/
+
+# Environment & secrets
+.env
+.env.*.local
+
+# Local SQLite database
+*.sqlite
+*.sqlite-journal
+
+# Build output
+/frontend/dist/
+/backend/public/build/
+
+# Logs & OS files
+*.log
+.DS_Store
+Thumbs.db
