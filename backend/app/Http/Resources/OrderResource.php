@@ -23,6 +23,7 @@ class OrderResource extends JsonResource
             'items' => $this->items,
             'total' => $this->total,
             'notes' => $this->notes,
+            'status_history' => $this->status_history ?? [],
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

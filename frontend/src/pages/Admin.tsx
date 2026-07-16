@@ -5,31 +5,53 @@ import { useAuth } from '../context/auth'
 import {
   createProduct,
   deleteProduct,
+  fetchMembers,
   fetchOrders,
   fetchPartnerApplications,
   fetchProducts,
+  updateMember,
   updateOrder,
   updatePartnerApplication,
   updateProduct,
   type ApplicationCounts,
+  type Member,
+  type MemberCounts,
   type Order,
+  type OrderItem,
   type OrderStatus,
   type OrderType,
   type PartnerApplication,
   type ProductInput,
 } from '../lib/api'
 import type { LS, Mode, Product, Spec } from '../data/products'
+import OrderTimeline from '../components/OrderTimeline'
+import { STATUS_PILL } from '../lib/orderStatus'
 
-type Section = 'approvals' | 'products' | 'orders' | 'quotes' | 'rentals'
+type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes'
 
 export default function Admin() {
   const { t } = useLang()
   const { user } = useAuth()
-  const [section, setSection] = useState<Section>('approvals')
+  const [section, setSection] = useState<Section>('members')
 
+  const [members, setMembers] = useState<Member[]>([])
+  const [memberCounts, setMemberCounts] = useState<MemberCounts>({ pending: 0, approved: 0, rejected: 0 })
+  const [membersPage, setMembersPage] = useState({ page: 1, lastPage: 1 })
   const [apps, setApps] = useState<PartnerApplication[]>([])
   const [counts, setCounts] = useState<ApplicationCounts>({ pending: 0, approved: 0, rejected: 0 })
   const [products, setProducts] = useState<Product[]>([])
+  const [productsInfo, setProductsInfo] = useState({ page: 1, lastPage: 1, total: 0 })
+
+  const loadMembers = useCallback(async (page = 1) => {
+    try {
+      const res = await fetchMembers({ page })
+      setMembers((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
+      setMemberCounts(res.counts)
+      setMembersPage({ page: res.page, lastPage: res.lastPage })
+    } catch {
+      /* ignore */
+    }
+  }, [])
 
   const loadApps = useCallback(async () => {
     try {
@@ -41,25 +63,28 @@ export default function Admin() {
     }
   }, [])
 
-  const loadProducts = useCallback(async () => {
+  const loadProducts = useCallback(async (page = 1) => {
     try {
-      setProducts(await fetchProducts())
+      const res = await fetchProducts({ page })
+      setProducts((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
+      setProductsInfo({ page: res.page, lastPage: res.lastPage, total: res.total })
     } catch {
       /* ignore */
     }
   }, [])
 
   useEffect(() => {
+    loadMembers()
     loadApps()
     loadProducts()
-  }, [loadApps, loadProducts])
+  }, [loadMembers, loadApps, loadProducts])
 
   const nav: { key: Section; icon: string; label: string; badge?: number }[] = [
-    { key: 'approvals', icon: '✔', label: t('Approvals', 'Εγκρίσεις'), badge: counts.pending },
-    { key: 'products', icon: '▤', label: t('Products', 'Προϊόντα'), badge: products.length },
+    { key: 'members', icon: '👤', label: t('Members', 'Μέλη'), badge: memberCounts.pending },
+    { key: 'approvals', icon: '✔', label: t('Applications', 'Αιτήσεις'), badge: counts.pending },
+    { key: 'products', icon: '▤', label: t('Products', 'Προϊόντα'), badge: productsInfo.total || products.length },
     { key: 'orders', icon: '▣', label: t('Orders', 'Παραγγελίες') },
     { key: 'quotes', icon: '✎', label: t('Quotes', 'Προσφορές') },
-    { key: 'rentals', icon: '◷', label: t('Rentals', 'Ενοικιάσεις') },
   ]
 
   return (
@@ -96,13 +121,28 @@ export default function Admin() {
       </aside>
 
       <div className="dash-main">
+        {section === 'members' && (
+          <MembersSection
+            members={members}
+            counts={memberCounts}
+            onReload={() => loadMembers(1)}
+            hasMore={membersPage.page < membersPage.lastPage}
+            onLoadMore={() => loadMembers(membersPage.page + 1)}
+          />
+        )}
         {section === 'approvals' && (
           <ApprovalsSection apps={apps} counts={counts} onReload={loadApps} />
         )}
-        {section === 'products' && <ProductsSection products={products} onReload={loadProducts} />}
+        {section === 'products' && (
+          <ProductsSection
+            products={products}
+            onReload={() => loadProducts(1)}
+            hasMore={productsInfo.page < productsInfo.lastPage}
+            onLoadMore={() => loadProducts(productsInfo.page + 1)}
+          />
+        )}
         {section === 'orders' && <OrdersSection type="order" />}
         {section === 'quotes' && <OrdersSection type="quote" />}
-        {section === 'rentals' && <OrdersSection type="rental" />}
         <Link className="btn btn-ghost btn-sm mt24" to="/">
           {t('← Back to site', '← Πίσω στον ιστότοπο')}
         </Link>
@@ -111,7 +151,110 @@ export default function Admin() {
   )
 }
 
-// ── Approvals ───────────────────────────────────────────────────────
+// ── Members (registration approvals) ────────────────────────────────
+function MembersSection({
+  members,
+  counts,
+  onReload,
+  hasMore,
+  onLoadMore,
+}: {
+  members: Member[]
+  counts: MemberCounts
+  onReload: () => void
+  hasMore: boolean
+  onLoadMore: () => void
+}) {
+  const { t } = useLang()
+
+  async function decide(m: Member, status: 'approved' | 'rejected') {
+    try {
+      await updateMember(m.id, status)
+      onReload()
+    } catch {
+      /* ignore */
+    }
+  }
+
+  const statusPill = (s: Member['status']) => {
+    const map = {
+      pending: { cls: 'wait', label: t('Pending', 'Σε αναμονή') },
+      approved: { cls: 'ok', label: t('Approved', 'Εγκεκριμένος') },
+      rejected: { cls: 'rej', label: t('Rejected', 'Απορρίφθηκε') },
+    }[s]
+    return <span className={`status ${map.cls}`}>{map.label}</span>
+  }
+
+  return (
+    <>
+      <h1 className="h2" style={{ fontSize: 26 }}>
+        {t('Members', 'Μέλη')}
+      </h1>
+      <p className="muted">
+        {t(
+          'Registrations are admin-gated. Approve an account to unlock pricing, cart and ordering.',
+          'Οι εγγραφές εγκρίνονται από διαχειριστή. Εγκρίνετε λογαριασμό για ξεκλείδωμα τιμών, καλαθιού και παραγγελιών.',
+        )}
+      </p>
+
+      <div className="kpis mt24">
+        <Kpi n={counts.pending} color="#ffce54" label={t('Pending', 'Σε αναμονή')} />
+        <Kpi n={counts.approved} color="#48d38a" label={t('Approved', 'Εγκεκριμένοι')} />
+        <Kpi n={counts.rejected} color="#ff7a7a" label={t('Rejected', 'Απορριφθέντες')} />
+      </div>
+
+      <table className="tbl mt24">
+        <tbody>
+          <tr>
+            <th>{t('Name', 'Όνομα')}</th>
+            <th>{t('Company', 'Εταιρεία')}</th>
+            <th>Email</th>
+            <th>{t('Status', 'Κατάσταση')}</th>
+            <th>{t('Action', 'Ενέργεια')}</th>
+          </tr>
+          {members.length === 0 && (
+            <tr>
+              <td colSpan={5} className="muted">
+                {t('No registered members yet.', 'Καμία εγγραφή ακόμη.')}
+              </td>
+            </tr>
+          )}
+          {members.map((m) => (
+            <tr key={m.id}>
+              <td>
+                <b>{m.name}</b>
+              </td>
+              <td className="muted">{m.company ?? '—'}</td>
+              <td className="muted">{m.email}</td>
+              <td>{statusPill(m.status)}</td>
+              <td style={{ whiteSpace: 'nowrap' }}>
+                {m.status !== 'approved' && (
+                  <span className="btn btn-primary btn-sm" onClick={() => decide(m, 'approved')}>
+                    {t('Approve', 'Έγκριση')}
+                  </span>
+                )}{' '}
+                {m.status !== 'rejected' && (
+                  <span className="btn btn-ghost btn-sm" onClick={() => decide(m, 'rejected')}>
+                    {t('Reject', 'Απόρριψη')}
+                  </span>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {hasMore && (
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <button className="btn btn-ghost btn-sm" onClick={onLoadMore}>
+            {t('Load more', 'Περισσότερα')}
+          </button>
+        </div>
+      )}
+    </>
+  )
+}
+
+// ── Applications (partner applications) ──────────────────────────────
 function ApprovalsSection({
   apps,
   counts,
@@ -240,7 +383,17 @@ function ApprovalsSection({
 }
 
 // ── Products ────────────────────────────────────────────────────────
-function ProductsSection({ products, onReload }: { products: Product[]; onReload: () => void }) {
+function ProductsSection({
+  products,
+  onReload,
+  hasMore,
+  onLoadMore,
+}: {
+  products: Product[]
+  onReload: () => void
+  hasMore: boolean
+  onLoadMore: () => void
+}) {
   const { t, lang } = useLang()
   const [editing, setEditing] = useState<ProductInput | null>(null)
   const [originalSlug, setOriginalSlug] = useState<string | null>(null)
@@ -309,8 +462,8 @@ function ProductsSection({ products, onReload }: { products: Product[]; onReload
                 <b>{p.name}</b> {p.featured && <span className="status blue">★</span>}
               </td>
               <td className="muted">{p.category}</td>
-              <td className="muted">{p.modes.join(' / ')}</td>
-              <td>{p.buy?.price ?? p.rent?.price ?? '—'}</td>
+              <td className="muted">{p.buy ? t('Buy', 'Αγορά') : t('Quote', 'Προσφορά')}</td>
+              <td>{p.buy?.price ?? '—'}</td>
               <td style={{ whiteSpace: 'nowrap' }}>
                 <span className="btn btn-ghost btn-sm" onClick={() => edit(p)}>
                   {t('Edit', 'Επεξεργασία')}
@@ -323,6 +476,13 @@ function ProductsSection({ products, onReload }: { products: Product[]; onReload
           ))}
         </tbody>
       </table>
+      {hasMore && (
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <button className="btn btn-ghost btn-sm" onClick={onLoadMore}>
+            {t('Load more', 'Περισσότερα')}
+          </button>
+        </div>
+      )}
       <p className="muted mt16" style={{ fontSize: 13 }}>
         {lang === 'el'
           ? 'Οι αλλαγές εμφανίζονται άμεσα στον κατάλογο.'
@@ -367,7 +527,6 @@ function ProductForm({
       ...form,
       thumbs: form.thumbs.length ? form.thumbs : [form.image],
       buy: form.modes.includes('buy') ? form.buy : null,
-      rent: form.modes.includes('rent') ? form.rent : null,
     }
     try {
       if (isNew) await createProduct(payload)
@@ -447,18 +606,21 @@ function ProductForm({
         </div>
 
         <div className="field mt16" style={field}>
-          <label>{t('Modes', 'Λειτουργίες')}</label>
+          <label>{t('Pricing', 'Τιμολόγηση')}</label>
           <div>
             <span className={`chip${form.modes.includes('buy') ? ' on' : ''}`} onClick={() => toggleMode('buy')}>
-              {t('Buy', 'Αγορά')}
-            </span>
-            <span className={`chip${form.modes.includes('rent') ? ' on' : ''}`} onClick={() => toggleMode('rent')}>
-              {t('Rent', 'Ενοικίαση')}
+              {t('Buy (list price)', 'Αγορά (τιμή)')}
             </span>
             <span className={`chip${form.featured ? ' on' : ''}`} onClick={() => upd('featured', !form.featured)}>
               ★ {t('Featured', 'Προτεινόμενο')}
             </span>
           </div>
+          <p className="muted mt8" style={{ fontSize: 12.5 }}>
+            {t(
+              'Turn off Buy for quote-only products (no list price shown).',
+              'Απενεργοποιήστε το «Αγορά» για προϊόντα μόνο με προσφορά (χωρίς εμφανιζόμενη τιμή).',
+            )}
+          </p>
         </div>
 
         {form.modes.includes('buy') && (
@@ -479,24 +641,6 @@ function ProductForm({
             <div className="field mt8" style={field}>
               <label>{t('Lead time (EN)', 'Χρόνος (EN)')}</label>
               <input value={form.buy?.leadTime.en ?? ''} onChange={(e) => upd('buy', { price: form.buy?.price ?? '', unit: form.buy?.unit ?? ls(), leadTime: { en: e.target.value, el: form.buy?.leadTime.el ?? '' } })} placeholder="Made to order · 3–4 weeks" />
-            </div>
-          </div>
-        )}
-
-        {form.modes.includes('rent') && (
-          <div className="mt16">
-            <h4 className="head" style={{ fontSize: 13, color: 'var(--grey)', letterSpacing: 1 }}>
-              {t('RENT PRICE', 'ΤΙΜΗ ΕΝΟΙΚΙΑΣΗΣ')}
-            </h4>
-            <div className="row2 mt8">
-              <div className="field" style={field}>
-                <label>{t('Price', 'Τιμή')}</label>
-                <input value={form.rent?.price ?? ''} onChange={(e) => upd('rent', { price: e.target.value, unit: form.rent?.unit ?? ls() })} placeholder="€ 55" />
-              </div>
-              <div className="field" style={field}>
-                <label>{t('Unit (EN)', 'Μονάδα (EN)')}</label>
-                <input value={form.rent?.unit.en ?? ''} onChange={(e) => upd('rent', { price: form.rent?.price ?? '', unit: { en: e.target.value, el: form.rent?.unit.el ?? '' } })} placeholder="/ panel / day" />
-              </div>
             </div>
           </div>
         )}
@@ -593,43 +737,53 @@ const ORDER_STATUSES: OrderStatus[] = [
   'cancelled',
 ]
 
+const statusText = (s: OrderStatus, t: (en: string, el: string) => string) =>
+  ({
+    pending: t('Pending', 'Σε αναμονή'),
+    quoted: t('Quoted', 'Προσφορά'),
+    confirmed: t('Confirmed', 'Επιβεβ.'),
+    in_production: t('In production', 'Σε παραγωγή'),
+    completed: t('Completed', 'Ολοκληρ.'),
+    cancelled: t('Cancelled', 'Ακυρώθηκε'),
+  })[s]
+
 function OrdersSection({ type }: { type: OrderType }) {
   const { t } = useLang()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
+  const [pageInfo, setPageInfo] = useState({ page: 1, lastPage: 1 })
 
-  const load = useCallback(() => {
-    setLoading(true)
-    fetchOrders({ type })
-      .then(setOrders)
-      .catch(() => {})
-      .finally(() => setLoading(false))
-  }, [type])
+  const load = useCallback(
+    (page = 1) => {
+      setLoading(true)
+      fetchOrders({ type, page })
+        .then((res) => {
+          setOrders((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
+          setPageInfo({ page: res.page, lastPage: res.lastPage })
+          setSelectedId((cur) =>
+            page === 1 ? (res.items[0]?.id ?? null) : cur,
+          )
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false))
+    },
+    [type],
+  )
 
   useEffect(() => {
-    load()
+    load(1)
   }, [load])
 
-  async function setStatus(o: Order, status: OrderStatus) {
-    // optimistic update
-    setOrders((prev) => prev.map((x) => (x.id === o.id ? { ...x, status } : x)))
-    try {
-      await updateOrder(o.id, { status })
-    } catch {
-      load()
-    }
+  const selected = orders.find((o) => o.id === selectedId) ?? null
+
+  async function applyUpdate(patch: { status?: OrderStatus; total?: string | null; note?: string; items?: OrderItem[] }) {
+    if (!selected) return
+    const updated = await updateOrder(selected.id, patch)
+    setOrders((prev) => prev.map((x) => (x.id === updated.id ? updated : x)))
   }
 
-  const heading = { order: t('Orders', 'Παραγγελίες'), quote: t('Quotes', 'Προσφορές'), rental: t('Rentals', 'Ενοικιάσεις') }[type]
-  const statusText = (s: OrderStatus) =>
-    ({
-      pending: t('Pending', 'Σε αναμονή'),
-      quoted: t('Quoted', 'Προσφορά'),
-      confirmed: t('Confirmed', 'Επιβεβ.'),
-      in_production: t('In production', 'Σε παραγωγή'),
-      completed: t('Completed', 'Ολοκληρ.'),
-      cancelled: t('Cancelled', 'Ακυρώθηκε'),
-    })[s]
+  const heading = { order: t('Orders', 'Παραγγελίες'), quote: t('Quotes', 'Προσφορές') }[type]
 
   return (
     <>
@@ -637,64 +791,229 @@ function OrdersSection({ type }: { type: OrderType }) {
         {heading}
       </h1>
       <p className="muted">
-        {t('Manage requests and update their status.', 'Διαχείριση αιτημάτων και κατάστασης.')}
+        {t('Manage requests, update status and notify the customer.', 'Διαχείριση αιτημάτων, κατάστασης και ενημέρωση πελάτη.')}
       </p>
 
-      <table className="tbl mt24">
-        <tbody>
-          <tr>
-            <th>#</th>
-            <th>{t('Company', 'Εταιρεία')}</th>
-            <th>{t('Items', 'Είδη')}</th>
-            <th>{t('Total', 'Σύνολο')}</th>
-            <th>{t('Status', 'Κατάσταση')}</th>
-          </tr>
-          {loading && (
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
+        <div>
+        <table className="tbl">
+          <tbody>
             <tr>
-              <td colSpan={5} className="muted">
-                {t('Loading…', 'Φόρτωση…')}
-              </td>
+              <th>#</th>
+              <th>{t('Company', 'Εταιρεία')}</th>
+              <th>{t('Items', 'Είδη')}</th>
+              <th>{t('Total', 'Σύνολο')}</th>
+              <th>{t('Status', 'Κατάσταση')}</th>
             </tr>
+            {loading && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  {t('Loading…', 'Φόρτωση…')}
+                </td>
+              </tr>
+            )}
+            {!loading && orders.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  {t('No requests yet.', 'Καμία αίτηση ακόμη.')}
+                </td>
+              </tr>
+            )}
+            {orders.map((o) => (
+              <tr
+                key={o.id}
+                onClick={() => setSelectedId(o.id)}
+                style={{ cursor: 'pointer', background: selectedId === o.id ? 'rgba(31,139,255,.06)' : undefined }}
+              >
+                <td>{o.reference.replace('SLS-', '')}</td>
+                <td>{o.company ?? o.contact_name}</td>
+                <td className="muted">
+                  {o.items.map((i) => `${i.name}${i.qty ? ` ×${i.qty}` : ''}`).join(', ')}
+                </td>
+                <td>{o.total ?? '—'}</td>
+                <td>
+                  <span className={`status ${STATUS_PILL[o.status]}`}>{statusText(o.status, t)}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+          {pageInfo.page < pageInfo.lastPage && (
+            <div style={{ textAlign: 'center', marginTop: 16 }}>
+              <button className="btn btn-ghost btn-sm" onClick={() => load(pageInfo.page + 1)}>
+                {t('Load more', 'Περισσότερα')}
+              </button>
+            </div>
           )}
-          {!loading && orders.length === 0 && (
-            <tr>
-              <td colSpan={5} className="muted">
-                {t('No requests yet.', 'Καμία αίτηση ακόμη.')}
-              </td>
-            </tr>
+        </div>
+
+        <aside className="panel">
+          {selected ? (
+            <AdminOrderDetail key={selected.id} order={selected} onUpdate={applyUpdate} />
+          ) : (
+            <p className="muted" style={{ fontSize: 14 }}>
+              {t('Select a request to manage.', 'Επιλέξτε αίτημα για διαχείριση.')}
+            </p>
           )}
-          {orders.map((o) => (
-            <tr key={o.id}>
-              <td>{o.reference.replace('SLS-', '')}</td>
-              <td>{o.company ?? o.contact_name}</td>
-              <td className="muted">
-                {o.items.map((i) => `${i.name}${i.qty ? ` ×${i.qty}` : ''}`).join(', ')}
-              </td>
-              <td>{o.total ?? '—'}</td>
-              <td>
-                <select
-                  value={o.status}
-                  onChange={(e) => setStatus(o, e.target.value as OrderStatus)}
-                  style={{
-                    background: '#0b1119',
-                    border: '1px solid var(--line)',
-                    borderRadius: 8,
-                    color: '#fff',
-                    padding: '6px 8px',
-                    fontSize: 13,
-                  }}
-                >
-                  {ORDER_STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {statusText(s)}
-                    </option>
-                  ))}
-                </select>
-              </td>
-            </tr>
+        </aside>
+      </div>
+    </>
+  )
+}
+
+function AdminOrderDetail({
+  order,
+  onUpdate,
+}: {
+  order: Order
+  onUpdate: (patch: {
+    status?: OrderStatus
+    total?: string | null
+    note?: string
+    items?: OrderItem[]
+  }) => Promise<void>
+}) {
+  const { t } = useLang()
+  const [status, setStatus] = useState<OrderStatus>(order.status)
+  const [total, setTotal] = useState(order.total ?? '')
+  const [note, setNote] = useState('')
+  const [items, setItems] = useState<OrderItem[]>(order.items)
+  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
+
+  // Re-sync the form after a save (parent passes back the server's order).
+  useEffect(() => {
+    setStatus(order.status)
+    setTotal(order.total ?? '')
+    setItems(order.items)
+  }, [order])
+
+  const setItem = (i: number, patch: Partial<OrderItem>) =>
+    setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)))
+  const removeItem = (i: number) => setItems((prev) => prev.filter((_, idx) => idx !== i))
+  const addItem = () =>
+    setItems((prev) => [...prev, { slug: `custom-${prev.length + 1}`, name: '', mode: 'buy', qty: 1, price: '' }])
+
+  const itemsChanged = JSON.stringify(items) !== JSON.stringify(order.items)
+
+  async function save() {
+    setSaving(true)
+    setSaved(false)
+    try {
+      // Clean up empty numeric/price fields before sending.
+      const cleanItems = items
+        .filter((it) => it.name.trim() !== '')
+        .map((it) => ({
+          ...it,
+          name: it.name.trim(),
+          qty: it.qty ? Number(it.qty) : undefined,
+          price: it.price?.trim() || undefined,
+        }))
+      await onUpdate({
+        status,
+        total: total.trim() || null,
+        note: note.trim() || undefined,
+        items: itemsChanged && cleanItems.length ? cleanItems : undefined,
+      })
+      setNote('')
+      setSaved(true)
+    } catch {
+      /* ignore */
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const changed =
+    status !== order.status ||
+    (total.trim() || null) !== (order.total ?? null) ||
+    note.trim() !== '' ||
+    itemsChanged
+
+  return (
+    <>
+      <div className="eyebrow">{order.reference}</div>
+      <h3 className="mt8" style={{ fontSize: 18 }}>
+        {order.company ?? order.contact_name}
+      </h3>
+      <div className="muted" style={{ fontSize: 13 }}>
+        {order.contact_email}
+      </div>
+
+      <h4 className="head mt16" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 8 }}>
+        {t('LINE ITEMS', 'ΕΙΔΗ')}
+      </h4>
+      {items.map((it, i) => (
+        <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 56px 84px auto', gap: 6, marginBottom: 6, alignItems: 'center' }}>
+          <input
+            style={inp}
+            value={it.name}
+            placeholder={t('Item name', 'Όνομα είδους')}
+            onChange={(e) => setItem(i, { name: e.target.value })}
+          />
+          <input
+            style={inp}
+            value={it.qty ?? ''}
+            placeholder="Qty"
+            inputMode="numeric"
+            onChange={(e) => setItem(i, { qty: e.target.value ? parseInt(e.target.value, 10) || undefined : undefined })}
+          />
+          <input
+            style={inp}
+            value={it.price ?? ''}
+            placeholder="€ —"
+            onChange={(e) => setItem(i, { price: e.target.value })}
+          />
+          <button className="btn btn-ghost btn-sm" onClick={() => removeItem(i)} title={t('Remove', 'Αφαίρεση')}>
+            ✕
+          </button>
+        </div>
+      ))}
+      <button className="btn btn-ghost btn-sm" onClick={addItem}>
+        + {t('Add line', 'Προσθήκη είδους')}
+      </button>
+
+      <div className="field mt16" style={{ marginBottom: 0 }}>
+        <label>{t('Status', 'Κατάσταση')}</label>
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as OrderStatus)}
+          style={{ width: '100%', background: '#0b1119', border: '1px solid var(--line)', borderRadius: 10, color: '#fff', padding: '10px 12px', fontSize: 14 }}
+        >
+          {ORDER_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {statusText(s, t)}
+            </option>
           ))}
-        </tbody>
-      </table>
+        </select>
+      </div>
+
+      <div className="field mt16" style={{ marginBottom: 0 }}>
+        <label>{t('Total / price (ex VAT)', 'Σύνολο / τιμή (χ/ΦΠΑ)')}</label>
+        <input value={total} onChange={(e) => setTotal(e.target.value)} placeholder="€ 12,500" />
+      </div>
+
+      <div className="field mt16" style={{ marginBottom: 0 }}>
+        <label>{t('Note to customer (optional)', 'Σημείωση προς πελάτη (προαιρετικό)')}</label>
+        <textarea
+          rows={2}
+          value={note}
+          onChange={(e) => setNote(e.target.value)}
+          placeholder={t('Added to the email and the order history…', 'Προστίθεται στο email και στο ιστορικό…')}
+        />
+      </div>
+
+      <button className="btn btn-primary btn-block mt16" onClick={save} disabled={saving || !changed}>
+        {saving ? t('Saving…', 'Αποθήκευση…') : t('Update & notify customer', 'Ενημέρωση & email πελάτη')}
+      </button>
+      {saved && (
+        <p className="muted mt8" style={{ fontSize: 12.5, color: '#48d38a' }}>
+          {t('Saved — the customer has been emailed.', 'Αποθηκεύτηκε — στάλθηκε email στον πελάτη.')}
+        </p>
+      )}
+
+      <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
+      <OrderTimeline order={order} />
     </>
   )
 }
@@ -736,7 +1055,6 @@ function blankInput(): ProductInput {
     spec_table: [],
     modes: ['buy'],
     buy: { price: '', unit: ls(), leadTime: ls() },
-    rent: null,
     featured: false,
   }
 }
@@ -755,7 +1073,6 @@ function toInput(p: Product): ProductInput {
     spec_table: p.specTable,
     modes: p.modes,
     buy: p.buy ?? null,
-    rent: p.rent ?? null,
     featured: !!p.featured,
   }
 }

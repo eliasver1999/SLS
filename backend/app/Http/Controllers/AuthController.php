@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Password;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -47,14 +48,56 @@ class AuthController extends Controller
             'password' => $data['password'], // hashed via model cast
             'company' => $data['company'] ?? null,
             'role' => 'customer',
+            'status' => 'pending', // admin must approve before pricing/cart unlock
         ]);
 
+        // Sign them in immediately, but as a pending member: the frontend keeps
+        // pricing, cart and ordering locked until an admin approves the account.
         $token = $user->createToken('spa')->plainTextToken;
 
         return response()->json([
             'token' => $token,
             'user' => $this->userPayload($user),
         ], 201);
+    }
+
+    /**
+     * Email a password-reset link. Always returns a generic message so the
+     * endpoint can't be used to probe which emails have accounts.
+     */
+    public function forgotPassword(Request $request)
+    {
+        $request->validate(['email' => ['required', 'email']]);
+
+        Password::sendResetLink($request->only('email'));
+
+        return response()->json([
+            'message' => 'If that email has an account, a reset link is on its way.',
+        ]);
+    }
+
+    /**
+     * Complete a password reset using the emailed token.
+     */
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'token' => ['required', 'string'],
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+        ]);
+
+        $status = Password::reset($data, function (User $user, string $password) {
+            // 'hashed' cast on the model hashes this on save.
+            $user->forceFill(['password' => $password])->save();
+            $user->tokens()->delete(); // revoke existing sessions
+        });
+
+        if ($status !== Password::PASSWORD_RESET) {
+            throw ValidationException::withMessages(['email' => [__($status)]]);
+        }
+
+        return response()->json(['message' => 'Your password has been reset. You can now sign in.']);
     }
 
     public function me(Request $request)
@@ -80,6 +123,8 @@ class AuthController extends Controller
             'email' => $user->email,
             'role' => $user->role,
             'company' => $user->company,
+            'status' => $user->status,
+            'approved' => $user->isApproved(),
         ];
     }
 }

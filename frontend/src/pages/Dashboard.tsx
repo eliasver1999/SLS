@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
-import { fetchOrders, type Order, type OrderStatus } from '../lib/api'
+import { fetchOrders, type MemberStatus, type Order, type OrderStatus } from '../lib/api'
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
   pending: 'wait',
@@ -14,15 +14,18 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
 }
 
 export default function Dashboard() {
-  const { t, lang } = useLang()
-  const { user } = useAuth()
+  const { t } = useLang()
+  const { user, isApproved } = useAuth()
+  const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
 
   useEffect(() => {
+    // Pending members have no orders and the API blocks them — skip the call.
+    if (!isApproved) return
     fetchOrders()
-      .then(setOrders)
+      .then((res) => setOrders(res.items))
       .catch(() => {})
-  }, [])
+  }, [isApproved])
 
   const company = user?.company ?? 'Nova Events'
   const firstName = (user?.name ?? 'Maria').split(' ')[0]
@@ -36,9 +39,21 @@ export default function Dashboard() {
   const kpis = useMemo(() => {
     const openQuotes = orders.filter((o) => o.type === 'quote' && ['pending', 'quoted'].includes(o.status)).length
     const activeOrders = orders.filter((o) => o.type === 'order' && !['completed', 'cancelled'].includes(o.status)).length
-    const upcomingRentals = orders.filter((o) => o.type === 'rental' && ['pending', 'confirmed'].includes(o.status)).length
-    return { openQuotes, activeOrders, upcomingRentals }
+    const completed = orders.filter((o) => o.status === 'completed').length
+    return { openQuotes, activeOrders, completed }
   }, [orders])
+
+  // Most recently updated order (by last status-history entry) for the panel.
+  const latest = useMemo(() => {
+    const at = (o: Order) => o.status_history?.[o.status_history.length - 1]?.at ?? o.created_at
+    return [...orders].sort((a, b) => (at(a) < at(b) ? 1 : -1))[0] ?? null
+  }, [orders])
+
+  // Signed in but awaiting admin approval → explain status, don't show the
+  // full partner dashboard (pricing, orders, invoices).
+  if (user && !isApproved) {
+    return <PendingDashboard status={user.status} />
+  }
 
   const statusLabel = (s: OrderStatus) =>
     ({
@@ -50,16 +65,11 @@ export default function Dashboard() {
       cancelled: t('Cancelled', 'Ακυρώθηκε'),
     })[s]
 
-  const typeLabel = (o: Order) => {
-    const base = { quote: t('Quote', 'Προσφορά'), order: t('Order', 'Παραγγελία'), rental: t('Rental', 'Ενοικίαση') }[o.type]
-    const mode = o.items[0]?.mode
-    return mode ? `${mode === 'rent' ? t('Rent', 'Ενοικ.') : t('Buy', 'Αγορά')} · ${base}` : base
-  }
+  const typeLabel = (o: Order) =>
+    ({ quote: t('Quote', 'Προσφορά'), order: t('Order', 'Παραγγελία') })[o.type]
 
   const itemSummary = (o: Order) =>
     o.items.map((i) => `${i.name}${i.qty ? ` × ${i.qty}` : ''}`).join(', ')
-
-  const upcomingRental = orders.find((o) => o.type === 'rental' && ['pending', 'confirmed'].includes(o.status))
 
   return (
     <div className="dash">
@@ -78,7 +88,6 @@ export default function Dashboard() {
           <Link to="/catalogue">▤ {t('Catalogue', 'Κατάλογος')}</Link>
           <a>✎ {t('Quotes', 'Προσφορές')}</a>
           <a>▣ {t('Orders', 'Παραγγελίες')}</a>
-          <a>◷ {t('Rentals', 'Ενοικιάσεις')}</a>
           <a>€ {t('Invoices', 'Τιμολόγια')}</a>
           <a>◱ {t('Company profile', 'Προφίλ εταιρείας')}</a>
         </nav>
@@ -110,14 +119,10 @@ export default function Dashboard() {
             <div className="l">{t('Active orders', 'Ενεργές παραγγελίες')}</div>
           </div>
           <div className="kpi">
-            <div className="n">{kpis.upcomingRentals}</div>
-            <div className="l">{t('Upcoming rentals', 'Επερχ. ενοικιάσεις')}</div>
-          </div>
-          <div className="kpi">
-            <div className="n" style={{ color: '#ffce54' }}>
-              € 4.1k
+            <div className="n" style={{ color: '#48d38a' }}>
+              {kpis.completed}
             </div>
-            <div className="l">{t('Invoices due', 'Οφειλόμενα τιμολόγια')}</div>
+            <div className="l">{t('Completed', 'Ολοκληρωμένες')}</div>
           </div>
         </div>
 
@@ -132,22 +137,36 @@ export default function Dashboard() {
               <th>{t('Type', 'Τύπος')}</th>
               <th>{t('Total (ex VAT)', 'Σύνολο (χ/ΦΠΑ)')}</th>
               <th>{t('Status', 'Κατάσταση')}</th>
+              <th></th>
             </tr>
             {orders.length === 0 && (
               <tr>
-                <td colSpan={5} className="muted">
+                <td colSpan={6} className="muted">
                   {t('No requests yet — browse the catalogue to get started.', 'Καμία αίτηση ακόμη — δείτε τον κατάλογο.')}
                 </td>
               </tr>
             )}
             {orders.map((o) => (
-              <tr key={o.id}>
+              <tr
+                key={o.id}
+                onClick={() => navigate(`/orders/${o.id}`)}
+                style={{ cursor: 'pointer' }}
+              >
                 <td>{o.reference.replace('SLS-', '')}</td>
                 <td>{itemSummary(o)}</td>
                 <td>{typeLabel(o)}</td>
                 <td>{o.total ?? '—'}</td>
                 <td>
                   <span className={`status ${STATUS_STYLE[o.status]}`}>{statusLabel(o.status)}</span>
+                </td>
+                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                  <Link
+                    className="btn btn-ghost btn-sm"
+                    to={`/orders/${o.id}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {t('Track', 'Παρακολούθηση')}
+                  </Link>
                 </td>
               </tr>
             ))}
@@ -156,44 +175,103 @@ export default function Dashboard() {
 
         <div className="grid g2 mt24">
           <div className="panel">
-            <h3 style={{ fontSize: 16 }}>{t('Upcoming rental', 'Επόμενη ενοικίαση')}</h3>
-            {upcomingRental ? (
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginTop: 12 }}>
-                <img
-                  src="/assets/lighting.jpg"
-                  style={{ width: 64, height: 48, objectFit: 'cover', borderRadius: 8 }}
-                  alt=""
-                />
-                <div>
-                  <b>{itemSummary(upcomingRental)}</b>
-                  <div className="muted" style={{ fontSize: 13 }}>
-                    {upcomingRental.items[0]?.from
-                      ? `${upcomingRental.items[0].from}–${upcomingRental.items[0].to}`
-                      : upcomingRental.reference}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <p className="muted mt8" style={{ fontSize: 14 }}>
-                {t('No upcoming rentals.', 'Καμία επερχόμενη ενοικίαση.')}
-              </p>
-            )}
+            <h3 style={{ fontSize: 16 }}>{t('Need something?', 'Χρειάζεστε κάτι;')}</h3>
+            <p className="muted mt8" style={{ fontSize: 14 }}>
+              {t(
+                'Browse the catalogue to request a quote or submit an order — our team follows up by email.',
+                'Δείτε τον κατάλογο για αίτημα προσφοράς ή παραγγελία — η ομάδα μας επικοινωνεί με email.',
+              )}
+            </p>
+            <Link className="btn btn-ghost btn-sm mt16" to="/catalogue">
+              {t('Browse catalogue', 'Δείτε κατάλογο')}
+            </Link>
           </div>
           <div className="panel">
-            <h3 style={{ fontSize: 16 }}>{t('Latest invoice', 'Τελευταίο τιμολόγιο')}</h3>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14 }}>
-              <div>
-                <b>INV-3391</b>
-                <div className="muted" style={{ fontSize: 13 }}>
-                  {t('Due 30 Aug · bank transfer (IBAN) · incl. VAT 24%', 'Λήξη 30 Αυγ · έμβασμα (IBAN) · με ΦΠΑ 24%')}
+            <h3 style={{ fontSize: 16 }}>{t('Latest update', 'Τελευταία ενημέρωση')}</h3>
+            {latest ? (
+              <>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 14, gap: 12 }}>
+                  <div>
+                    <b>{latest.reference}</b>
+                    <div className="muted" style={{ fontSize: 13 }}>
+                      {itemSummary(latest)}
+                    </div>
+                  </div>
+                  <span className={`status ${STATUS_STYLE[latest.status]}`}>{statusLabel(latest.status)}</span>
                 </div>
-              </div>
-              <b className="price">€ 4,100</b>
-            </div>
-            <a className="btn btn-ghost btn-sm mt16">{t('Download PDF', 'Λήψη PDF')}</a>
+                {latest.status_history?.[latest.status_history.length - 1]?.note && (
+                  <p className="muted mt8" style={{ fontSize: 13 }}>
+                    “{latest.status_history[latest.status_history.length - 1].note}”
+                  </p>
+                )}
+                <Link className="btn btn-ghost btn-sm mt16" to={`/orders/${latest.id}`}>
+                  {t('Track order', 'Παρακολούθηση')}
+                </Link>
+              </>
+            ) : (
+              <p className="muted mt8" style={{ fontSize: 14 }}>
+                {t('No orders yet.', 'Καμία παραγγελία ακόμη.')}
+              </p>
+            )}
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+// Shown to signed-in members who are not yet approved (pending or rejected).
+function PendingDashboard({ status }: { status: MemberStatus }) {
+  const { t } = useLang()
+  const rejected = status === 'rejected'
+
+  return (
+    <section className="section">
+      <div className="container" style={{ maxWidth: 640, margin: '0 auto' }}>
+        <div className="form center">
+          <div
+            className="ic"
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              background: rejected ? 'rgba(255,86,86,.16)' : 'rgba(255,206,84,.16)',
+              display: 'grid',
+              placeItems: 'center',
+              margin: '0 auto 18px',
+              color: rejected ? '#ff7a7a' : '#ffce54',
+              fontSize: 28,
+            }}
+          >
+            {rejected ? '✕' : '⏳'}
+          </div>
+          <div className="eyebrow center">{t('Member area', 'Περιοχή μελών')}</div>
+          <h2 className="h2 mt8">
+            {rejected
+              ? t('Account not approved', 'Ο λογαριασμός δεν εγκρίθηκε')
+              : t('Pending approval', 'Σε αναμονή έγκρισης')}
+          </h2>
+          <p className="lead mt8" style={{ margin: '8px auto 0' }}>
+            {rejected
+              ? t(
+                  'Your account was not approved for B2B access. If you think this is a mistake, contact partners@sls.gr.',
+                  'Ο λογαριασμός σας δεν εγκρίθηκε για B2B πρόσβαση. Αν πρόκειται για λάθος, επικοινωνήστε στο partners@sls.gr.',
+                )
+              : t(
+                  "Thanks for registering! An admin is reviewing your account. Once approved, pricing, cart and ordering unlock — you'll be able to see B2B prices right away.",
+                  'Ευχαριστούμε για την εγγραφή! Ένας διαχειριστής ελέγχει τον λογαριασμό σας. Μόλις εγκριθεί, ξεκλειδώνουν τιμές, καλάθι και παραγγελίες.',
+                )}
+          </p>
+          <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 24 }}>
+            <Link className="btn btn-primary" to="/catalogue">
+              {t('Browse catalogue', 'Δείτε κατάλογο')}
+            </Link>
+            <Link className="btn btn-ghost" to="/">
+              {t('Back to home', 'Επιστροφή στην αρχική')}
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
   )
 }

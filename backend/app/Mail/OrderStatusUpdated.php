@@ -13,7 +13,11 @@ class OrderStatusUpdated extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public function __construct(public Order $order, public string $previousStatus) {}
+    public function __construct(
+        public Order $order,
+        public string $previousStatus,
+        public ?string $note = null,
+    ) {}
 
     public function envelope(): Envelope
     {
@@ -29,6 +33,7 @@ class OrderStatusUpdated extends Mailable
             with: [
                 'order' => $this->order,
                 'statusLabel' => $this->statusLabel(),
+                'note' => $this->note,
             ],
         );
     }

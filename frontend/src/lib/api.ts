@@ -16,12 +16,17 @@ export function setAuthToken(token: string | null) {
 
 // ── Auth ──────────────────────────────────────────────────────────
 export type Role = 'admin' | 'customer'
+export type MemberStatus = 'pending' | 'approved' | 'rejected'
 export type AuthUser = {
   id: number
   name: string
   email: string
   role: Role
   company: string | null
+  status: MemberStatus
+  // Admin-gated: true once an admin approves the account (always true for admins).
+  // Pricing, cart and ordering stay locked until this is true.
+  approved: boolean
 }
 
 export async function login(email: string, password: string) {
@@ -46,6 +51,21 @@ export async function fetchMe() {
 
 export async function logoutApi() {
   await api.post('/logout')
+}
+
+export async function forgotPassword(email: string) {
+  const { data } = await api.post<{ message: string }>('/forgot-password', { email })
+  return data
+}
+
+export async function resetPassword(payload: {
+  token: string
+  email: string
+  password: string
+  password_confirmation: string
+}) {
+  const { data } = await api.post<{ message: string }>('/reset-password', payload)
+  return data
 }
 
 export type InquiryPayload = {
@@ -78,10 +98,29 @@ export async function fetchServices() {
   return data.data
 }
 
+// ── Pagination ────────────────────────────────────────────────────
+export type Paginated<T> = { items: T[]; page: number; lastPage: number; total: number }
+
+type PageMeta = { current_page?: number; last_page?: number; total?: number }
+
+function toPage<T>(data: { data: T[]; meta?: PageMeta }): Paginated<T> {
+  return {
+    items: data.data,
+    page: data.meta?.current_page ?? 1,
+    lastPage: data.meta?.last_page ?? 1,
+    total: data.meta?.total ?? data.data.length,
+  }
+}
+
 // ── Products ──────────────────────────────────────────────────────
-export async function fetchProducts(params?: { category?: Category; featured?: boolean }) {
-  const { data } = await api.get<{ data: Product[] }>('/products', { params })
-  return data.data
+export async function fetchProducts(params?: {
+  category?: Category
+  featured?: boolean
+  page?: number
+  per_page?: number
+}) {
+  const { data } = await api.get<{ data: Product[]; meta?: PageMeta }>('/products', { params })
+  return toPage(data)
 }
 
 export async function fetchProduct(slug: string) {
@@ -103,7 +142,6 @@ export type ProductInput = {
   spec_table: Spec[]
   modes: Mode[]
   buy?: { price: string; unit: LS; leadTime: LS } | null
-  rent?: { price: string; unit: LS } | null
   featured: boolean
 }
 
@@ -121,8 +159,8 @@ export async function deleteProduct(slug: string) {
   await api.delete(`/products/${slug}`)
 }
 
-// ── Orders / quotes / rentals ─────────────────────────────────────
-export type OrderType = 'quote' | 'order' | 'rental'
+// ── Orders / quotes ───────────────────────────────────────────────
+export type OrderType = 'quote' | 'order'
 export type OrderStatus =
   | 'pending'
   | 'quoted'
@@ -136,9 +174,14 @@ export type OrderItem = {
   name: string
   mode?: Mode
   qty?: number
-  from?: string
-  to?: string
   price?: string
+}
+
+export type StatusEvent = {
+  status: OrderStatus
+  note: string | null
+  at: string
+  by: string
 }
 
 export type Order = {
@@ -152,6 +195,7 @@ export type Order = {
   items: OrderItem[]
   total: string | null
   notes: string | null
+  status_history: StatusEvent[]
   created_at: string
 }
 
@@ -160,12 +204,30 @@ export async function createOrder(payload: { type: OrderType; items: OrderItem[]
   return data.data
 }
 
-export async function fetchOrders(params?: { type?: OrderType; status?: OrderStatus }) {
-  const { data } = await api.get<{ data: Order[] }>('/orders', { params })
+export async function fetchOrders(params?: {
+  type?: OrderType
+  status?: OrderStatus
+  page?: number
+  per_page?: number
+}) {
+  const { data } = await api.get<{ data: Order[]; meta?: PageMeta }>('/orders', { params })
+  return toPage(data)
+}
+
+export async function fetchOrder(id: number | string) {
+  const { data } = await api.get<{ data: Order }>(`/orders/${id}`)
   return data.data
 }
 
-export async function updateOrder(id: number, patch: { status?: OrderStatus; total?: string | null }) {
+export async function cancelOrder(id: number) {
+  const { data } = await api.post<{ data: Order }>(`/orders/${id}/cancel`)
+  return data.data
+}
+
+export async function updateOrder(
+  id: number,
+  patch: { status?: OrderStatus; total?: string | null; note?: string; items?: OrderItem[] },
+) {
   const { data } = await api.patch<{ data: Order }>(`/orders/${id}`, patch)
   return data.data
 }
@@ -215,6 +277,34 @@ export async function updatePartnerApplication(
   const { data } = await api.patch<{ data: PartnerApplication }>(`/partner-applications/${id}`, {
     status,
   })
+  return data.data
+}
+
+// ── Members (registration approvals) ──────────────────────────────
+export type Member = {
+  id: number
+  name: string
+  email: string
+  company: string | null
+  status: MemberStatus
+  created_at: string
+}
+
+export type MemberCounts = {
+  pending: number
+  approved: number
+  rejected: number
+}
+
+export async function fetchMembers(params?: { status?: MemberStatus; page?: number }) {
+  const { data } = await api.get<{ data: Member[]; counts: MemberCounts; meta?: PageMeta }>('/users', {
+    params,
+  })
+  return { ...toPage(data), counts: data.counts }
+}
+
+export async function updateMember(id: number, status: MemberStatus) {
+  const { data } = await api.patch<{ data: Member }>(`/users/${id}`, { status })
   return data.data
 }
 

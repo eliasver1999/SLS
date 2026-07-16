@@ -4,14 +4,15 @@
 
 export type LS = { en: string; el: string }
 export type Spec = { label: LS; value: LS }
-export type Mode = 'buy' | 'rent'
+// Rent has been removed for now — products are buy / quote only.
+export type Mode = 'buy'
 export type Category = 'screens' | 'lighting' | 'sound' | 'package'
 
 export type Product = {
   slug: string
   name: string
   category: Category
-  placementKey: 'indoor' | 'outdoor' | 'rental' | 'lighting' | 'sound' | 'package'
+  placementKey: 'indoor' | 'outdoor' | 'lighting' | 'sound' | 'package'
   tag: LS
   image: string
   thumbs: string[]
@@ -20,7 +21,6 @@ export type Product = {
   specTable: Spec[]
   modes: Mode[]
   buy?: { price: string; unit: LS; leadTime: LS }
-  rent?: { price: string; unit: LS }
   featured?: boolean
 }
 
@@ -57,13 +57,12 @@ export const PRODUCTS: Product[] = [
       { label: L('Placement', 'Τοποθέτηση'), value: L('Indoor', 'Εσωτερικό') },
       { label: L('Warranty', 'Εγγύηση'), value: L('2 years', '2 έτη') },
     ],
-    modes: ['buy', 'rent'],
+    modes: ['buy'],
     buy: {
       price: '€ 6,900',
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες'),
     },
-    rent: { price: '€ 55', unit: L('/ panel / day', '/ panel / ημέρα') },
   },
   {
     slug: 'titan-p39',
@@ -90,25 +89,24 @@ export const PRODUCTS: Product[] = [
       { label: L('Placement', 'Τοποθέτηση'), value: L('Outdoor', 'Εξωτερικό') },
       { label: L('Warranty', 'Εγγύηση'), value: L('2 years', '2 έτη') },
     ],
-    modes: ['buy', 'rent'],
+    modes: ['buy'],
     buy: {
       price: '€ 8,400',
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες'),
     },
-    rent: { price: '€ 70', unit: L('/ panel / day', '/ panel / ημέρα') },
   },
   {
     slug: 'flex-p29',
     name: 'Flex P2.9',
     category: 'screens',
-    placementKey: 'rental',
-    tag: L('Rental', 'Ενοικ.'),
+    placementKey: 'indoor',
+    tag: L('Indoor', 'Εσωτ.'),
     image: '/assets/catalogue.jpg',
     thumbs: ['/assets/catalogue.jpg', '/assets/led-wall.jpg'],
     blurb: L(
-      'Curvable rental panel for creative stage builds — fast to rig, in stock and available by the day.',
-      'Καμπυλούμενο panel ενοικίασης για δημιουργικές σκηνές — γρήγορο rigging, διαθέσιμο με την ημέρα.',
+      'Curvable panel for creative stage builds — fast to rig and in stock for quick turnarounds.',
+      'Καμπυλούμενο panel για δημιουργικές σκηνές — γρήγορο rigging και άμεσα διαθέσιμο.',
     ),
     cardSpecs: [
       { label: L('Pitch', 'Pitch'), value: L('2.9 mm', '2.9 mm') },
@@ -119,11 +117,10 @@ export const PRODUCTS: Product[] = [
       { label: L('Pixel pitch', 'Pixel pitch'), value: L('2.9 mm', '2.9 mm') },
       { label: L('Curve', 'Καμπύλη'), value: L('±15°', '±15°') },
       { label: L('Panel size', 'Μέγεθος panel'), value: L('500 × 1000 mm', '500 × 1000 mm') },
-      { label: L('Placement', 'Τοποθέτηση'), value: L('Indoor / rental', 'Εσωτ. / ενοικ.') },
+      { label: L('Placement', 'Τοποθέτηση'), value: L('Indoor', 'Εσωτερικό') },
       { label: L('Availability', 'Διαθεσιμότητα'), value: L('In stock', 'Διαθέσιμο') },
     ],
-    modes: ['rent', 'buy'],
-    rent: { price: '€ 55', unit: L('/ panel / day', '/ panel / ημέρα') },
+    modes: ['buy'],
     buy: {
       price: '€ 5,400',
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
@@ -154,8 +151,7 @@ export const PRODUCTS: Product[] = [
       { label: L('Weight', 'Βάρος'), value: L('19 kg', '19 kg') },
       { label: L('Placement', 'Τοποθέτηση'), value: L('Stage / event', 'Σκηνή / εκδήλωση') },
     ],
-    modes: ['rent', 'buy'],
-    rent: { price: '€ 45', unit: L('/ day rental', '/ ημέρα ενοικ.') },
+    modes: ['buy'],
     buy: {
       price: '€ 1,900',
       unit: L('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'),
@@ -186,13 +182,12 @@ export const PRODUCTS: Product[] = [
       { label: L('Amp', 'Ενισχυτής'), value: L('Bi-amped', 'Bi-amped') },
       { label: L('Placement', 'Τοποθέτηση'), value: L('Live / venue', 'Live / χώρος') },
     ],
-    modes: ['buy', 'rent'],
+    modes: ['buy'],
     buy: {
       price: '€ 3,200',
       unit: L('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες'),
     },
-    rent: { price: '€ 120', unit: L('/ unit / day', '/ μονάδα / ημέρα') },
   },
   {
     slug: 'stage-kit-s',
@@ -203,8 +198,8 @@ export const PRODUCTS: Product[] = [
     image: '/assets/one-partner.jpg',
     thumbs: ['/assets/one-partner.jpg', '/assets/hero-stage.jpg'],
     blurb: L(
-      'A complete small-stage package — screen, lighting and sound in one accountable rental with setup.',
-      'Ολοκληρωμένο πακέτο μικρής σκηνής — οθόνη, φωτισμός και ήχος σε μία ενοικίαση με εγκατάσταση.',
+      'A complete small-stage package — screen, lighting and sound supplied and set up as one accountable job.',
+      'Ολοκληρωμένο πακέτο μικρής σκηνής — οθόνη, φωτισμός και ήχος με ενιαία παράδοση και εγκατάσταση.',
     ),
     cardSpecs: [
       { label: L('Screen', 'Οθόνη'), value: L('12 m²', '12 m²') },
@@ -217,8 +212,8 @@ export const PRODUCTS: Product[] = [
       { label: L('Sound', 'Ήχος'), value: L('2 kW PA', '2 kW PA') },
       { label: L('Setup', 'Εγκατάσταση'), value: L('Delivery + operator', 'Παράδοση + χειριστής') },
     ],
-    modes: ['rent'],
-    rent: { price: '€ 1,450', unit: L('/ event / day', '/ εκδήλωση / ημέρα') },
+    // Package price is scoped per event — quote only, no list price.
+    modes: [],
   },
 ]
 

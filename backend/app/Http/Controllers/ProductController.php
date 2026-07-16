@@ -23,7 +23,9 @@ class ProductController extends Controller
             $query->where('featured', true);
         }
 
-        return ProductResource::collection($query->get());
+        return ProductResource::collection(
+            $query->paginate($request->integer('per_page', 24))
+        );
     }
 
     public function show(string $slug)

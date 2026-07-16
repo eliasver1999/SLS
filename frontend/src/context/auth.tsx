@@ -17,18 +17,20 @@ import {
 } from '../lib/api'
 
 /**
- * Real token auth (Laravel Sanctum). Roles come from the server:
+ * Real token auth (Laravel Sanctum). Roles + approval come from the server:
  *  - guest    → not signed in; specs open, pricing hidden
- *  - customer → signed-in partner; pricing + booking unlocked (member area)
- *  - admin    → member approvals + product management
+ *  - pending  → signed in but awaiting admin approval; still specs-only, no cart
+ *  - approved → approved partner; pricing + cart + ordering unlocked
+ *  - admin    → member approvals + product management (always approved)
  *
- * body[data-auth] is kept in sync ('guest' | 'approved') so the ported CSS
- * pricing gating (.guest-only / .approved-only) works verbatim.
+ * body[data-auth] is kept in sync ('guest' | 'pending' | 'approved') so the
+ * CSS pricing gating (.guest-only / .approved-only / .pending-only) works.
  */
 type AuthValue = {
   user: AuthUser | null
   loading: boolean
   isAuthenticated: boolean
+  isApproved: boolean
   isAdmin: boolean
   login: (email: string, password: string) => Promise<AuthUser>
   register: (p: { name: string; email: string; password: string; company?: string }) => Promise<AuthUser>
@@ -76,9 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false))
   }, [])
 
-  // Mirror sign-in state to body[data-auth] for the CSS pricing gate.
+  // Mirror approval state to body[data-auth] for the CSS pricing gate.
+  // Pending members are treated like guests for pricing (specs only).
   useEffect(() => {
-    document.body.dataset.auth = user ? 'approved' : 'guest'
+    document.body.dataset.auth = !user ? 'guest' : user.approved ? 'approved' : 'pending'
   }, [user])
 
   const persist = useCallback((token: string, u: AuthUser) => {
@@ -123,6 +126,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       loading,
       isAuthenticated: !!user,
+      isApproved: !!user?.approved,
       isAdmin: user?.role === 'admin',
       login,
       register,

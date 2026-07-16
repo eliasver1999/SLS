@@ -76,8 +76,8 @@ export default function Apply() {
           </h1>
           <p className="lead mt8">
             {t(
-              'Approved businesses see pricing, buy made-to-order and book rentals. Vetting takes ~1 business day.',
-              'Οι εγκεκριμένες επιχειρήσεις βλέπουν τιμές, αγοράζουν κατά παραγγελία και κάνουν κρατήσεις. Ο έλεγχος διαρκεί ~1 εργάσιμη.',
+              'Approved businesses see pricing and buy made-to-order. Vetting takes ~1 business day.',
+              'Οι εγκεκριμένες επιχειρήσεις βλέπουν τιμές και αγοράζουν κατά παραγγελία. Ο έλεγχος διαρκεί ~1 εργάσιμη.',
             )}
           </p>
         </div>
@@ -127,7 +127,7 @@ export default function Apply() {
                 </div>
               </div>
               <div className="field">
-                <label>{t('What do you buy / rent?', 'Τι αγοράζετε / ενοικιάζετε;')}</label>
+                <label>{t('What do you buy?', 'Τι αγοράζετε;')}</label>
                 <div>
                   <span
                     className={`chip${chips.screens ? ' on' : ''}`}
@@ -203,7 +203,7 @@ export default function Apply() {
                 <div className="node">{t('2 · Admin reviews (~1 day)', '2 · Έλεγχος admin (~1 ημέρα)')}</div>
                 <div className="node">{t('3 · Emailed the outcome', '3 · Ενημέρωση με email')}</div>
                 <div className="node">
-                  {t('4 · Pricing & booking unlocked', '4 · Ξεκλείδωμα τιμών & κρατήσεων')}
+                  {t('4 · Pricing unlocked', '4 · Ξεκλείδωμα τιμών')}
                 </div>
               </div>
               <p className="muted mt24" style={{ fontSize: 13 }}>

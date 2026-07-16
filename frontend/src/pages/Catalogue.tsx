@@ -1,26 +1,50 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import ProductCard from '../components/ProductCard'
-import { PRODUCTS, type Category, type Mode, type Product } from '../data/products'
+import { PRODUCTS, type Category, type Product } from '../data/products'
 import { fetchProducts } from '../lib/api'
 
 type TypeFilter = 'all' | Category
 
 export default function Catalogue() {
   const { t } = useLang()
-  const [params] = useSearchParams()
-  const [mode, setMode] = useState<Mode>(params.get('mode') === 'rent' ? 'rent' : 'buy')
   const [type, setType] = useState<TypeFilter>('all')
 
   // Load from the API; the bundled list is the initial paint + offline fallback.
   const [all, setAll] = useState<Product[]>(PRODUCTS)
+  const [page, setPage] = useState(1)
+  const [lastPage, setLastPage] = useState(1)
+  const [total, setTotal] = useState(PRODUCTS.length)
+  const [loadingMore, setLoadingMore] = useState(false)
+
   useEffect(() => {
-    fetchProducts()
-      .then((p) => p.length && setAll(p))
+    fetchProducts({ page: 1 })
+      .then((res) => {
+        if (res.items.length) {
+          setAll(res.items)
+          setPage(res.page)
+          setLastPage(res.lastPage)
+          setTotal(res.total)
+        }
+      })
       .catch(() => {})
   }, [])
+
+  async function loadMore() {
+    setLoadingMore(true)
+    try {
+      const res = await fetchProducts({ page: page + 1 })
+      setAll((prev) => [...prev, ...res.items])
+      setPage(res.page)
+      setLastPage(res.lastPage)
+      setTotal(res.total)
+    } catch {
+      /* ignore */
+    } finally {
+      setLoadingMore(false)
+    }
+  }
 
   const shown = useMemo(
     () => all.filter((p) => (type === 'all' ? true : p.category === type)),
@@ -51,32 +75,48 @@ export default function Catalogue() {
               <div className="eyebrow">{t('Catalogue', 'Κατάλογος')}</div>
               <h1 className="h2 mt8">{t('Screens, lighting & sound', 'Οθόνες, φωτισμός & ήχος')}</h1>
             </div>
-            <div className="toggle">
-              <button className={mode === 'buy' ? 'on' : undefined} onClick={() => setMode('buy')}>
-                {t('Buy', 'Αγορά')}
-              </button>
-              <button className={mode === 'rent' ? 'on' : undefined} onClick={() => setMode('rent')}>
-                {t('Rent', 'Ενοικίαση')}
-              </button>
-            </div>
           </div>
 
           {/* auth banners — CSS shows the right one via body[data-auth] */}
-          <div className="notice mt16 guest-only" style={{ marginTop: 18 }}>
+          <div className="notice mt16 guest-only guest-strict" style={{ marginTop: 18 }}>
             <div className="ic">🔒</div>
             <div>
               <b>{t('Pricing is hidden for guests.', 'Οι τιμές είναι κρυφές για επισκέπτες.')}</b>
               <span className="muted">
                 {t(
-                  ' Specs are open to all — sign in or apply for approved B2B access to see pricing, buy and rent.',
-                  ' Οι προδιαγραφές είναι ανοιχτές — συνδεθείτε ή κάντε αίτηση για εγκεκριμένη B2B πρόσβαση.',
+                  ' Specs are open to all — register or apply for approved B2B access to see pricing and buy.',
+                  ' Οι προδιαγραφές είναι ανοιχτές — εγγραφείτε ή κάντε αίτηση για εγκεκριμένη B2B πρόσβαση.',
                 )}
               </span>
               <div className="mt8">
-                <Link className="btn btn-primary btn-sm" to="/apply">
+                <Link className="btn btn-primary btn-sm" to="/register">
+                  {t('Create an account', 'Δημιουργία λογαριασμού')}
+                </Link>{' '}
+                <Link className="btn btn-ghost btn-sm" to="/apply">
                   {t('Apply for access', 'Αίτηση πρόσβασης')}
                 </Link>
               </div>
+            </div>
+          </div>
+          <div
+            className="notice mt16 pending-only"
+            style={{
+              marginTop: 18,
+              borderColor: 'rgba(255,206,84,.35)',
+              background: 'rgba(255,206,84,.08)',
+            }}
+          >
+            <div className="ic" style={{ color: '#ffce54' }}>
+              ⏳
+            </div>
+            <div>
+              <b>{t('Your account is pending approval.', 'Ο λογαριασμός σας είναι σε αναμονή έγκρισης.')}</b>
+              <span className="muted">
+                {t(
+                  ' Specs are open — an admin will approve your account shortly, then pricing and ordering unlock.',
+                  ' Οι προδιαγραφές είναι ανοιχτές — μόλις εγκριθεί ο λογαριασμός σας ξεκλειδώνουν τιμές και παραγγελίες.',
+                )}
+              </span>
             </div>
           </div>
           <div
@@ -135,21 +175,6 @@ export default function Catalogue() {
               <span className="chip on">Indoor</span>
               <span className="chip">Outdoor</span>
             </div>
-            <h4>{t('Mode', 'Λειτουργία')}</h4>
-            <div>
-              <span
-                className={`chip${mode === 'buy' ? ' on' : ''}`}
-                onClick={() => setMode('buy')}
-              >
-                {t('Buy', 'Αγορά')}
-              </span>
-              <span
-                className={`chip${mode === 'rent' ? ' on' : ''}`}
-                onClick={() => setMode('rent')}
-              >
-                {t('Rent', 'Ενοικίαση')}
-              </span>
-            </div>
             <h4>{t('Pixel pitch', 'Pixel pitch')}</h4>
             <label className="check on">
               <i /> P1.5 – P2.6
@@ -176,15 +201,22 @@ export default function Catalogue() {
           <div>
             <div className="muted" style={{ fontSize: 14, marginBottom: 16 }}>
               {t(
-                `Showing ${shown.length} of 48 products`,
-                `Εμφάνιση ${shown.length} από 48 προϊόντα`,
+                `Showing ${shown.length} of ${total} products`,
+                `Εμφάνιση ${shown.length} από ${total} προϊόντα`,
               )}
             </div>
             <div className="grid g3">
               {shown.map((p) => (
-                <ProductCard key={p.slug} product={p} mode={mode} />
+                <ProductCard key={p.slug} product={p} />
               ))}
             </div>
+            {type === 'all' && page < lastPage && (
+              <div style={{ textAlign: 'center', marginTop: 24 }}>
+                <button className="btn btn-ghost" onClick={loadMore} disabled={loadingMore}>
+                  {loadingMore ? t('Loading…', 'Φόρτωση…') : t('Load more', 'Περισσότερα')}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </section>

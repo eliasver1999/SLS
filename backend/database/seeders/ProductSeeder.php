@@ -59,9 +59,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Placement', 'Τοποθέτηση', 'Indoor', 'Εσωτερικό'),
                     $this->spec('Warranty', 'Εγγύηση', '2 years', '2 έτη'),
                 ],
-                'modes' => ['buy', 'rent'],
+                'modes' => ['buy'],
                 'buy' => ['price' => '€ 6,900', 'unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες')],
-                'rent' => ['price' => '€ 55', 'unit' => $this->ls('/ panel / day', '/ panel / ημέρα')],
             ],
             [
                 'slug' => 'titan-p39',
@@ -89,22 +88,21 @@ class ProductSeeder extends Seeder
                     $this->spec('Placement', 'Τοποθέτηση', 'Outdoor', 'Εξωτερικό'),
                     $this->spec('Warranty', 'Εγγύηση', '2 years', '2 έτη'),
                 ],
-                'modes' => ['buy', 'rent'],
+                'modes' => ['buy'],
                 'buy' => ['price' => '€ 8,400', 'unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες')],
-                'rent' => ['price' => '€ 70', 'unit' => $this->ls('/ panel / day', '/ panel / ημέρα')],
             ],
             [
                 'slug' => 'flex-p29',
                 'name' => 'Flex P2.9',
                 'category' => 'screens',
-                'placement_key' => 'rental',
+                'placement_key' => 'indoor',
                 'image' => '/assets/catalogue.jpg',
                 'featured' => false,
-                'tag' => $this->ls('Rental', 'Ενοικ.'),
+                'tag' => $this->ls('Indoor', 'Εσωτ.'),
                 'thumbs' => ['/assets/catalogue.jpg', '/assets/led-wall.jpg'],
                 'blurb' => $this->ls(
-                    'Curvable rental panel for creative stage builds — fast to rig, in stock and available by the day.',
-                    'Καμπυλούμενο panel ενοικίασης για δημιουργικές σκηνές — γρήγορο rigging, διαθέσιμο με την ημέρα.'
+                    'Curvable panel for creative stage builds — fast to rig and in stock for quick turnarounds.',
+                    'Καμπυλούμενο panel για δημιουργικές σκηνές — γρήγορο rigging και άμεσα διαθέσιμο.'
                 ),
                 'card_specs' => [
                     $this->spec('Pitch', 'Pitch', '2.9 mm', '2.9 mm'),
@@ -115,11 +113,10 @@ class ProductSeeder extends Seeder
                     $this->spec('Pixel pitch', 'Pixel pitch', '2.9 mm', '2.9 mm'),
                     $this->spec('Curve', 'Καμπύλη', '±15°', '±15°'),
                     $this->spec('Panel size', 'Μέγεθος panel', '500 × 1000 mm', '500 × 1000 mm'),
-                    $this->spec('Placement', 'Τοποθέτηση', 'Indoor / rental', 'Εσωτ. / ενοικ.'),
+                    $this->spec('Placement', 'Τοποθέτηση', 'Indoor', 'Εσωτερικό'),
                     $this->spec('Availability', 'Διαθεσιμότητα', 'In stock', 'Διαθέσιμο'),
                 ],
-                'modes' => ['rent', 'buy'],
-                'rent' => ['price' => '€ 55', 'unit' => $this->ls('/ panel / day', '/ panel / ημέρα')],
+                'modes' => ['buy'],
                 'buy' => ['price' => '€ 5,400', 'unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('In stock · ships in 1 week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα')],
             ],
             [
@@ -147,8 +144,7 @@ class ProductSeeder extends Seeder
                     $this->spec('Weight', 'Βάρος', '19 kg', '19 kg'),
                     $this->spec('Placement', 'Τοποθέτηση', 'Stage / event', 'Σκηνή / εκδήλωση'),
                 ],
-                'modes' => ['rent', 'buy'],
-                'rent' => ['price' => '€ 45', 'unit' => $this->ls('/ day rental', '/ ημέρα ενοικ.')],
+                'modes' => ['buy'],
                 'buy' => ['price' => '€ 1,900', 'unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
             ],
             [
@@ -176,9 +172,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Amp', 'Ενισχυτής', 'Bi-amped', 'Bi-amped'),
                     $this->spec('Placement', 'Τοποθέτηση', 'Live / venue', 'Live / χώρος'),
                 ],
-                'modes' => ['buy', 'rent'],
+                'modes' => ['buy'],
                 'buy' => ['price' => '€ 3,200', 'unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
-                'rent' => ['price' => '€ 120', 'unit' => $this->ls('/ unit / day', '/ μονάδα / ημέρα')],
             ],
             [
                 'slug' => 'stage-kit-s',
@@ -190,8 +185,8 @@ class ProductSeeder extends Seeder
                 'tag' => $this->ls('Package', 'Πακέτο'),
                 'thumbs' => ['/assets/one-partner.jpg', '/assets/hero-stage.jpg'],
                 'blurb' => $this->ls(
-                    'A complete small-stage package — screen, lighting and sound in one accountable rental with setup.',
-                    'Ολοκληρωμένο πακέτο μικρής σκηνής — οθόνη, φωτισμός και ήχος σε μία ενοικίαση με εγκατάσταση.'
+                    'A complete small-stage package — screen, lighting and sound supplied and set up as one accountable job.',
+                    'Ολοκληρωμένο πακέτο μικρής σκηνής — οθόνη, φωτισμός και ήχος με ενιαία παράδοση και εγκατάσταση.'
                 ),
                 'card_specs' => [
                     $this->spec('Screen', 'Οθόνη', '12 m²', '12 m²'),
@@ -204,8 +199,9 @@ class ProductSeeder extends Seeder
                     $this->spec('Sound', 'Ήχος', '2 kW PA', '2 kW PA'),
                     $this->spec('Setup', 'Εγκατάσταση', 'Delivery + operator', 'Παράδοση + χειριστής'),
                 ],
-                'modes' => ['rent'],
-                'rent' => ['price' => '€ 1,450', 'unit' => $this->ls('/ event / day', '/ εκδήλωση / ημέρα')],
+                // Package price is scoped per event — quote only, no list price.
+                'modes' => [],
+                'buy' => null,
             ],
         ];
     }

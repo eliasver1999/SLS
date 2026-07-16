@@ -65,11 +65,11 @@ export default function Solutions() {
               </h2>
               <p className="muted mt8">
                 {t(
-                  'Indoor, outdoor and rental. Fine pixel pitches, high brightness, seamless modular builds.',
-                  'Εσωτερικού, εξωτερικού χώρου και ενοικίασης. Λεπτό pixel pitch, υψηλή φωτεινότητα, modular κατασκευές κάθε μεγέθους.',
+                  'Indoor and outdoor. Fine pixel pitches, high brightness, seamless modular builds.',
+                  'Εσωτερικού και εξωτερικού χώρου. Λεπτό pixel pitch, υψηλή φωτεινότητα, modular κατασκευές κάθε μεγέθους.',
                 )}
               </p>
-              <ChipRow chips={['Indoor', 'Outdoor', t('Rental', 'Ενοικίαση'), 'P1.5–P10']} />
+              <ChipRow chips={['Indoor', 'Outdoor', 'P1.5–P10']} />
               <Link className="btn btn-primary btn-sm mt24" to="/catalogue">
                 {t('Browse screens →', 'Δείτε οθόνες →')}
               </Link>

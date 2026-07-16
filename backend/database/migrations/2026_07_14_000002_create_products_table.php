@@ -13,16 +13,15 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->string('name');
             $table->string('category');       // screens | lighting | sound | package
-            $table->string('placement_key');  // indoor | outdoor | rental | lighting | sound | package
+            $table->string('placement_key');  // indoor | outdoor | lighting | sound | package
             $table->string('image');
             $table->json('tag');              // {en, el}
             $table->json('blurb');            // {en, el}
             $table->json('thumbs');           // [string]
             $table->json('card_specs');       // [{label:{en,el}, value:{en,el}}]
             $table->json('spec_table');       // [{label:{en,el}, value:{en,el}}]
-            $table->json('modes');            // ["buy","rent"]
+            $table->json('modes');            // ["buy"]
             $table->json('buy')->nullable();  // {price, unit:{en,el}, leadTime:{en,el}}
-            $table->json('rent')->nullable(); // {price, unit:{en,el}}
             $table->boolean('featured')->default(false);
             $table->unsignedInteger('sort')->default(0);
             $table->timestamps();

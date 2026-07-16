@@ -9,9 +9,13 @@ import About from './pages/About'
 import Projects from './pages/Projects'
 import Contact from './pages/Contact'
 import OrderReceived from './pages/OrderReceived'
+import OrderDetail from './pages/OrderDetail'
 import Dashboard from './pages/Dashboard'
 import Admin from './pages/Admin'
 import Login from './pages/Login'
+import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import UIKit from './pages/UIKit'
 import Sitemap from './pages/Sitemap'
 import { RequireAdmin, RequireAuth } from './components/Guards'
@@ -31,11 +35,22 @@ export default function App() {
           <Route path="contact" element={<Contact />} />
           <Route path="order-received" element={<OrderReceived />} />
           <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="forgot-password" element={<ForgotPassword />} />
+          <Route path="reset-password" element={<ResetPassword />} />
           <Route
             path="dashboard"
             element={
               <RequireAuth>
                 <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="orders/:id"
+            element={
+              <RequireAuth>
+                <OrderDetail />
               </RequireAuth>
             }
           />

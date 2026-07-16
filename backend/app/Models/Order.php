@@ -10,10 +10,12 @@ class Order extends Model
     protected $fillable = [
         'reference', 'type', 'status', 'user_id',
         'contact_name', 'contact_email', 'company', 'items', 'total', 'notes',
+        'status_history',
     ];
 
     protected $casts = [
         'items' => 'array',
+        'status_history' => 'array',
     ];
 
     protected $attributes = [

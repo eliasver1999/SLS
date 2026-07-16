@@ -19,8 +19,16 @@ Hi {{ $order->contact_name }}, the status of your {{ $order->type }} is now:
 
 {{ $messages[$order->status] ?? 'Your request has been updated.' }}
 
+@if (!empty($note))
+> **A note from our team:** {{ $note }}
+@endif
+
+@if ($order->total)
+**Total (ex VAT):** {{ $order->total }}
+@endif
+
 @if (in_array($order->status, ['confirmed', 'in_production']) && $order->type !== 'quote')
-As a reminder, payment is by bank transfer (IBAN) against our invoice — a {{ config('sls.deposit_percent') }}% deposit with the balance before {{ $order->type === 'rental' ? 'delivery' : 'dispatch' }}. Reference **{{ $order->reference }}**.
+As a reminder, payment is by bank transfer (IBAN) against our invoice — a {{ config('sls.deposit_percent') }}% deposit with the balance before dispatch. Reference **{{ $order->reference }}**.
 @endif
 
 Questions? Contact {{ config('sls.sales_email') }}.

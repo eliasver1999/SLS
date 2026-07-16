@@ -11,7 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-#[Fillable(['name', 'email', 'password', 'role', 'company'])]
+#[Fillable(['name', 'email', 'password', 'role', 'company', 'status'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -21,6 +21,15 @@ class User extends Authenticatable
     public function isAdmin(): bool
     {
         return $this->role === 'admin';
+    }
+
+    /**
+     * Approved users (and admins) can see pricing, use the cart and place
+     * orders. New registrations stay pending until an admin approves them.
+     */
+    public function isApproved(): bool
+    {
+        return $this->isAdmin() || $this->status === 'approved';
     }
 
     /**

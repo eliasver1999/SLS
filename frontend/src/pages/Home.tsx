@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
-import Eq, { HERO_EQ, BAND_EQ } from '../components/Eq'
+import Eq, { HERO_EQ } from '../components/Eq'
 import ProductCard from '../components/ProductCard'
 import { FEATURED, type Product } from '../data/products'
 import { fetchProducts } from '../lib/api'
@@ -13,7 +13,7 @@ export default function Home() {
   const [featured, setFeatured] = useState<Product[]>(FEATURED)
   useEffect(() => {
     fetchProducts({ featured: true })
-      .then((p) => p.length && setFeatured(p))
+      .then((res) => res.items.length && setFeatured(res.items))
       .catch(() => {})
   }, [])
 
@@ -34,8 +34,8 @@ export default function Home() {
             </h1>
             <p className="lead">
               {t(
-                'Buy or rent premium LED screens, stage lighting and professional sound — supplied direct and set up as a full service, with local accountability.',
-                'Αγοράστε ή ενοικιάστε premium LED οθόνες, φωτισμό σκηνής και επαγγελματικό ήχο — απευθείας προμήθεια και ολοκληρωμένη εγκατάσταση, με τοπική υπευθυνότητα.',
+                'Premium LED screens, stage lighting and professional sound — supplied direct and set up as a full service, with local accountability.',
+                'Premium LED οθόνες, φωτισμός σκηνής και επαγγελματικός ήχος — απευθείας προμήθεια και ολοκληρωμένη εγκατάσταση, με τοπική υπευθυνότητα.',
               )}
             </p>
             <div className="cta-row">
@@ -109,8 +109,8 @@ export default function Home() {
               <h3>{t('Screens', 'Οθόνες')}</h3>
               <p>
                 {t(
-                  'LED screens & video walls — indoor, outdoor and rental. Fine pixel pitches, high brightness.',
-                  'LED οθόνες & video walls — εσωτερικού, εξωτερικού χώρου και ενοικίασης. Λεπτό pixel pitch, υψηλή φωτεινότητα.',
+                  'LED screens & video walls — indoor and outdoor. Fine pixel pitches, high brightness.',
+                  'LED οθόνες & video walls — εσωτερικού και εξωτερικού χώρου. Λεπτό pixel pitch, υψηλή φωτεινότητα.',
                 )}
               </p>
             </div>
@@ -211,28 +211,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* RENTALS BAND */}
-      <section className="section-sm">
-        <div className="container">
-          <div className="band">
-            <Eq heights={BAND_EQ} lg />
-            <div className="eyebrow">{t('Rentals', 'Ενοικιάσεις')}</div>
-            <h2 className="h2 mt8">
-              {t('Rent for your next event', 'Ενοικιάστε για την επόμενη εκδήλωσή σας')}
-            </h2>
-            <p className="lead mt8">
-              {t(
-                'Date-based availability, delivery and on-site setup. Screens, lighting and sound by the day.',
-                'Διαθεσιμότητα βάσει ημερομηνιών, παράδοση και επιτόπου εγκατάσταση.',
-              )}
-            </p>
-            <Link className="btn btn-primary mt24" to="/product/flex-p29?mode=rent">
-              {t('Check availability', 'Έλεγχος διαθεσιμότητας')}
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* PROJECTS */}
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container">
@@ -266,12 +244,12 @@ export default function Home() {
           >
             <div className="eyebrow center">{t('Become a Partner', 'Γίνετε Συνεργάτης')}</div>
             <h2 className="h2 mt8" style={{ margin: '0 auto' }}>
-              {t('Unlock B2B pricing & booking', 'Ξεκλειδώστε B2B τιμές & κρατήσεις')}
+              {t('Unlock B2B pricing', 'Ξεκλειδώστε B2B τιμές')}
             </h2>
             <p className="lead mt8" style={{ margin: '8px auto 0' }}>
               {t(
-                'Apply in two minutes. Approved businesses see pricing, buy made-to-order and book rentals.',
-                'Κάντε αίτηση σε δύο λεπτά. Οι εγκεκριμένες επιχειρήσεις βλέπουν τιμές, αγοράζουν κατά παραγγελία και κάνουν κρατήσεις.',
+                'Apply in two minutes. Approved businesses see pricing and buy made-to-order.',
+                'Κάντε αίτηση σε δύο λεπτά. Οι εγκεκριμένες επιχειρήσεις βλέπουν τιμές και αγοράζουν κατά παραγγελία.',
               )}
             </p>
             <div className="cta-row" style={{ justifyContent: 'center' }}>

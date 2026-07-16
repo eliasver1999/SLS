@@ -34,9 +34,8 @@ class StoreProductRequest extends FormRequest
             'card_specs' => ['nullable', 'array'],
             'spec_table' => ['nullable', 'array'],
             'modes' => [$required, 'array'],
-            'modes.*' => [Rule::in(['buy', 'rent'])],
+            'modes.*' => [Rule::in(['buy'])],
             'buy' => ['nullable', 'array'],
-            'rent' => ['nullable', 'array'],
             'featured' => ['boolean'],
             'sort' => ['nullable', 'integer'],
         ];

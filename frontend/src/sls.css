@@ -668,11 +668,21 @@ img {
   box-shadow: var(--glow-sm);
 }
 
-/* auth-gated price (kept in sync with body[data-auth] by AuthProvider) */
-body[data-auth='guest'] .approved-only {
+/* auth-gated price (body[data-auth]: guest | pending | approved, synced by AuthProvider) */
+/* Pricing/cart/ordering — only for approved members. */
+body:not([data-auth='approved']) .approved-only {
   display: none;
 }
+/* Locked-price UI — shown to guests AND pending members (neither sees pricing). */
 body[data-auth='approved'] .guest-only {
+  display: none;
+}
+/* Pending-only notices (awaiting approval). */
+body:not([data-auth='pending']) .pending-only {
+  display: none;
+}
+/* Guest-strict CTAs (e.g. "apply for access") — hidden once signed in, even if pending. */
+body[data-auth='pending'] .guest-strict {
   display: none;
 }
 

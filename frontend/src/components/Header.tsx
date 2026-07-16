@@ -9,7 +9,6 @@ const NAV: NavItem[] = [
   { to: '/', key: 'home', en: 'Home', el: 'Αρχική' },
   { to: '/solutions', key: 'solutions', en: 'Solutions', el: 'Λύσεις' },
   { to: '/catalogue', key: 'catalogue', en: 'Catalogue', el: 'Κατάλογος' },
-  { to: '/catalogue?mode=rent', key: 'rentals', en: 'Rentals', el: 'Ενοικιάσεις' },
   { to: '/projects', key: 'projects', en: 'Projects', el: 'Έργα' },
   { to: '/about', key: 'about', en: 'About', el: 'Σχετικά' },
   { to: '/contact', key: 'contact', en: 'Contact', el: 'Επικοινωνία' },
@@ -82,6 +81,9 @@ export default function Header() {
               <Link className="btn btn-ghost btn-sm" to="/login">
                 {lang === 'el' ? 'Σύνδεση' : 'Login'}
               </Link>
+              <Link className="btn btn-ghost btn-sm" to="/register">
+                {lang === 'el' ? 'Εγγραφή' : 'Register'}
+              </Link>
               <Link className="btn btn-primary btn-sm" to="/apply">
                 {lang === 'el' ? 'Γίνετε Συνεργάτης' : 'Become a Partner'}
               </Link>
@@ -117,6 +119,9 @@ export default function Header() {
           <>
             <Link className="btn btn-ghost btn-block" to="/login" onClick={() => setOpen(false)}>
               {lang === 'el' ? 'Σύνδεση' : 'Login'}
+            </Link>
+            <Link className="btn btn-ghost btn-block" to="/register" onClick={() => setOpen(false)}>
+              {lang === 'el' ? 'Εγγραφή' : 'Register'}
             </Link>
             <Link className="btn btn-primary btn-block" to="/apply" onClick={() => setOpen(false)}>
               {lang === 'el' ? 'Γίνετε Συνεργάτης' : 'Become a Partner'}

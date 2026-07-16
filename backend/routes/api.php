@@ -6,27 +6,33 @@ use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // ── Public ────────────────────────────────────────────────────────
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/register', [AuthController::class, 'register']);
+// Auth + public form submissions are throttled to curb brute-force / spam.
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1');
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
+Route::post('/forgot-password', [AuthController::class, 'forgotPassword'])->middleware('throttle:5,1');
+Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middleware('throttle:5,1');
 
 Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'show']);
 
-Route::post('/inquiries', [InquiryController::class, 'store']);
-Route::post('/partner-applications', [PartnerApplicationController::class, 'store']);
+Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:10,1');
+Route::post('/partner-applications', [PartnerApplicationController::class, 'store'])->middleware('throttle:5,1');
 
 // ── Authenticated (any signed-in user) ────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    // Orders / quotes / rentals — customers see their own, place new requests.
+    // Orders / quotes — approved customers see their own and place new requests.
     Route::get('/orders', [OrderController::class, 'index']);
+    Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders', [OrderController::class, 'store']);
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
 });
 
 // ── Admin only ────────────────────────────────────────────────────
@@ -36,6 +42,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
     Route::get('/inquiries', [InquiryController::class, 'index']);
+
+    // Member (registration) approvals.
+    Route::get('/users', [UserController::class, 'index']);
+    Route::patch('/users/{user}', [UserController::class, 'update']);
 
     Route::get('/partner-applications', [PartnerApplicationController::class, 'index']);
     Route::patch('/partner-applications/{partnerApplication}', [PartnerApplicationController::class, 'update']);

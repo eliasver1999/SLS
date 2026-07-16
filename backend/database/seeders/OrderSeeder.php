@@ -22,6 +22,9 @@ class OrderSeeder extends Seeder
                 'status' => 'pending',
                 'items' => [['slug' => 'aurora-p26', 'name' => 'Aurora P2.6', 'mode' => 'buy', 'qty' => 12]],
                 'total' => '€ 82,800',
+                'status_history' => $this->history([
+                    ['pending', null, '2026-07-10T09:15:00+00:00', $customer->name],
+                ]),
             ],
             [
                 'reference' => 'SLS-O-1180',
@@ -29,20 +32,22 @@ class OrderSeeder extends Seeder
                 'status' => 'in_production',
                 'items' => [['slug' => 'titan-p39', 'name' => 'Titan P3.9', 'mode' => 'buy', 'qty' => 20]],
                 'total' => '€ 168,000',
-            ],
-            [
-                'reference' => 'SLS-R-0777',
-                'type' => 'rental',
-                'status' => 'confirmed',
-                'items' => [['slug' => 'beam-380', 'name' => 'Beam 380', 'mode' => 'rent', 'qty' => 8, 'from' => '12 Aug 2026', 'to' => '15 Aug 2026']],
-                'total' => '€ 1,440',
+                'status_history' => $this->history([
+                    ['pending', null, '2026-07-02T11:00:00+00:00', $customer->name],
+                    ['confirmed', 'SOW signed — thank you!', '2026-07-04T14:20:00+00:00', 'SLS Admin'],
+                    ['in_production', 'Panels in fabrication, on track for the 20th.', '2026-07-08T10:05:00+00:00', 'SLS Admin'],
+                ]),
             ],
             [
                 'reference' => 'SLS-Q-2038',
                 'type' => 'quote',
                 'status' => 'quoted',
-                'items' => [['slug' => 'stage-kit-s', 'name' => 'Stage Kit S', 'mode' => 'rent', 'qty' => 1]],
+                'items' => [['slug' => 'stage-kit-s', 'name' => 'Stage Kit S', 'qty' => 1]],
                 'total' => '€ 5,800',
+                'status_history' => $this->history([
+                    ['pending', null, '2026-07-06T16:40:00+00:00', $customer->name],
+                    ['quoted', 'Quote attached — valid for 30 days.', '2026-07-07T09:30:00+00:00', 'SLS Admin'],
+                ]),
             ],
         ];
 
@@ -57,5 +62,21 @@ class OrderSeeder extends Seeder
                 ]
             );
         }
+    }
+
+    /**
+     * Build status-history rows from [status, note, at, by] tuples.
+     *
+     * @param  array<int, array{0:string,1:?string,2:string,3:string}>  $rows
+     * @return array<int, array<string, mixed>>
+     */
+    private function history(array $rows): array
+    {
+        return array_map(fn ($r) => [
+            'status' => $r[0],
+            'note' => $r[1],
+            'at' => $r[2],
+            'by' => $r[3],
+        ], $rows);
     }
 }

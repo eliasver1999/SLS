@@ -88,9 +88,18 @@ export default function Login() {
               {busy ? t('Signing in…', 'Σύνδεση…') : t('Sign in', 'Σύνδεση')}
             </button>
             <p className="muted mt16" style={{ fontSize: 13 }}>
+              <Link to="/forgot-password" style={{ color: 'var(--sky)' }}>
+                {t('Forgot your password?', 'Ξεχάσατε τον κωδικό;')}
+              </Link>
+            </p>
+            <p className="muted mt16" style={{ fontSize: 13 }}>
               {t('No account? ', 'Δεν έχετε λογαριασμό; ')}
+              <Link to="/register" style={{ color: 'var(--sky)' }}>
+                {t('Create one', 'Δημιουργήστε έναν')}
+              </Link>
+              {t(' or ', ' ή ')}
               <Link to="/apply" style={{ color: 'var(--sky)' }}>
-                {t('Apply for B2B access', 'Αίτηση B2B πρόσβασης')}
+                {t('apply for B2B access', 'κάντε αίτηση B2B πρόσβασης')}
               </Link>
             </p>
           </form>

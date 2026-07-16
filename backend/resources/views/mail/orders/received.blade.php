@@ -2,8 +2,7 @@
     $deposit = config('sls.deposit_percent');
     $balance = 100 - $deposit;
     $isQuote = $order->type === 'quote';
-    $isRental = $order->type === 'rental';
-    $noun = $isQuote ? 'quote request' : ($isRental ? 'booking request' : 'order request');
+    $noun = $isQuote ? 'quote request' : 'order request';
 @endphp
 <x-mail::message>
 # Thanks, {{ $order->contact_name }} 👋
@@ -15,7 +14,7 @@ No payment is taken on the website — everything is handled by our team, as set
 | Item | Details | Est. price |
 |:-----|:--------|:-----------|
 @foreach ($order->items as $item)
-| {{ $item['name'] }} | {{ ($item['mode'] ?? '') === 'rent' ? 'Rent' : 'Buy' }}@if(!empty($item['qty'])) · ×{{ $item['qty'] }}@endif @if(!empty($item['from'])) · {{ $item['from'] }}–{{ $item['to'] }}@endif | {{ $item['price'] ?? '—' }} |
+| {{ $item['name'] }} | {{ 'Buy'.(!empty($item['qty']) ? ' · ×'.$item['qty'] : '') }} | {{ $item['price'] ?? '—' }} |
 @endforeach
 </x-mail::table>
 
@@ -25,8 +24,8 @@ Our team will prepare a formal quote and email it to you, usually **within one b
 @else
 ## How payment works
 1. We email you a **Scope of Work (SOW)** confirming the details.
-2. A **{{ $deposit }}% deposit** {{ $isRental ? 'secures your booking dates' : 'confirms the order and starts production' }} — pay by bank transfer (IBAN) to the account below.
-3. The remaining **{{ $balance }}%** is due **before {{ $isRental ? 'delivery / setup' : 'dispatch' }}**.
+2. A **{{ $deposit }}% deposit** confirms the order and starts production — pay by bank transfer (IBAN) to the account below.
+3. The remaining **{{ $balance }}%** is due **before dispatch**.
 
 All prices are **ex VAT**; **{{ config('sls.vat_percent') }}% VAT** is added on the invoice.
 

@@ -18,7 +18,7 @@ A customer just submitted a **{{ $order->type }}** request. Follow up to send th
 
 **Items**
 @foreach ($order->items as $item)
-- {{ $item['name'] }} — {{ ($item['mode'] ?? '') === 'rent' ? 'Rent' : 'Buy' }}@if(!empty($item['qty'])) ×{{ $item['qty'] }}@endif @if(!empty($item['from'])) ({{ $item['from'] }}–{{ $item['to'] }})@endif @if(!empty($item['price'])) — {{ $item['price'] }}@endif
+- {{ $item['name'] }} — {{ 'Buy'.(!empty($item['qty']) ? ' ×'.$item['qty'] : '').(!empty($item['price']) ? ' — '.$item['price'] : '') }}
 @endforeach
 
 <x-mail::button :url="config('app.url')">

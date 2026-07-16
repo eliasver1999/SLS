@@ -30,7 +30,6 @@ class ProductResource extends JsonResource
             'specTable' => $this->spec_table,
             'modes' => $this->modes,
             'buy' => $this->buy,
-            'rent' => $this->rent,
             'featured' => $this->featured,
         ];
     }

@@ -9,7 +9,8 @@ class StoreOrderRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true; // route is behind auth:sanctum
+        // Route is behind auth:sanctum; only admin-approved members may order.
+        return (bool) $this->user()?->isApproved();
     }
 
     /**
@@ -18,15 +19,12 @@ class StoreOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'type' => ['required', Rule::in(['quote', 'order', 'rental'])],
+            'type' => ['required', Rule::in(['quote', 'order'])],
             'items' => ['required', 'array', 'min:1'],
-            'items.*.slug' => ['required', 'string'],
-            'items.*.name' => ['required', 'string'],
-            'items.*.mode' => ['nullable', Rule::in(['buy', 'rent'])],
-            'items.*.qty' => ['nullable', 'integer', 'min:1'],
-            'items.*.from' => ['nullable', 'string'],
-            'items.*.to' => ['nullable', 'string'],
-            'items.*.price' => ['nullable', 'string'],
+            // Only slug + qty are trusted from the client; name/price/mode are
+            // resolved server-side from the product to prevent tampering.
+            'items.*.slug' => ['required', 'string', Rule::exists('products', 'slug')],
+            'items.*.qty' => ['nullable', 'integer', 'min:1', 'max:9999'],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
     }

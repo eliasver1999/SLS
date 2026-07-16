@@ -26,7 +26,7 @@ class ServiceController extends Controller
                 [
                     'slug' => 'screens',
                     'name' => 'Screens',
-                    'description' => 'LED screens and video walls — indoor, outdoor, and rental.',
+                    'description' => 'LED screens and video walls — indoor and outdoor.',
                 ],
             ],
         ]);

@@ -11,12 +11,19 @@ class UserSeeder extends Seeder
     {
         User::updateOrCreate(
             ['email' => 'admin@sls.gr'],
-            ['name' => 'SLS Admin', 'password' => 'password', 'role' => 'admin', 'company' => 'SLS']
+            ['name' => 'SLS Admin', 'password' => 'password', 'role' => 'admin', 'company' => 'SLS', 'status' => 'approved']
         );
 
         User::updateOrCreate(
             ['email' => 'maria@novaevents.gr'],
-            ['name' => 'Maria Papadopoulou', 'password' => 'password', 'role' => 'customer', 'company' => 'Nova Events Ltd']
+            ['name' => 'Maria Papadopoulou', 'password' => 'password', 'role' => 'customer', 'company' => 'Nova Events Ltd', 'status' => 'approved']
+        );
+
+        // A pending registration so the admin Members approvals screen has
+        // something to act on out of the box.
+        User::updateOrCreate(
+            ['email' => 'nikos@stagepro.gr'],
+            ['name' => 'Nikos Georgiou', 'password' => 'password', 'role' => 'customer', 'company' => 'StagePro EPE', 'status' => 'pending']
         );
     }
 }

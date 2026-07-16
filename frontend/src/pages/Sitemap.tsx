@@ -27,8 +27,8 @@ export default function Sitemap() {
                 <Link className="node" to="/catalogue">
                   {t('Catalogue — specs open, pricing hidden', 'Κατάλογος — προδιαγραφές ανοιχτές, τιμές κρυφές')}
                 </Link>
-                <Link className="node" to="/catalogue?mode=rent">
-                  {t('Rentals', 'Ενοικιάσεις')}
+                <Link className="node blue" to="/register">
+                  {t('Register (admin-approved access)', 'Εγγραφή (έγκριση διαχειριστή)')}
                 </Link>
                 <Link className="node" to="/projects">
                   {t('Projects / Portfolio', 'Έργα / Portfolio')}
@@ -63,13 +63,10 @@ export default function Sitemap() {
                   {t('Catalogue WITH pricing', 'Κατάλογος ΜΕ τιμές')}
                 </Link>
                 <Link className="node" to="/product/aurora-p26">
-                  {t('Product detail (Buy / Rent)', 'Προϊόν (Αγορά / Ενοικίαση)')}
+                  {t('Product detail (Buy)', 'Προϊόν (Αγορά)')}
                 </Link>
                 <Link className="node" to="/product/aurora-p26#quote">
                   {t('Quote / Cart', 'Προσφορά / Καλάθι')}
-                </Link>
-                <Link className="node" to="/product/flex-p29?mode=rent">
-                  {t('Rental booking', 'Κράτηση ενοικίασης')}
                 </Link>
                 <div className="node">{t('Orders & quotes history', 'Ιστορικό παραγγελιών')}</div>
                 <div className="node">{t('Company profile', 'Προφίλ εταιρείας')}</div>
@@ -85,7 +82,7 @@ export default function Sitemap() {
                 </Link>
                 <div className="node">{t('Product management', 'Διαχείριση προϊόντων')}</div>
                 <div className="node">
-                  {t('Orders / quotes / rentals', 'Παραγγελίες / προσφορές / ενοικιάσεις')}
+                  {t('Orders / quotes', 'Παραγγελίες / προσφορές')}
                 </div>
               </div>
             </div>
@@ -100,7 +97,7 @@ export default function Sitemap() {
               <span className="arw">→</span>
               <div className="node">{t('Sees specs, pricing hidden', 'Βλέπει προδιαγρ., τιμές κρυφές')}</div>
               <span className="arw">→</span>
-              <div className="node blue">{t('Apply for access', 'Αίτηση πρόσβασης')}</div>
+              <div className="node blue">{t('Register / apply', 'Εγγραφή / αίτηση')}</div>
               <span className="arw">→</span>
               <div className="node">{t('Pending approval', 'Σε αναμονή')}</div>
               <span className="arw">→</span>
@@ -130,24 +127,6 @@ export default function Sitemap() {
                   </div>
                   <span className="arw">↓</span>
                   <div className="node">{t('B2B invoice (VAT)', 'B2B τιμολόγιο (ΦΠΑ)')}</div>
-                </div>
-              </div>
-            </div>
-            <div>
-              <h3 className="head" style={{ letterSpacing: 1, color: 'var(--grey)', fontSize: 14 }}>
-                {t('FLOW 3 · RENT (date-based)', 'ΡΟΗ 3 · ΕΝΟΙΚΙΑΣΗ (βάσει ημ/νιών)')}
-              </h3>
-              <div className="panel mt16">
-                <div className="flow" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
-                  <div className="node">{t('Product · Rent tab', 'Προϊόν · Ενοικίαση')}</div>
-                  <span className="arw">↓</span>
-                  <div className="node">{t('Pick dates · availability check', 'Ημερομηνίες · έλεγχος')}</div>
-                  <span className="arw">↓</span>
-                  <div className="node">{t('Add delivery + setup', 'Παράδοση + εγκατάσταση')}</div>
-                  <span className="arw">↓</span>
-                  <div className="node blue">{t('Request booking', 'Αίτημα κράτησης')}</div>
-                  <span className="arw">↓</span>
-                  <div className="node">{t('Track in dashboard', 'Παρακολούθηση στο dashboard')}</div>
                 </div>
               </div>
             </div>

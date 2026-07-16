@@ -19,8 +19,7 @@ const COLS: Col[] = [
     el: 'Κατάστημα',
     links: [
       { to: '/catalogue', en: 'Catalogue', el: 'Κατάλογος' },
-      { to: '/catalogue?mode=rent', en: 'Rentals', el: 'Ενοικιάσεις' },
-      { to: '/product/aurora-p26', en: 'Buy & Rent', el: 'Αγορά & Ενοικίαση' },
+      { to: '/product/aurora-p26', en: 'Buy made-to-order', el: 'Αγορά κατά παραγγελία' },
       { to: '/dashboard', en: 'Member area', el: 'Περιοχή μελών' },
     ],
   },

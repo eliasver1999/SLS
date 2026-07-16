@@ -9,7 +9,7 @@ class Product extends Model
     protected $fillable = [
         'slug', 'name', 'category', 'placement_key', 'image',
         'tag', 'blurb', 'thumbs', 'card_specs', 'spec_table',
-        'modes', 'buy', 'rent', 'featured', 'sort',
+        'modes', 'buy', 'featured', 'sort',
     ];
 
     public function getRouteKeyName(): string
@@ -25,7 +25,6 @@ class Product extends Model
         'spec_table' => 'array',
         'modes' => 'array',
         'buy' => 'array',
-        'rent' => 'array',
         'featured' => 'boolean',
     ];
 }

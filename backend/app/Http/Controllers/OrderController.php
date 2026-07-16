@@ -8,6 +8,7 @@ use App\Mail\NewOrderNotification;
 use App\Mail\OrderReceived;
 use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -15,7 +16,7 @@ use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
 {
-    private const PREFIX = ['quote' => 'SLS-Q-', 'order' => 'SLS-O-', 'rental' => 'SLS-R-'];
+    private const PREFIX = ['quote' => 'SLS-Q-', 'order' => 'SLS-O-'];
 
     /**
      * Customers see their own requests; admins see all (with ?type= / ?status=).
@@ -35,16 +36,34 @@ class OrderController extends Controller
             $query->where('status', $request->string('status'));
         }
 
-        return OrderResource::collection($query->get());
+        return OrderResource::collection($query->paginate($request->integer('per_page', 15)));
     }
 
     /**
-     * A signed-in customer submits a quote / order / rental request.
+     * An approved customer submits a quote / order request.
      */
     public function store(StoreOrderRequest $request)
     {
         $user = $request->user();
         $data = $request->validated();
+
+        // Rebuild each line from the trusted product record — name and price
+        // always come from the database, never from the client payload.
+        $products = Product::whereIn('slug', collect($data['items'])->pluck('slug'))
+            ->get()
+            ->keyBy('slug');
+
+        $items = collect($data['items'])->map(function (array $item) use ($products) {
+            $product = $products->get($item['slug']);
+
+            return [
+                'slug' => $item['slug'],
+                'name' => $product?->name,
+                'mode' => 'buy',
+                'qty' => $item['qty'] ?? 1,
+                'price' => $product?->buy['price'] ?? null,
+            ];
+        })->all();
 
         $order = Order::create([
             'reference' => uniqid('tmp-'),
@@ -54,8 +73,14 @@ class OrderController extends Controller
             'contact_name' => $user->name,
             'contact_email' => $user->email,
             'company' => $user->company,
-            'items' => $data['items'],
+            'items' => $items,
             'notes' => $data['notes'] ?? null,
+            'status_history' => [[
+                'status' => 'pending',
+                'note' => null,
+                'at' => now()->toIso8601String(),
+                'by' => $user->name,
+            ]],
         ]);
         $order->update([
             'reference' => (self::PREFIX[$order->type] ?? 'SLS-X-').(2000 + $order->id),
@@ -76,22 +101,100 @@ class OrderController extends Controller
     }
 
     /**
-     * Admin updates status (and optionally a quoted total).
+     * View a single order. Customers may only see their own; admins see any.
+     */
+    public function show(Request $request, Order $order)
+    {
+        $user = $request->user();
+
+        if (! $user->isAdmin() && $order->user_id !== $user->id) {
+            abort(403, 'This order is not yours.');
+        }
+
+        return new OrderResource($order);
+    }
+
+    /**
+     * A customer cancels their own request while it's still cancellable
+     * (pending / quoted — before we've confirmed or started production).
+     */
+    public function cancel(Request $request, Order $order)
+    {
+        $user = $request->user();
+
+        if ($order->user_id !== $user->id) {
+            abort(403, 'This order is not yours.');
+        }
+        if (! in_array($order->status, ['pending', 'quoted'], true)) {
+            abort(422, 'This request can no longer be cancelled online — please contact us.');
+        }
+
+        $order->status = 'cancelled';
+        $history = $order->status_history ?? [];
+        $history[] = [
+            'status' => 'cancelled',
+            'note' => 'Cancelled by customer.',
+            'at' => now()->toIso8601String(),
+            'by' => $user->name,
+        ];
+        $order->status_history = $history;
+        $order->save();
+
+        Log::info('Order cancelled by customer', ['reference' => $order->reference, 'user_id' => $user->id]);
+
+        return new OrderResource($order);
+    }
+
+    /**
+     * Admin updates status, quoted total and/or a customer-visible note.
+     * Every status change or note is appended to the order's status history,
+     * and the customer is emailed.
      */
     public function update(Request $request, Order $order)
     {
         $validated = $request->validate([
             'status' => ['sometimes', Rule::in(['pending', 'quoted', 'confirmed', 'in_production', 'completed', 'cancelled'])],
             'total' => ['sometimes', 'nullable', 'string', 'max:40'],
+            'note' => ['sometimes', 'nullable', 'string', 'max:1000'],
+            'items' => ['sometimes', 'array', 'min:1'],
+            'items.*.slug' => ['required_with:items', 'string'],
+            'items.*.name' => ['required_with:items', 'string'],
+            'items.*.mode' => ['nullable', Rule::in(['buy'])],
+            'items.*.qty' => ['nullable', 'integer', 'min:1'],
+            'items.*.price' => ['nullable', 'string'],
         ]);
 
         $previousStatus = $order->status;
-        $order->update($validated);
+        $newStatus = $validated['status'] ?? $order->status;
+        $note = isset($validated['note']) ? trim((string) $validated['note']) : null;
+        $statusChanged = $newStatus !== $previousStatus;
 
-        // Notify the customer when the admin actually changes the status.
-        if (isset($validated['status']) && $validated['status'] !== $previousStatus && $order->contact_email) {
+        if (array_key_exists('total', $validated)) {
+            $order->total = $validated['total'];
+        }
+        if (array_key_exists('items', $validated)) {
+            $order->items = $validated['items'];
+        }
+        $order->status = $newStatus;
+
+        // Record an audit-trail entry when the status changes or a note is added.
+        if ($statusChanged || ! empty($note)) {
+            $history = $order->status_history ?? [];
+            $history[] = [
+                'status' => $newStatus,
+                'note' => $note ?: null,
+                'at' => now()->toIso8601String(),
+                'by' => $request->user()->name,
+            ];
+            $order->status_history = $history;
+        }
+
+        $order->save();
+
+        // Notify the customer when something customer-relevant changed.
+        if (($statusChanged || ! empty($note)) && $order->contact_email) {
             try {
-                Mail::to($order->contact_email)->send(new OrderStatusUpdated($order, $previousStatus));
+                Mail::to($order->contact_email)->send(new OrderStatusUpdated($order, $previousStatus, $note ?: null));
             } catch (\Throwable $e) {
                 Log::error('Status email failed', ['reference' => $order->reference, 'error' => $e->getMessage()]);
             }
