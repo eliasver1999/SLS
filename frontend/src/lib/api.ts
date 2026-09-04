@@ -77,13 +77,31 @@ export type InquiryPayload = {
   message: string
 }
 
+export type InquiryStatus = 'new' | 'handled'
+
 export type Inquiry = InquiryPayload & {
   id: number
+  status: InquiryStatus
   created_at: string
 }
 
+export type InquiryCounts = { new: number; handled: number }
+
 export async function createInquiry(payload: InquiryPayload) {
   const { data } = await api.post<{ data: Inquiry }>('/inquiries', payload)
+  return data.data
+}
+
+export async function fetchInquiries(params?: { status?: InquiryStatus; page?: number }) {
+  const { data } = await api.get<{ data: Inquiry[]; counts: InquiryCounts; meta?: PageMeta }>(
+    '/inquiries',
+    { params },
+  )
+  return { ...toPage(data), counts: data.counts }
+}
+
+export async function updateInquiry(id: number, status: InquiryStatus) {
+  const { data } = await api.patch<{ data: Inquiry }>(`/inquiries/${id}`, { status })
   return data.data
 }
 

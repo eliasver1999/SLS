@@ -21,6 +21,23 @@
 </x-mail::table>
 @endif
 
+@if (in_array('enquiry_details_table', $blocks, true))
+<x-mail::table>
+| Field | Value |
+|:------|:------|
+| Name | {{ $cell($vars['name'] ?? null) }} |
+| Email | {{ $cell($vars['email'] ?? null) }} |
+@if (! empty($vars['phone']))
+| Phone | {{ $cell($vars['phone']) }} |
+@endif
+| Event type | {{ $cell($vars['event_type'] ?? null) }} |
+@if (! empty($vars['event_date']))
+| Event date | {{ $cell($vars['event_date']) }} |
+@endif
+| Message | {{ $cell($vars['message'] ?? null) }} |
+</x-mail::table>
+@endif
+
 @if (in_array('items_table', $blocks, true) && ! empty($items))
 <x-mail::table>
 | Item | Qty | Est. price |

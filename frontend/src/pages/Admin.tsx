@@ -26,6 +26,7 @@ import {
 import type { LS, Mode, Product, Spec } from '../data/products'
 import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
+import Inquiries from '../components/Inquiries'
 import { STATUS_PILL } from '../lib/orderStatus'
 import {
   ArrowLeft,
@@ -33,6 +34,7 @@ import {
   ClipboardCheck,
   FileText,
   Mail,
+  MessageSquare,
   Package,
   PartyPopper,
   ShoppingCart,
@@ -41,7 +43,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes' | 'emails'
+type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes' | 'inquiries' | 'emails'
 
 export default function Admin() {
   const { t } = useLang()
@@ -99,6 +101,7 @@ export default function Admin() {
     { key: 'products', Icon: Package, label: t('Products', 'Προϊόντα'), badge: productsInfo.total || products.length },
     { key: 'orders', Icon: ShoppingCart, label: t('Orders', 'Παραγγελίες') },
     { key: 'quotes', Icon: FileText, label: t('Quotes', 'Προσφορές') },
+    { key: 'inquiries', Icon: MessageSquare, label: t('Enquiries', 'Αιτήματα') },
     { key: 'emails', Icon: Mail, label: t('Emails', 'Emails') },
   ]
 
@@ -159,6 +162,7 @@ export default function Admin() {
         )}
         {section === 'orders' && <OrdersSection type="order" />}
         {section === 'quotes' && <OrdersSection type="quote" />}
+        {section === 'inquiries' && <Inquiries />}
         {section === 'emails' && <EmailTemplates />}
         <Link className="btn btn-ghost btn-sm mt24" to="/">
           <ArrowLeft size={14} aria-hidden />

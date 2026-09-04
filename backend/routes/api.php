@@ -43,6 +43,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);
 
     Route::get('/inquiries', [InquiryController::class, 'index']);
+    Route::patch('/inquiries/{inquiry}', [InquiryController::class, 'update']);
 
     // Member (registration) approvals.
     Route::get('/users', [UserController::class, 'index']);

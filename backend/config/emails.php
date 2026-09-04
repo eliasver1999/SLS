@@ -70,6 +70,7 @@ return [
         'signin_button' => '“Sign in to SLS” button',
         'admin_button' => '“Open admin” button',
         'order_details_table' => 'Order details table (internal)',
+        'enquiry_details_table' => 'Enquiry details table (internal)',
     ],
 
     'events' => [
@@ -134,6 +135,19 @@ return [
             'default_subject' => 'New {{ type }} — {{ reference }}',
             'default_body' => "# New {{ type }} — {{ reference }}\n\nA customer just submitted a **{{ type }}** request. Follow up to send the SOW / quote.\n\nSLS internal notification.",
             'default_blocks' => ['order_details_table', 'items_table', 'admin_button'],
+        ],
+
+        // ── Contact form ───────────────────────────────────────────
+        'inquiry.received' => [
+            'label' => 'Contact enquiry — internal notification',
+            'group' => 'Contact form',
+            'description' => 'Sent to the sales inbox when someone submits the contact form.',
+            'audience' => 'sales',
+            'placeholders' => ['name', 'email', 'phone', 'event_type', 'event_date', 'message', ...$globals],
+            'blocks' => ['enquiry_details_table', 'admin_button'],
+            'default_subject' => 'New enquiry — {{ event_type }} ({{ name }})',
+            'default_body' => "# New enquiry\n\n**{{ name }}** submitted the contact form about a **{{ event_type }}**. Reply to {{ email }} to follow up.\n\nSLS internal notification.",
+            'default_blocks' => ['enquiry_details_table', 'admin_button'],
         ],
 
         // ── Order progress (mid-order through delivery) ────────────
