@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
+import { useAuth } from '../context/auth'
 import Eq, { HERO_EQ } from '../components/Eq'
 import ProductCard from '../components/ProductCard'
 import { FEATURED, type Product } from '../data/products'
@@ -9,14 +10,18 @@ import { fetchProducts } from '../lib/api'
 
 export default function Home() {
   const { t } = useLang()
+  const { isApproved } = useAuth()
   // Static featured list is the initial paint + offline fallback; the API is
   // the source of truth once it responds.
   const [featured, setFeatured] = useState<Product[]>(FEATURED)
+  // Refetch when approval changes: the API only includes pricing for approved
+  // partners, so signing in has to pull a fresh payload rather than reveal a
+  // price the guest response never contained.
   useEffect(() => {
     fetchProducts({ featured: true })
       .then((res) => res.items.length && setFeatured(res.items))
       .catch(() => {})
-  }, [])
+  }, [isApproved])
 
   return (
     <>

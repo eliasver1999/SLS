@@ -20,7 +20,8 @@ export type Product = {
   cardSpecs: Spec[]
   specTable: Spec[]
   modes: Mode[]
-  buy?: { price: string; unit: LS; leadTime: LS }
+  /** `price` is omitted by the API unless the caller is an approved partner. */
+  buy?: { price?: string | null; unit: LS; leadTime: LS }
   featured?: boolean
 }
 
@@ -59,7 +60,6 @@ export const PRODUCTS: Product[] = [
     ],
     modes: ['buy'],
     buy: {
-      price: '€ 6,900',
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες'),
     },
@@ -91,7 +91,6 @@ export const PRODUCTS: Product[] = [
     ],
     modes: ['buy'],
     buy: {
-      price: '€ 8,400',
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες'),
     },
@@ -122,7 +121,6 @@ export const PRODUCTS: Product[] = [
     ],
     modes: ['buy'],
     buy: {
-      price: '€ 5,400',
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
       leadTime: L('In stock · ships in 1 week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα'),
     },
@@ -153,7 +151,6 @@ export const PRODUCTS: Product[] = [
     ],
     modes: ['buy'],
     buy: {
-      price: '€ 1,900',
       unit: L('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες'),
     },
@@ -184,7 +181,6 @@ export const PRODUCTS: Product[] = [
     ],
     modes: ['buy'],
     buy: {
-      price: '€ 3,200',
       unit: L('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'),
       leadTime: L('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες'),
     },

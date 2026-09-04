@@ -4,10 +4,10 @@ import { useLang } from '../context/language'
 import type { Product } from '../data/products'
 
 /**
- * Product card with auth-gated pricing. Both the locked and the real price are
- * rendered with .guest-only / .approved-only — the CSS shows/hides them based
- * on body[data-auth] (kept in sync by AuthProvider). Products without a buy
- * price (e.g. per-event packages) are quote-only and show no list price.
+ * Product card with auth-gated pricing. The API omits `buy.price` for anyone
+ * who is not an approved partner, so an absent price — not a CSS rule — is
+ * what drives the locked state. Products with no `buy` at all (per-event
+ * packages) are quote-only and show no list price.
  */
 export default function ProductCard({ product }: { product: Product }) {
   const { lang, t } = useLang()
@@ -30,17 +30,16 @@ export default function ProductCard({ product }: { product: Product }) {
           ))}
         </ul>
         <div className="foot">
-          {price ? (
-            <>
-              <span className="price-locked guest-only">
-                <Lock size={13} aria-hidden />
-                <span>{t('Sign in for pricing', 'Τιμή με σύνδεση')}</span>
-              </span>
-              <span className="price approved-only">
-                {price.price}
-                <small>{lang === 'el' ? price.unit.el : price.unit.en}</small>
-              </span>
-            </>
+          {price?.price ? (
+            <span className="price">
+              {price.price}
+              <small>{lang === 'el' ? price.unit.el : price.unit.en}</small>
+            </span>
+          ) : price ? (
+            <span className="price-locked">
+              <Lock size={13} aria-hidden />
+              <span>{t('Sign in for pricing', 'Τιμή με σύνδεση')}</span>
+            </span>
           ) : (
             <span className="muted" style={{ fontSize: 13 }}>
               {t('Price on request', 'Τιμή κατόπιν αιτήματος')}

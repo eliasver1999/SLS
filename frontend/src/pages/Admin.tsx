@@ -656,7 +656,7 @@ function ProductForm({
             <div className="row2 mt8">
               <div className="field" style={field}>
                 <label>{t('Price', 'Τιμή')}</label>
-                <input value={form.buy?.price ?? ''} onChange={(e) => upd('buy', { price: e.target.value, unit: form.buy?.unit ?? ls(), leadTime: form.buy?.leadTime ?? ls() })} placeholder="€ 6,900" />
+                <input value={form.buy?.price ?? ''} onChange={(e) => upd('buy', { price: e.target.value, unit: form.buy?.unit ?? ls(), leadTime: form.buy?.leadTime ?? ls() })} placeholder="€ 0.00" />
               </div>
               <div className="field" style={field}>
                 <label>{t('Unit (EN)', 'Μονάδα (EN)')}</label>
@@ -1097,7 +1097,9 @@ function toInput(p: Product): ProductInput {
     card_specs: p.cardSpecs,
     spec_table: p.specTable,
     modes: p.modes,
-    buy: p.buy ?? null,
+    // Admins are always approved, so the API includes the price; fall back to
+    // an empty field rather than dropping it if it ever arrives absent.
+    buy: p.buy ? { ...p.buy, price: p.buy.price ?? '' } : null,
     featured: !!p.featured,
   }
 }

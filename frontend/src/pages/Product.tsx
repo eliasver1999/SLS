@@ -21,6 +21,9 @@ export default function Product() {
   const [config, setConfig] = useState('4 × 3 (6 m²)')
   const [busy, setBusy] = useState(false)
 
+  // Refetch when approval changes: the API only includes pricing for approved
+  // partners, so signing in has to pull a fresh payload rather than reveal a
+  // price the guest response never contained.
   useEffect(() => {
     if (!slug) return
     fetchProduct(slug)
@@ -29,7 +32,7 @@ export default function Product() {
         setMainImg(p.image)
       })
       .catch(() => {})
-  }, [slug])
+  }, [slug, isApproved])
 
   // The route reuses this component, so re-derive the image on slug change.
   useEffect(() => {
@@ -56,7 +59,7 @@ export default function Product() {
     name: p.name,
     mode: 'buy',
     qty: parseInt(qty, 10) || 1,
-    price: p.buy?.price,
+    price: p.buy?.price ?? undefined,
   })
 
   const quoteItem = (): OrderItem => ({
@@ -64,7 +67,7 @@ export default function Product() {
     name: p.name,
     mode: p.buy ? 'buy' : undefined,
     qty: parseInt(qty, 10) || 1,
-    price: p.buy?.price,
+    price: p.buy?.price ?? undefined,
   })
 
   // Place a single-item order request.
@@ -172,7 +175,7 @@ export default function Product() {
 
               {/* Approved members: pricing + actions */}
               <div className="approved-only">
-                {product.buy && (
+                {product.buy?.price && (
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
                     <span className="price" style={{ fontSize: 30 }}>
                       {product.buy.price}

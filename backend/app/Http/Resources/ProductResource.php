@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Arr;
 
 /**
  * Emits the exact shape the frontend `Product` type expects (camelCase keys),
@@ -29,8 +30,32 @@ class ProductResource extends JsonResource
             'cardSpecs' => $this->card_specs,
             'specTable' => $this->spec_table,
             'modes' => $this->modes,
-            'buy' => $this->buy,
+            'buy' => $this->buyFor($request),
             'featured' => $this->featured,
         ];
+    }
+
+    /**
+     * Buy details with the list price removed for anyone who is not an approved
+     * partner. Net pricing is what the B2B tier sells, so it must not leave the
+     * API for guests or still-pending accounts — hiding it in CSS only puts it
+     * one devtools toggle away. Lead time and unit stay public: they are specs.
+     *
+     * @return array<string, mixed>|null
+     */
+    private function buyFor(Request $request): ?array
+    {
+        if (! $this->buy) {
+            return null;
+        }
+
+        // The product routes are public, so the bearer token has to be resolved
+        // through Sanctum's guard by name — the default guard is session-based
+        // and would report a guest for every token-authenticated request.
+        if ($request->user('sanctum')?->isApproved()) {
+            return $this->buy;
+        }
+
+        return Arr::except($this->buy, ['price']);
     }
 }

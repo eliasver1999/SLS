@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
+import { useAuth } from '../context/auth'
 import ProductCard from '../components/ProductCard'
 import { PRODUCTS, type Category, type Product } from '../data/products'
 import { fetchProducts } from '../lib/api'
@@ -10,6 +11,7 @@ type TypeFilter = 'all' | Category
 
 export default function Catalogue() {
   const { t } = useLang()
+  const { isApproved } = useAuth()
   const [type, setType] = useState<TypeFilter>('all')
 
   // Load from the API; the bundled list is the initial paint + offline fallback.
@@ -19,6 +21,9 @@ export default function Catalogue() {
   const [total, setTotal] = useState(PRODUCTS.length)
   const [loadingMore, setLoadingMore] = useState(false)
 
+  // Refetch when approval changes: the API only includes pricing for approved
+  // partners, so signing in has to pull a fresh payload rather than reveal a
+  // price the guest response never contained.
   useEffect(() => {
     fetchProducts({ page: 1 })
       .then((res) => {
@@ -30,7 +35,7 @@ export default function Catalogue() {
         }
       })
       .catch(() => {})
-  }, [])
+  }, [isApproved])
 
   async function loadMore() {
     setLoadingMore(true)
