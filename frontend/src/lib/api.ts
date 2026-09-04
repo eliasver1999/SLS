@@ -308,4 +308,73 @@ export async function updateMember(id: number, status: MemberStatus) {
   return data.data
 }
 
+// ── Transactional email templates ─────────────────────────────────
+export type EmailTemplate = {
+  event: string
+  label: string
+  group: string
+  description: string
+  audience: string
+  /** Placeholder names this event exposes, e.g. "reference" → {{ reference }}. */
+  placeholders: string[]
+  /** Structural block keys this event allows an admin to toggle. */
+  available_blocks: string[]
+  subject: string
+  body: string
+  blocks: string[]
+  enabled: boolean
+  /** False when the event is still using the shipped default copy. */
+  customised: boolean
+  default_subject: string
+  default_body: string
+  default_blocks: string[]
+}
+
+export type EmailTemplateDraft = {
+  subject: string
+  body: string
+  blocks: string[]
+  enabled?: boolean
+}
+
+export async function fetchEmailTemplates() {
+  const { data } = await api.get<{ data: EmailTemplate[]; blocks: Record<string, string> }>(
+    '/email-templates',
+  )
+  return data
+}
+
+export async function saveEmailTemplate(event: string, draft: EmailTemplateDraft) {
+  const { data } = await api.put<{
+    data: { event: string; unknown_placeholders: string[] } & EmailTemplateDraft
+  }>(`/email-templates/${event}`, draft)
+  return data.data
+}
+
+/** Drop the override so the event falls back to the shipped default copy. */
+export async function resetEmailTemplate(event: string) {
+  const { data } = await api.delete<{ data: EmailTemplateDraft & { event: string } }>(
+    `/email-templates/${event}`,
+  )
+  return data.data
+}
+
+export async function previewEmailTemplate(event: string, draft?: Partial<EmailTemplateDraft>) {
+  const { data } = await api.post<{
+    data: { subject: string; html: string; unknown_placeholders: string[] }
+  }>(`/email-templates/${event}/preview`, draft ?? {})
+  return data.data
+}
+
+export async function sendTestEmail(
+  event: string,
+  draft?: Partial<EmailTemplateDraft> & { to?: string },
+) {
+  const { data } = await api.post<{ message: string }>(
+    `/email-templates/${event}/test`,
+    draft ?? {},
+  )
+  return data.message
+}
+
 export default api

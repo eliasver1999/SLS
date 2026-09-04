@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerApplicationController;
@@ -51,4 +52,11 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('/partner-applications/{partnerApplication}', [PartnerApplicationController::class, 'update']);
 
     Route::patch('/orders/{order}', [OrderController::class, 'update']);
+
+    // Transactional email templates (joining, new order, order progress).
+    Route::get('/email-templates', [EmailTemplateController::class, 'index']);
+    Route::put('/email-templates/{event}', [EmailTemplateController::class, 'update']);
+    Route::delete('/email-templates/{event}', [EmailTemplateController::class, 'destroy']);
+    Route::post('/email-templates/{event}/preview', [EmailTemplateController::class, 'preview']);
+    Route::post('/email-templates/{event}/test', [EmailTemplateController::class, 'test'])->middleware('throttle:10,1');
 });

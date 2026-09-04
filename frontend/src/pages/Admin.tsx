@@ -25,9 +25,10 @@ import {
 } from '../lib/api'
 import type { LS, Mode, Product, Spec } from '../data/products'
 import OrderTimeline from '../components/OrderTimeline'
+import EmailTemplates from '../components/EmailTemplates'
 import { STATUS_PILL } from '../lib/orderStatus'
 
-type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes'
+type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes' | 'emails'
 
 export default function Admin() {
   const { t } = useLang()
@@ -85,6 +86,7 @@ export default function Admin() {
     { key: 'products', icon: '▤', label: t('Products', 'Προϊόντα'), badge: productsInfo.total || products.length },
     { key: 'orders', icon: '▣', label: t('Orders', 'Παραγγελίες') },
     { key: 'quotes', icon: '✎', label: t('Quotes', 'Προσφορές') },
+    { key: 'emails', icon: '✉', label: t('Emails', 'Emails') },
   ]
 
   return (
@@ -143,6 +145,7 @@ export default function Admin() {
         )}
         {section === 'orders' && <OrdersSection type="order" />}
         {section === 'quotes' && <OrdersSection type="quote" />}
+        {section === 'emails' && <EmailTemplates />}
         <Link className="btn btn-ghost btn-sm mt24" to="/">
           {t('← Back to site', '← Πίσω στον ιστότοπο')}
         </Link>

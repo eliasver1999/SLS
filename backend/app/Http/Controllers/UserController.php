@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Mail\MemberApproved;
-use App\Mail\MemberRejected;
 use App\Models\User;
+use App\Services\TransactionalMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 /**
@@ -66,14 +64,14 @@ class UserController extends Controller
         // Notify the member the first time their status changes to a decision
         // (approved / rejected), not on re-saves of the same status.
         if ($validated['status'] !== $previousStatus && $user->email) {
-            $mailable = match ($validated['status']) {
-                'approved' => new MemberApproved($user),
-                'rejected' => new MemberRejected($user),
+            $event = match ($validated['status']) {
+                'approved' => 'member.approved',
+                'rejected' => 'member.rejected',
                 default => null,
             };
-            if ($mailable) {
+            if ($event) {
                 try {
-                    Mail::to($user->email)->send($mailable);
+                    app(TransactionalMail::class)->send($event, $user->email, TransactionalMail::varsForUser($user));
                 } catch (\Throwable $e) {
                     Log::error('Member status email failed', ['user_id' => $user->id, 'status' => $validated['status'], 'error' => $e->getMessage()]);
                 }

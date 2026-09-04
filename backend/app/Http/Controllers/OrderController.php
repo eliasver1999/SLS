@@ -4,14 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
-use App\Mail\NewOrderNotification;
-use App\Mail\OrderReceived;
-use App\Mail\OrderStatusUpdated;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\TransactionalMail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 
 class OrderController extends Controller
@@ -89,10 +86,13 @@ class OrderController extends Controller
         // Automated transactional email: customer gets the terms, sales gets a
         // heads-up to follow up. Mail failures must not break the request.
         try {
+            $mail = app(TransactionalMail::class);
+            $vars = TransactionalMail::varsForOrder($order);
+
             if ($order->contact_email) {
-                Mail::to($order->contact_email)->send(new OrderReceived($order));
+                $mail->send("order.received.{$order->type}", $order->contact_email, $vars, $order->items ?? []);
             }
-            Mail::to(config('sls.sales_email'))->send(new NewOrderNotification($order));
+            $mail->send('order.admin_notify', config('sls.sales_email'), $vars, $order->items ?? []);
         } catch (\Throwable $e) {
             Log::error('Order email failed', ['reference' => $order->reference, 'error' => $e->getMessage()]);
         }
@@ -194,7 +194,15 @@ class OrderController extends Controller
         // Notify the customer when something customer-relevant changed.
         if (($statusChanged || ! empty($note)) && $order->contact_email) {
             try {
-                Mail::to($order->contact_email)->send(new OrderStatusUpdated($order, $previousStatus, $note ?: null));
+                app(TransactionalMail::class)->send(
+                    "order.status.{$order->status}",
+                    $order->contact_email,
+                    TransactionalMail::varsForOrder($order, [
+                        'previous_status' => $previousStatus,
+                        'note' => $note ?: null,
+                    ]),
+                    $order->items ?? [],
+                );
             } catch (\Throwable $e) {
                 Log::error('Status email failed', ['reference' => $order->reference, 'error' => $e->getMessage()]);
             }
