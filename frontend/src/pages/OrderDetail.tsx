@@ -4,6 +4,7 @@ import { useLang } from '../context/language'
 import OrderTimeline from '../components/OrderTimeline'
 import { cancelOrder, fetchOrder, type Order } from '../lib/api'
 import { statusLabel, STATUS_PILL } from '../lib/orderStatus'
+import { errorMessage } from '../lib/errors'
 
 export default function OrderDetail() {
   const { t } = useLang()
@@ -11,6 +12,7 @@ export default function OrderDetail() {
   const [order, setOrder] = useState<Order | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [cancelling, setCancelling] = useState(false)
+  const [cancelError, setCancelError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) return
@@ -52,10 +54,13 @@ export default function OrderDetail() {
     if (!order) return
     if (!confirm(t('Cancel this request? This cannot be undone.', 'Ακύρωση αυτού του αιτήματος; Δεν αναιρείται.'))) return
     setCancelling(true)
+    setCancelError(null)
     try {
       setOrder(await cancelOrder(order.id))
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setCancelError(
+        errorMessage(e, t('Could not cancel that request.', 'Αδυναμία ακύρωσης του αιτήματος.')),
+      )
     } finally {
       setCancelling(false)
     }
@@ -115,6 +120,9 @@ export default function OrderDetail() {
               <button className="btn btn-ghost btn-sm mt16" onClick={onCancel} disabled={cancelling}>
                 {cancelling ? t('Cancelling…', 'Ακύρωση…') : t('Cancel request', 'Ακύρωση αιτήματος')}
               </button>
+            )}
+            {cancelError && (
+              <p style={{ color: '#ff7a7a', fontSize: 13, marginTop: 10 }}>{cancelError}</p>
             )}
           </div>
 

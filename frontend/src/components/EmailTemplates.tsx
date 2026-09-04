@@ -9,8 +9,9 @@ import {
   sendTestEmail,
   type EmailTemplate,
 } from '../lib/api'
+import { errorMessage } from '../lib/errors'
 
-type Draft = { subject: string; body: string; blocks: string[]; enabled: boolean }
+type Draft ={ subject: string; body: string; blocks: string[]; enabled: boolean }
 
 /**
  * Admin editor for the transactional emails (joining, new order, order
@@ -116,12 +117,11 @@ export default function EmailTemplates() {
     setMsg(null)
     try {
       await fn()
-    } catch (e: unknown) {
-      const detail =
-        typeof e === 'object' && e && 'response' in e
-          ? ((e as { response?: { data?: { message?: string } } }).response?.data?.message ?? '')
-          : ''
-      setMsg({ kind: 'err', text: detail || t('Something went wrong.', 'Κάτι πήγε λάθος.') })
+    } catch (e) {
+      setMsg({
+        kind: 'err',
+        text: errorMessage(e, t('Something went wrong.', 'Κάτι πήγε λάθος.')),
+      })
     } finally {
       setBusy(null)
     }

@@ -50,7 +50,11 @@ return [
     |
     */
 
-    'expiration' => null,
+    // Tokens are held in the SPA's localStorage, so they should not be valid
+    // forever — a leaked one would be. Two weeks by default; the SPA already
+    // signs out locally when /me rejects an expired token. A blank or zero
+    // value falls back to no expiry rather than logging everyone out at once.
+    'expiration' => ((int) env('SANCTUM_EXPIRATION', 60 * 24 * 14)) ?: null,
 
     /*
     |--------------------------------------------------------------------------

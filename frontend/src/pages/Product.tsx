@@ -5,7 +5,8 @@ import { useAuth } from '../context/auth'
 import { useCart } from '../context/cart'
 import { getProduct } from '../data/products'
 import { createOrder, fetchProduct, type OrderItem } from '../lib/api'
-import { Clock, Lock, Settings2 } from 'lucide-react'
+import { CircleAlert, Clock, Lock, Settings2 } from 'lucide-react'
+import { errorMessage } from '../lib/errors'
 
 export default function Product() {
   const { t, lang } = useLang()
@@ -20,6 +21,7 @@ export default function Product() {
   const [qty, setQty] = useState('12')
   const [config, setConfig] = useState('4 × 3 (6 m²)')
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Refetch when approval changes: the API only includes pricing for approved
   // partners, so signing in has to pull a fresh payload rather than reveal a
@@ -77,10 +79,20 @@ export default function Product() {
       return
     }
     setBusy(true)
+    setError(null)
     try {
       const order = await createOrder({ type: 'order', items: [item] })
       navigate('/order-received', { state: { reference: order.reference, type: 'order' } })
-    } catch {
+    } catch (e) {
+      setError(
+        errorMessage(
+          e,
+          t(
+            'We could not submit that request. Please try again or email us.',
+            'Δεν μπορέσαμε να υποβάλουμε το αίτημα. Δοκιμάστε ξανά ή στείλτε μας email.',
+          ),
+        ),
+      )
       setBusy(false)
     }
   }
@@ -97,11 +109,21 @@ export default function Product() {
     }
     if (cart.count === 0) return
     setBusy(true)
+    setError(null)
     try {
       const order = await createOrder({ type: 'quote', items: cart.items })
       cart.clear()
       navigate('/order-received', { state: { reference: order.reference, type: 'quote' } })
-    } catch {
+    } catch (e) {
+      setError(
+        errorMessage(
+          e,
+          t(
+            'We could not submit that request. Please try again or email us.',
+            'Δεν μπορέσαμε να υποβάλουμε το αίτημα. Δοκιμάστε ξανά ή στείλτε μας email.',
+          ),
+        ),
+      )
       setBusy(false)
     }
   }
@@ -209,6 +231,17 @@ export default function Product() {
                     {t('Add to quote', 'Προσθήκη σε προσφορά')}
                   </button>
                 </div>
+                {error && (
+                  <div
+                    className="notice mt16"
+                    style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
+                  >
+                    <div className="ic" style={{ color: '#ff7a7a' }}>
+                      <CircleAlert size={18} aria-hidden />
+                    </div>
+                    <div>{error}</div>
+                  </div>
+                )}
                 <p className="muted mt16" style={{ fontSize: 13 }}>
                   {t(
                     'No payment on the website — we email a Scope of Work (SOW) to sign, then invoice by bank transfer (IBAN). VAT applies.',

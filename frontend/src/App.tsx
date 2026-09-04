@@ -18,6 +18,7 @@ import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import UIKit from './pages/UIKit'
 import Sitemap from './pages/Sitemap'
+import NotFound from './pages/NotFound'
 import { RequireAdmin, RequireAuth } from './components/Guards'
 
 export default function App() {
@@ -64,7 +65,7 @@ export default function App() {
           />
           <Route path="ui-kit" element={<UIKit />} />
           <Route path="sitemap" element={<Sitemap />} />
-          <Route path="*" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -2,9 +2,11 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
-import { fetchOrders, type MemberStatus, type Order, type OrderStatus } from '../lib/api'
+import { fetchOrders, type MemberStatus, type Order, type OrderStatus, type OrderType } from '../lib/api'
+import { errorMessage } from '../lib/errors'
 import {
   Building2,
+  CircleAlert,
   FileText,
   Hourglass,
   LayoutDashboard,
@@ -28,14 +30,20 @@ export default function Dashboard() {
   const { user, isApproved } = useAuth()
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
+  const [view, setView] = useState<'all' | OrderType>('all')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     // Pending members have no orders and the API blocks them — skip the call.
     if (!isApproved) return
     fetchOrders()
       .then((res) => setOrders(res.items))
-      .catch(() => {})
-  }, [isApproved])
+      .catch((e) =>
+        setError(
+          errorMessage(e, t('Could not load your requests.', 'Αδυναμία φόρτωσης των αιτημάτων σας.')),
+        ),
+      )
+  }, [isApproved, t])
 
   const company = user?.company ?? 'Nova Events'
   const firstName = (user?.name ?? 'Maria').split(' ')[0]
@@ -52,6 +60,11 @@ export default function Dashboard() {
     const completed = orders.filter((o) => o.status === 'completed').length
     return { openQuotes, activeOrders, completed }
   }, [orders])
+
+  const visible = useMemo(
+    () => (view === 'all' ? orders : orders.filter((o) => o.type === view)),
+    [orders, view],
+  )
 
   // Most recently updated order (by last status-history entry) for the panel.
   const latest = useMemo(() => {
@@ -94,7 +107,11 @@ export default function Dashboard() {
           </div>
         </div>
         <nav>
-          <a className="on">
+          <a
+            className={view === 'all' ? 'on' : undefined}
+            style={{ cursor: 'pointer' }}
+            onClick={() => setView('all')}
+          >
             <LayoutDashboard size={17} aria-hidden />
             {t('Dashboard', 'Πίνακας')}
           </a>
@@ -102,21 +119,37 @@ export default function Dashboard() {
             <Package size={17} aria-hidden />
             {t('Catalogue', 'Κατάλογος')}
           </Link>
-          <a>
+          <a
+            className={view === 'quote' ? 'on' : undefined}
+            style={{ cursor: 'pointer' }}
+            onClick={() => setView('quote')}
+          >
             <FileText size={17} aria-hidden />
             {t('Quotes', 'Προσφορές')}
           </a>
-          <a>
+          <a
+            className={view === 'order' ? 'on' : undefined}
+            style={{ cursor: 'pointer' }}
+            onClick={() => setView('order')}
+          >
             <ShoppingCart size={17} aria-hidden />
             {t('Orders', 'Παραγγελίες')}
           </a>
-          <a>
+          {/* Not built yet — shown as unavailable rather than as a link that
+              silently does nothing when clicked. */}
+          <a aria-disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>
             <Receipt size={17} aria-hidden />
             {t('Invoices', 'Τιμολόγια')}
+            <span className="status wait" style={{ marginLeft: 'auto' }}>
+              {t('Soon', 'Σύντομα')}
+            </span>
           </a>
-          <a>
+          <a aria-disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>
             <Building2 size={17} aria-hidden />
             {t('Company profile', 'Προφίλ εταιρείας')}
+            <span className="status wait" style={{ marginLeft: 'auto' }}>
+              {t('Soon', 'Σύντομα')}
+            </span>
           </a>
         </nav>
       </aside>
@@ -154,8 +187,24 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {error && (
+          <div
+            className="notice mt24"
+            style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
+          >
+            <div className="ic" style={{ color: '#ff7a7a' }}>
+              <CircleAlert size={18} aria-hidden />
+            </div>
+            <div>{error}</div>
+          </div>
+        )}
+
         <h3 className="head mt40" style={{ fontSize: 15, letterSpacing: 1, color: 'var(--grey)' }}>
-          {t('RECENT QUOTES & ORDERS', 'ΠΡΟΣΦΑΤΕΣ ΠΡΟΣΦΟΡΕΣ & ΠΑΡΑΓΓΕΛΙΕΣ')}
+          {view === 'quote'
+            ? t('YOUR QUOTES', 'ΟΙ ΠΡΟΣΦΟΡΕΣ ΣΑΣ')
+            : view === 'order'
+              ? t('YOUR ORDERS', 'ΟΙ ΠΑΡΑΓΓΕΛΙΕΣ ΣΑΣ')
+              : t('RECENT QUOTES & ORDERS', 'ΠΡΟΣΦΑΤΕΣ ΠΡΟΣΦΟΡΕΣ & ΠΑΡΑΓΓΕΛΙΕΣ')}
         </h3>
         <table className="tbl mt16">
           <tbody>
@@ -167,14 +216,14 @@ export default function Dashboard() {
               <th>{t('Status', 'Κατάσταση')}</th>
               <th></th>
             </tr>
-            {orders.length === 0 && (
+            {visible.length === 0 && (
               <tr>
                 <td colSpan={6} className="muted">
                   {t('No requests yet — browse the catalogue to get started.', 'Καμία αίτηση ακόμη — δείτε τον κατάλογο.')}
                 </td>
               </tr>
             )}
-            {orders.map((o) => (
+            {visible.map((o) => (
               <tr
                 key={o.id}
                 onClick={() => navigate(`/orders/${o.id}`)}

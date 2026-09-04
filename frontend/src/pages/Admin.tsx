@@ -28,6 +28,7 @@ import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
 import Inquiries from '../components/Inquiries'
 import { STATUS_PILL } from '../lib/orderStatus'
+import { errorMessage } from '../lib/errors'
 import {
   ArrowLeft,
   CircleAlert,
@@ -57,6 +58,7 @@ export default function Admin() {
   const [counts, setCounts] = useState<ApplicationCounts>({ pending: 0, approved: 0, rejected: 0 })
   const [products, setProducts] = useState<Product[]>([])
   const [productsInfo, setProductsInfo] = useState({ page: 1, lastPage: 1, total: 0 })
+  const [loadError, setLoadError] = useState<string | null>(null)
 
   const loadMembers = useCallback(async (page = 1) => {
     try {
@@ -64,8 +66,8 @@ export default function Admin() {
       setMembers((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
       setMemberCounts(res.counts)
       setMembersPage({ page: res.page, lastPage: res.lastPage })
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setLoadError(errorMessage(e, 'Could not load the admin data.'))
     }
   }, [])
 
@@ -74,8 +76,8 @@ export default function Admin() {
       const res = await fetchPartnerApplications('pending')
       setApps(res.data)
       setCounts(res.counts)
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setLoadError(errorMessage(e, 'Could not load the admin data.'))
     }
   }, [])
 
@@ -84,8 +86,8 @@ export default function Admin() {
       const res = await fetchProducts({ page })
       setProducts((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
       setProductsInfo({ page: res.page, lastPage: res.lastPage, total: res.total })
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setLoadError(errorMessage(e, 'Could not load the admin data.'))
     }
   }, [])
 
@@ -140,6 +142,7 @@ export default function Admin() {
       </aside>
 
       <div className="dash-main">
+        <ErrorNote message={loadError} />
         {section === 'members' && (
           <MembersSection
             members={members}
@@ -189,12 +192,15 @@ function MembersSection({
 }) {
   const { t } = useLang()
 
+  const [error, setError] = useState<string | null>(null)
+
   async function decide(m: Member, status: 'approved' | 'rejected') {
+    setError(null)
     try {
       await updateMember(m.id, status)
       onReload()
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setError(errorMessage(e, t('Could not update that member.', 'Αδυναμία ενημέρωσης μέλους.')))
     }
   }
 
@@ -224,6 +230,8 @@ function MembersSection({
         <Kpi n={counts.approved} color="#48d38a" label={t('Approved', 'Εγκεκριμένοι')} />
         <Kpi n={counts.rejected} color="#ff7a7a" label={t('Rejected', 'Απορριφθέντες')} />
       </div>
+
+      <ErrorNote message={error} />
 
       <table className="tbl mt24">
         <tbody>
@@ -293,12 +301,15 @@ function ApprovalsSection({
     setSelected((cur) => apps.find((a) => a.id === cur?.id) ?? apps[0] ?? null)
   }, [apps])
 
+  const [error, setError] = useState<string | null>(null)
+
   async function decide(app: PartnerApplication, status: 'approved' | 'rejected') {
+    setError(null)
     try {
       await updatePartnerApplication(app.id, status)
       onReload()
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setError(errorMessage(e, t('Could not update that application.', 'Αδυναμία ενημέρωσης αίτησης.')))
     }
   }
 
@@ -317,8 +328,9 @@ function ApprovalsSection({
         <Kpi n={counts.pending} color="#ffce54" label={t('Pending', 'Σε αναμονή')} />
         <Kpi n={counts.approved} color="#48d38a" label={t('Approved', 'Εγκεκριμένοι')} />
         <Kpi n={counts.rejected} color="#ff7a7a" label={t('Rejected', 'Απορριφθέντες')} />
-        <Kpi n={42} blue label={t('Open orders', 'Ανοιχτές παραγγ.')} />
       </div>
+
+      <ErrorNote message={error} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
         <table className="tbl">
@@ -420,6 +432,7 @@ function ProductsSection({
   const { t, lang } = useLang()
   const [editing, setEditing] = useState<ProductInput | null>(null)
   const [originalSlug, setOriginalSlug] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   function addNew() {
     setOriginalSlug(null)
@@ -431,11 +444,12 @@ function ProductsSection({
   }
   async function remove(p: Product) {
     if (!confirm(t(`Delete "${p.name}"?`, `Διαγραφή "${p.name}";`))) return
+    setError(null)
     try {
       await deleteProduct(p.slug)
       onReload()
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setError(errorMessage(e, t('Could not delete that product.', 'Αδυναμία διαγραφής προϊόντος.')))
     }
   }
 
@@ -469,6 +483,8 @@ function ProductsSection({
           + {t('Add product', 'Νέο προϊόν')}
         </button>
       </div>
+
+      <ErrorNote message={error} />
 
       <table className="tbl mt24">
         <tbody>
@@ -909,6 +925,7 @@ function AdminOrderDetail({
   const [items, setItems] = useState<OrderItem[]>(order.items)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Re-sync the form after a save (parent passes back the server's order).
   useEffect(() => {
@@ -928,6 +945,7 @@ function AdminOrderDetail({
   async function save() {
     setSaving(true)
     setSaved(false)
+    setError(null)
     try {
       // Clean up empty numeric/price fields before sending.
       const cleanItems = items
@@ -946,8 +964,8 @@ function AdminOrderDetail({
       })
       setNote('')
       setSaved(true)
-    } catch {
-      /* ignore */
+    } catch (e) {
+      setError(errorMessage(e, t('Could not save those changes.', 'Αδυναμία αποθήκευσης αλλαγών.')))
     } finally {
       setSaving(false)
     }
@@ -1035,15 +1053,31 @@ function AdminOrderDetail({
       <button className="btn btn-primary btn-block mt16" onClick={save} disabled={saving || !changed}>
         {saving ? t('Saving…', 'Αποθήκευση…') : t('Update & notify customer', 'Ενημέρωση & email πελάτη')}
       </button>
-      {saved && (
+      {saved && !error && (
         <p className="muted mt8" style={{ fontSize: 12.5, color: '#48d38a' }}>
           {t('Saved — the customer has been emailed.', 'Αποθηκεύτηκε — στάλθηκε email στον πελάτη.')}
         </p>
       )}
+      <ErrorNote message={error} />
 
       <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
       <OrderTimeline order={order} />
     </>
+  )
+}
+
+function ErrorNote({ message }: { message: string | null }) {
+  if (!message) return null
+  return (
+    <div
+      className="notice mt16"
+      style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
+    >
+      <div className="ic" style={{ color: '#ff7a7a' }}>
+        <CircleAlert size={18} aria-hidden />
+      </div>
+      <div>{message}</div>
+    </div>
   )
 }
 
