@@ -4,6 +4,7 @@ import { useLang } from '../context/language'
 import Eq, { HERO_EQ } from '../components/Eq'
 import ProductCard from '../components/ProductCard'
 import { FEATURED, type Product } from '../data/products'
+import { Check, Gem, Layers, Truck, Wrench } from 'lucide-react'
 import { fetchProducts } from '../lib/api'
 
 export default function Home() {
@@ -55,31 +56,31 @@ export default function Home() {
       <div className="trust">
         <div className="container">
           <div className="item">
-            <span className="ic">◆</span>
+            <span className="ic"><Gem size={18} aria-hidden /></span>
             <span>
               <b>{t('Direct', 'Απευθείας')}</b> {t('pricing', 'τιμές')}
             </span>
           </div>
           <div className="item">
-            <span className="ic">⧉</span>
+            <span className="ic"><Layers size={18} aria-hidden /></span>
             <span>
               <b>{t('End-to-end', 'Από άκρο σε άκρο')}</b> {t('one partner', 'ένας συνεργάτης')}
             </span>
           </div>
           <div className="item">
-            <span className="ic">⚙</span>
+            <span className="ic"><Wrench size={18} aria-hidden /></span>
             <span>
               <b>{t('Made-to-order', 'Κατά παραγγελία')}</b> {t('& reliable', '& αξιόπιστο')}
             </span>
           </div>
           <div className="item">
-            <span className="ic">◷</span>
+            <span className="ic"><Truck size={18} aria-hidden /></span>
             <span>
               <b>{t('On-site', 'Επιτόπου')}</b> {t('delivery & setup', 'παράδοση & εγκατάσταση')}
             </span>
           </div>
           <div className="item">
-            <span className="ic">✓</span>
+            <span className="ic"><Check size={18} aria-hidden /></span>
             <span>
               <b>WCAG AA</b> {t('accessible', 'προσβάσιμο')}
             </span>
@@ -178,7 +179,7 @@ export default function Home() {
           </div>
           <div className="grid g3">
             <div className="feature">
-              <div className="ic">◆</div>
+              <div className="ic"><Gem size={26} aria-hidden /></div>
               <h3>{t('Direct from source', 'Απευθείας από την πηγή')}</h3>
               <p>
                 {t(
@@ -188,7 +189,7 @@ export default function Home() {
               </p>
             </div>
             <div className="feature">
-              <div className="ic">⧉</div>
+              <div className="ic"><Layers size={26} aria-hidden /></div>
               <h3>{t('One partner, end-to-end', 'Ένας συνεργάτης, από την αρχή ως το τέλος')}</h3>
               <p>
                 {t(
@@ -198,7 +199,7 @@ export default function Home() {
               </p>
             </div>
             <div className="feature">
-              <div className="ic">⚙</div>
+              <div className="ic"><Wrench size={26} aria-hidden /></div>
               <h3>{t('Made-to-order & reliable', 'Κατά παραγγελία & αξιόπιστο')}</h3>
               <p>
                 {t(

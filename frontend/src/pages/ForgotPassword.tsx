@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { forgotPassword } from '../lib/api'
+import { ArrowLeft, CircleCheck } from 'lucide-react'
 
 export default function ForgotPassword() {
   const { t } = useLang()
@@ -43,7 +44,7 @@ export default function ForgotPassword() {
         <div className="container" style={{ maxWidth: 460 }}>
           {sent ? (
             <div className="notice" style={{ borderColor: 'rgba(72,211,138,.35)', background: 'rgba(72,211,138,.08)' }}>
-              <div className="ic" style={{ color: '#48d38a' }}>✓</div>
+              <div className="ic" style={{ color: '#48d38a' }}><CircleCheck size={18} aria-hidden /></div>
               <div>
                 {t(
                   'If that email has an account, a reset link is on its way. Check your inbox.',
@@ -70,7 +71,8 @@ export default function ForgotPassword() {
           )}
           <p className="muted mt16" style={{ fontSize: 13 }}>
             <Link to="/login" style={{ color: 'var(--sky)' }}>
-              {t('← Back to sign in', '← Πίσω στη σύνδεση')}
+              <ArrowLeft size={14} aria-hidden />
+              {t('Back to sign in', 'Πίσω στη σύνδεση')}
             </Link>
           </p>
         </div>

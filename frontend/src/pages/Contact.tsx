@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import axios from 'axios'
 import { useLang } from '../context/language'
 import { createInquiry, type InquiryPayload } from '../lib/api'
+import { Check, CircleAlert } from 'lucide-react'
 
 const EVENT_TYPES: [string, string][] = [
   ['Concert / Festival', 'Συναυλία / Φεστιβάλ'],
@@ -95,7 +96,7 @@ export default function Contact() {
                   boxShadow: 'var(--glow)',
                 }}
               >
-                ✓
+                <Check size={30} aria-hidden />
               </div>
               <div className="eyebrow center">{t('Message sent', 'Το μήνυμα στάλθηκε')}</div>
               <h2 className="h2 mt8">{t('Thanks — we’ll be in touch', 'Ευχαριστούμε — θα επικοινωνήσουμε')}</h2>
@@ -166,7 +167,7 @@ export default function Contact() {
               </Field>
               {errorMsg && (
                 <div className="notice" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-                  <div className="ic" style={{ color: '#ff7a7a' }}>!</div>
+                  <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
                   <div>{errorMsg}</div>
                 </div>
               )}

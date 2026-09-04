@@ -1,6 +1,7 @@
 import { useLang } from '../context/language'
 import type { Order } from '../lib/api'
 import { statusFlow, statusLabel, STATUS_PILL } from '../lib/orderStatus'
+import { Check } from 'lucide-react'
 
 function fmt(iso: string) {
   const d = new Date(iso)
@@ -46,7 +47,7 @@ export default function OrderTimeline({ order }: { order: Order }) {
                       boxShadow: current ? '0 0 0 4px rgba(72,211,138,.12)' : undefined,
                     }}
                   >
-                    {done ? '✓' : i + 1}
+                    {done ? <Check size={14} aria-hidden /> : i + 1}
                   </div>
                   <span
                     style={{

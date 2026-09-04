@@ -27,6 +27,19 @@ import type { LS, Mode, Product, Spec } from '../data/products'
 import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
 import { STATUS_PILL } from '../lib/orderStatus'
+import {
+  ArrowLeft,
+  CircleAlert,
+  ClipboardCheck,
+  FileText,
+  Mail,
+  Package,
+  PartyPopper,
+  ShoppingCart,
+  Star,
+  Users,
+  type LucideIcon,
+} from 'lucide-react'
 
 type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes' | 'emails'
 
@@ -80,13 +93,13 @@ export default function Admin() {
     loadProducts()
   }, [loadMembers, loadApps, loadProducts])
 
-  const nav: { key: Section; icon: string; label: string; badge?: number }[] = [
-    { key: 'members', icon: '👤', label: t('Members', 'Μέλη'), badge: memberCounts.pending },
-    { key: 'approvals', icon: '✔', label: t('Applications', 'Αιτήσεις'), badge: counts.pending },
-    { key: 'products', icon: '▤', label: t('Products', 'Προϊόντα'), badge: productsInfo.total || products.length },
-    { key: 'orders', icon: '▣', label: t('Orders', 'Παραγγελίες') },
-    { key: 'quotes', icon: '✎', label: t('Quotes', 'Προσφορές') },
-    { key: 'emails', icon: '✉', label: t('Emails', 'Emails') },
+  const nav: { key: Section; Icon: LucideIcon; label: string; badge?: number }[] = [
+    { key: 'members', Icon: Users, label: t('Members', 'Μέλη'), badge: memberCounts.pending },
+    { key: 'approvals', Icon: ClipboardCheck, label: t('Applications', 'Αιτήσεις'), badge: counts.pending },
+    { key: 'products', Icon: Package, label: t('Products', 'Προϊόντα'), badge: productsInfo.total || products.length },
+    { key: 'orders', Icon: ShoppingCart, label: t('Orders', 'Παραγγελίες') },
+    { key: 'quotes', Icon: FileText, label: t('Quotes', 'Προσφορές') },
+    { key: 'emails', Icon: Mail, label: t('Emails', 'Emails') },
   ]
 
   return (
@@ -111,7 +124,8 @@ export default function Admin() {
               style={{ cursor: 'pointer' }}
               onClick={() => setSection(n.key)}
             >
-              {n.icon} {n.label}
+              <n.Icon size={17} aria-hidden />
+              {n.label}
               {n.badge != null && (
                 <span className="status wait" style={{ marginLeft: 'auto' }}>
                   {n.badge}
@@ -147,7 +161,8 @@ export default function Admin() {
         {section === 'quotes' && <OrdersSection type="quote" />}
         {section === 'emails' && <EmailTemplates />}
         <Link className="btn btn-ghost btn-sm mt24" to="/">
-          {t('← Back to site', '← Πίσω στον ιστότοπο')}
+          <ArrowLeft size={14} aria-hidden />
+          {t('Back to site', 'Πίσω στον ιστότοπο')}
         </Link>
       </div>
     </div>
@@ -313,7 +328,8 @@ function ApprovalsSection({
             {apps.length === 0 && (
               <tr>
                 <td colSpan={4} className="muted">
-                  {t('No pending applications 🎉', 'Καμία εκκρεμής αίτηση 🎉')}
+                  <PartyPopper size={15} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
+                  {t('No pending applications', 'Καμία εκκρεμής αίτηση')}
                 </td>
               </tr>
             )}
@@ -462,7 +478,12 @@ function ProductsSection({
           {products.map((p) => (
             <tr key={p.slug}>
               <td>
-                <b>{p.name}</b> {p.featured && <span className="status blue">★</span>}
+                <b>{p.name}</b>{' '}
+                {p.featured && (
+                  <span className="status blue">
+                    <Star size={11} aria-label="Featured" />
+                  </span>
+                )}
               </td>
               <td className="muted">{p.category}</td>
               <td className="muted">{p.buy ? t('Buy', 'Αγορά') : t('Quote', 'Προσφορά')}</td>
@@ -615,7 +636,8 @@ function ProductForm({
               {t('Buy (list price)', 'Αγορά (τιμή)')}
             </span>
             <span className={`chip${form.featured ? ' on' : ''}`} onClick={() => upd('featured', !form.featured)}>
-              ★ {t('Featured', 'Προτεινόμενο')}
+              <Star size={12} aria-hidden style={{ verticalAlign: '-1px', marginRight: 4 }} />
+              {t('Featured', 'Προτεινόμενο')}
             </span>
           </div>
           <p className="muted mt8" style={{ fontSize: 12.5 }}>
@@ -661,7 +683,7 @@ function ProductForm({
 
         {error && (
           <div className="notice mt16" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-            <div className="ic" style={{ color: '#ff7a7a' }}>!</div>
+            <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
             <div>{error}</div>
           </div>
         )}

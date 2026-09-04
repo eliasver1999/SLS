@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import { useLang } from '../context/language'
 import { resetPassword } from '../lib/api'
+import { CircleAlert } from 'lucide-react'
 
 export default function ResetPassword() {
   const { t } = useLang()
@@ -57,7 +58,7 @@ export default function ResetPassword() {
         <div className="container" style={{ maxWidth: 460 }}>
           {invalidLink ? (
             <div className="notice" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-              <div className="ic" style={{ color: '#ff7a7a' }}>!</div>
+              <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
               <div>
                 {t(
                   'This reset link is missing or invalid. Please request a new one.',
@@ -98,7 +99,7 @@ export default function ResetPassword() {
               </div>
               {error && (
                 <div className="notice" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-                  <div className="ic" style={{ color: '#ff7a7a' }}>!</div>
+                  <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
                   <div>{error}</div>
                 </div>
               )}

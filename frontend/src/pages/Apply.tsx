@@ -3,6 +3,7 @@ import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { createPartnerApplication } from '../lib/api'
+import { Check, CircleAlert, Hash } from 'lucide-react'
 
 export default function Apply() {
   const { t } = useLang()
@@ -184,7 +185,7 @@ export default function Apply() {
                   className="notice mt16"
                   style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
                 >
-                  <div className="ic" style={{ color: '#ff7a7a' }}>!</div>
+                  <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
                   <div>{errorMsg}</div>
                 </div>
               )}
@@ -232,7 +233,7 @@ export default function Apply() {
                   boxShadow: 'var(--glow)',
                 }}
               >
-                ✓
+                <Check size={30} aria-hidden />
               </div>
               <div className="eyebrow center">{t('Application received', 'Η αίτηση ελήφθη')}</div>
               <h2 className="h2 mt8">{t('Pending approval', 'Σε αναμονή έγκρισης')}</h2>
@@ -243,7 +244,7 @@ export default function Apply() {
                 )}
               </p>
               <div className="notice mt24" style={{ textAlign: 'left' }}>
-                <div className="ic">#</div>
+                <div className="ic"><Hash size={17} aria-hidden /></div>
                 <div>
                   <b>
                     {t('Reference: ', 'Αριθμός: ')}

@@ -1,5 +1,6 @@
 import { useLang } from '../context/language'
 import Eq from '../components/Eq'
+import { Lock } from 'lucide-react'
 
 const SWATCHES = [
   { name: 'Electric Blue', hex: '#1F8BFF', note: 'Primary · CTAs · AAA on #05070D' },
@@ -117,7 +118,9 @@ export default function UIKit() {
                 <span className="status blue">In production</span>
                 <span className="chip on">Indoor</span>
                 <span className="chip">Outdoor</span>
-                <span className="price-locked">🔒 Sign in for pricing</span>
+                <span className="price-locked">
+                  <Lock size={13} aria-hidden /> Sign in for pricing
+                </span>
               </div>
               <h3 className="head mt24" style={{ letterSpacing: 1, color: 'var(--grey)', fontSize: 14 }}>
                 EQUALIZER MOTIF
@@ -158,7 +161,9 @@ export default function UIKit() {
                       </li>
                     </ul>
                     <div className="foot">
-                      <span className="price-locked">🔒 Pricing</span>
+                      <span className="price-locked">
+                        <Lock size={13} aria-hidden /> Pricing
+                      </span>
                       <span className="btn btn-ghost btn-sm">View</span>
                     </div>
                   </div>

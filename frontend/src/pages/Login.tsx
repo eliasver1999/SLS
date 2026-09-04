@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
+import { CircleAlert } from 'lucide-react'
 
 export default function Login() {
   const { t } = useLang()
@@ -80,7 +81,7 @@ export default function Login() {
                 className="notice"
                 style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
               >
-                <div className="ic" style={{ color: '#ff7a7a' }}>!</div>
+                <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
                 <div>{error}</div>
               </div>
             )}

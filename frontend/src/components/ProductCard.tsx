@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Lock } from 'lucide-react'
 import { useLang } from '../context/language'
 import type { Product } from '../data/products'
 
@@ -32,7 +33,8 @@ export default function ProductCard({ product }: { product: Product }) {
           {price ? (
             <>
               <span className="price-locked guest-only">
-                🔒 <span>{t('Sign in for pricing', 'Τιμή με σύνδεση')}</span>
+                <Lock size={13} aria-hidden />
+                <span>{t('Sign in for pricing', 'Τιμή με σύνδεση')}</span>
               </span>
               <span className="price approved-only">
                 {price.price}

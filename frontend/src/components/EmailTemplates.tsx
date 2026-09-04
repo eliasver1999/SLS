@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useLang } from '../context/language'
+import { Pencil } from 'lucide-react'
 import {
   fetchEmailTemplates,
   previewEmailTemplate,
@@ -216,7 +217,9 @@ export default function EmailTemplates() {
                 >
                   <span style={{ flex: 1 }}>{tpl.label}</span>
                   {!tpl.enabled && <span className="status rej">{t('Off', 'Ανενεργό')}</span>}
-                  {tpl.enabled && tpl.customised && <span className="status ok">•</span>}
+                  {tpl.enabled && tpl.customised && <span className="status ok" title={t('Customised', 'Προσαρμοσμένο')}>
+                      <Pencil size={10} aria-hidden />
+                    </span>}
                 </button>
               ))}
             </div>

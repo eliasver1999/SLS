@@ -4,6 +4,7 @@ import { useLang } from '../context/language'
 import ProductCard from '../components/ProductCard'
 import { PRODUCTS, type Category, type Product } from '../data/products'
 import { fetchProducts } from '../lib/api'
+import { CircleCheck, Hourglass, Lock } from 'lucide-react'
 
 type TypeFilter = 'all' | Category
 
@@ -79,7 +80,7 @@ export default function Catalogue() {
 
           {/* auth banners — CSS shows the right one via body[data-auth] */}
           <div className="notice mt16 guest-only guest-strict" style={{ marginTop: 18 }}>
-            <div className="ic">🔒</div>
+            <div className="ic"><Lock size={18} aria-hidden /></div>
             <div>
               <b>{t('Pricing is hidden for guests.', 'Οι τιμές είναι κρυφές για επισκέπτες.')}</b>
               <span className="muted">
@@ -107,7 +108,7 @@ export default function Catalogue() {
             }}
           >
             <div className="ic" style={{ color: '#ffce54' }}>
-              ⏳
+              <Hourglass size={18} aria-hidden />
             </div>
             <div>
               <b>{t('Your account is pending approval.', 'Ο λογαριασμός σας είναι σε αναμονή έγκρισης.')}</b>
@@ -128,7 +129,7 @@ export default function Catalogue() {
             }}
           >
             <div className="ic" style={{ color: '#48d38a' }}>
-              ✓
+              <CircleCheck size={18} aria-hidden />
             </div>
             <div>
               <b>

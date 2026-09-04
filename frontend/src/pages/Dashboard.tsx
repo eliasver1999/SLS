@@ -3,6 +3,16 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
 import { fetchOrders, type MemberStatus, type Order, type OrderStatus } from '../lib/api'
+import {
+  Building2,
+  FileText,
+  Hourglass,
+  LayoutDashboard,
+  Package,
+  Receipt,
+  ShoppingCart,
+  X,
+} from 'lucide-react'
 
 const STATUS_STYLE: Record<OrderStatus, string> = {
   pending: 'wait',
@@ -84,12 +94,30 @@ export default function Dashboard() {
           </div>
         </div>
         <nav>
-          <a className="on">▦ {t('Dashboard', 'Πίνακας')}</a>
-          <Link to="/catalogue">▤ {t('Catalogue', 'Κατάλογος')}</Link>
-          <a>✎ {t('Quotes', 'Προσφορές')}</a>
-          <a>▣ {t('Orders', 'Παραγγελίες')}</a>
-          <a>€ {t('Invoices', 'Τιμολόγια')}</a>
-          <a>◱ {t('Company profile', 'Προφίλ εταιρείας')}</a>
+          <a className="on">
+            <LayoutDashboard size={17} aria-hidden />
+            {t('Dashboard', 'Πίνακας')}
+          </a>
+          <Link to="/catalogue">
+            <Package size={17} aria-hidden />
+            {t('Catalogue', 'Κατάλογος')}
+          </Link>
+          <a>
+            <FileText size={17} aria-hidden />
+            {t('Quotes', 'Προσφορές')}
+          </a>
+          <a>
+            <ShoppingCart size={17} aria-hidden />
+            {t('Orders', 'Παραγγελίες')}
+          </a>
+          <a>
+            <Receipt size={17} aria-hidden />
+            {t('Invoices', 'Τιμολόγια')}
+          </a>
+          <a>
+            <Building2 size={17} aria-hidden />
+            {t('Company profile', 'Προφίλ εταιρείας')}
+          </a>
         </nav>
       </aside>
 
@@ -243,7 +271,7 @@ function PendingDashboard({ status }: { status: MemberStatus }) {
               fontSize: 28,
             }}
           >
-            {rejected ? '✕' : '⏳'}
+            {rejected ? <X size={28} aria-hidden /> : <Hourglass size={26} aria-hidden />}
           </div>
           <div className="eyebrow center">{t('Member area', 'Περιοχή μελών')}</div>
           <h2 className="h2 mt8">

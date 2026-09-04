@@ -5,6 +5,7 @@ import { useAuth } from '../context/auth'
 import { useCart } from '../context/cart'
 import { getProduct } from '../data/products'
 import { createOrder, fetchProduct, type OrderItem } from '../lib/api'
+import { Clock, Lock, Settings2 } from 'lucide-react'
 
 export default function Product() {
   const { t, lang } = useLang()
@@ -159,11 +160,13 @@ export default function Product() {
             <div className="panel mt24">
               {product.buy ? (
                 <div className="leadtime">
-                  ⚙ <span>{lang === 'el' ? product.buy.leadTime.el : product.buy.leadTime.en}</span>
+                  <Clock size={15} aria-hidden />
+                  <span>{lang === 'el' ? product.buy.leadTime.el : product.buy.leadTime.en}</span>
                 </div>
               ) : (
                 <div className="leadtime">
-                  ⚙ <span>{t('Scoped and priced per event', 'Κοστολόγηση ανά εκδήλωση')}</span>
+                  <Settings2 size={15} aria-hidden />
+                  <span>{t('Scoped and priced per event', 'Κοστολόγηση ανά εκδήλωση')}</span>
                 </div>
               )}
 
@@ -214,7 +217,8 @@ export default function Product() {
               {/* Guests + pending members: pricing locked */}
               <div className="guest-only">
                 <div className="price-locked">
-                  🔒 <span>{t('Sign in for B2B pricing', 'Σύνδεση για B2B τιμές')}</span>
+                  <Lock size={14} aria-hidden />
+                  <span>{t('Sign in for B2B pricing', 'Σύνδεση για B2B τιμές')}</span>
                 </div>
                 <div className="guest-strict">
                   <Link className="btn btn-primary mt16" to="/register">

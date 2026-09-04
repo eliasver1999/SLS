@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useLang } from '../context/language'
+import { Check, Hash } from 'lucide-react'
 
 export default function OrderReceived() {
   const { t } = useLang()
@@ -33,7 +34,7 @@ export default function OrderReceived() {
                 boxShadow: 'var(--glow)',
               }}
             >
-              ✓
+              <Check size={32} aria-hidden />
             </div>
             <div className="eyebrow center">{t('Request received', 'Το αίτημα ελήφθη')}</div>
             <h1 className="h2 mt8">
@@ -64,7 +65,7 @@ export default function OrderReceived() {
             </div>
 
             <div className="notice mt24" style={{ textAlign: 'left' }}>
-              <div className="ic">#</div>
+              <div className="ic"><Hash size={17} aria-hidden /></div>
               <div>
                 <b>
                   {t('Reference: ', 'Αριθμός: ')}
