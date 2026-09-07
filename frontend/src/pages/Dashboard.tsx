@@ -250,7 +250,7 @@ export default function Dashboard() {
                 <th>#</th>
                 <th>{t('Item', 'Είδος')}</th>
                 <th>{t('Type', 'Τύπος')}</th>
-                <th>{t('Total (ex VAT)', 'Σύνολο (χ/ΦΠΑ)')}</th>
+                <th>{t('Total (inc. VAT)', 'Σύνολο (με ΦΠΑ)')}</th>
                 <th>{t('Status', 'Κατάσταση')}</th>
                 <th></th>
               </tr>
@@ -270,7 +270,7 @@ export default function Dashboard() {
                   <td>{o.reference.replace('SLS-', '')}</td>
                   <td>{itemSummary(o)}</td>
                   <td>{typeLabel(o)}</td>
-                  <td>{o.total ?? '—'}</td>
+                  <td>{o.total_cents > 0 ? o.total : t('To be quoted', 'Προς προσφορά')}</td>
                   <td>
                     <span className={`status ${STATUS_STYLE[o.status]}`}>{statusLabel(o.status)}</span>
                   </td>

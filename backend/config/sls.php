@@ -8,4 +8,5 @@ return [
     'account_name' => env('SLS_ACCOUNT_NAME', 'SLS Sound Lights Screens'),
     'deposit_percent' => (int) env('SLS_DEPOSIT_PERCENT', 50),
     'vat_percent' => (int) env('SLS_VAT_PERCENT', 24),
+    'currency' => env('SLS_CURRENCY', 'EUR'),
 ];

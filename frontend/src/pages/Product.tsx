@@ -7,6 +7,7 @@ import { getProduct } from '../data/products'
 import { createOrder, fetchProduct, type OrderItem } from '../lib/api'
 import { CircleAlert, Clock, Lock, Settings2 } from 'lucide-react'
 import { errorMessage } from '../lib/errors'
+import { formatCents } from '../lib/money'
 
 export default function Product() {
   const { t, lang } = useLang()
@@ -27,6 +28,8 @@ export default function Product() {
   const [eventDate, setEventDate] = useState('')
   const [venue, setVenue] = useState('')
   const [deliveryAddress, setDeliveryAddress] = useState('')
+
+  const money = (cents: number) => formatCents(cents, lang)
 
   const eventDetails = () => ({
     event_type: eventType.trim() || undefined,
@@ -73,7 +76,7 @@ export default function Product() {
     name: p.name,
     mode: 'buy',
     qty: parseInt(qty, 10) || 1,
-    price: p.buy?.price ?? undefined,
+    unit_price_cents: p.buy?.price_cents ?? undefined,
   })
 
   const quoteItem = (): OrderItem => ({
@@ -81,7 +84,7 @@ export default function Product() {
     name: p.name,
     mode: p.buy ? 'buy' : undefined,
     qty: parseInt(qty, 10) || 1,
-    price: p.buy?.price ?? undefined,
+    unit_price_cents: p.buy?.price_cents ?? undefined,
   })
 
   // Place a single-item order request.
@@ -369,7 +372,11 @@ export default function Product() {
                     {t('Buy', 'Αγορά')}
                   </div>
                 </div>
-                {it.price && <b className="approved-only">{it.price}</b>}
+                {it.unit_price_cents != null && it.unit_price_cents > 0 && (
+                  <b className="approved-only">
+                    {money(it.unit_price_cents * (it.qty ?? 1))}
+                  </b>
+                )}
                 <button
                   className="btn btn-ghost btn-sm"
                   style={{ marginLeft: 8 }}

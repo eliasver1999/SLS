@@ -31,8 +31,8 @@ class ProductPricingTest extends TestCase
             'card_specs' => [],
             'spec_table' => [],
             'modes' => ['buy'],
+            'buy_price_cents' => 690000,
             'buy' => [
-                'price' => '€ 6,900',
                 'unit' => ['en' => '/ panel', 'el' => '/ panel'],
                 'leadTime' => ['en' => '3–4 weeks', 'el' => '3–4 εβδομάδες'],
             ],
@@ -111,7 +111,7 @@ class ProductPricingTest extends TestCase
     public function test_quote_only_products_expose_no_buy_block(): void
     {
         $product = $this->product();
-        $product->update(['buy' => null, 'modes' => []]);
+        $product->update(['buy' => null, 'buy_price_cents' => null, 'modes' => []]);
 
         $this->getJson('/api/products')->assertJsonPath('data.0.buy', null);
     }

@@ -59,10 +59,10 @@
 
 @if (in_array('items_table', $blocks, true) && ! empty($items))
 <x-mail::table>
-| Item | Qty | Est. price |
-|:-----|:----|:-----------|
+| Item | Qty | Unit | Line total |
+|:-----|:----|:-----|:-----------|
 @foreach ($items as $item)
-| {{ $cell($item['name'] ?? null) }} | {{ $cell($item['qty'] ?? '—') }} | {{ $cell($item['price'] ?? '—') }} |
+| {{ $cell($item['name'] ?? null) }} | {{ $cell($item['qty'] ?? '—') }} | {{ $cell(\App\Support\Money::format($item['unit_price_cents'] ?? null) ?? '—') }} | {{ $cell(\App\Support\Money::format($item['line_total_cents'] ?? null) ?? '—') }} |
 @endforeach
 </x-mail::table>
 @endif
@@ -74,7 +74,11 @@
 @endif
 
 @if (in_array('total_line', $blocks, true) && ! empty($vars['total']))
-**Total (ex VAT):** {{ $vars['total'] }}
+| | |
+|:--|--:|
+| Subtotal (ex VAT) | {{ $vars['subtotal'] }} |
+| VAT ({{ $vars['vat_percent'] }}%) | {{ $vars['vat'] }} |
+| **Total** | **{{ $vars['total'] }}** |
 @endif
 
 @if (in_array('bank_panel', $blocks, true))

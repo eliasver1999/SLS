@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Mail\TemplatedMail;
+use App\Support\Money;
 use App\Models\EmailTemplate;
 use App\Models\Order;
 use App\Models\User;
@@ -116,7 +117,9 @@ class TransactionalMail
             'contact_name' => $order->contact_name,
             'company' => $order->company,
             'contact_email' => $order->contact_email,
-            'total' => $order->total,
+            'subtotal' => Money::format($order->subtotal_cents, $order->currency),
+            'vat' => Money::format($order->vat_cents, $order->currency),
+            'total' => Money::format($order->total_cents, $order->currency),
             'notes' => $order->notes,
             'status' => $order->status,
             'status_label' => static::statusLabel($order->status),
@@ -165,7 +168,9 @@ class TransactionalMail
             'contact_name' => 'Maria Papadopoulou',
             'contact_email' => 'maria@novaevents.gr',
             'company' => 'Nova Events',
-            'total' => '12,400.00 €',
+            'subtotal' => Money::format(1000000),
+            'vat' => Money::format(240000),
+            'total' => Money::format(1240000),
             'notes' => 'Delivery to the venue loading bay before 08:00.',
             'status' => $status,
             'status_label' => static::statusLabel($status),
@@ -182,8 +187,8 @@ class TransactionalMail
     public function sampleItems(): array
     {
         return [
-            ['name' => 'Aurora P2.6', 'qty' => 24, 'price' => '8,900.00 €'],
-            ['name' => 'Halo Wash 300', 'qty' => 6, 'price' => '3,500.00 €'],
+            ['name' => 'Aurora P2.6', 'qty' => 24, 'unit_price_cents' => 690000, 'line_total_cents' => 16560000],
+            ['name' => 'Halo Wash 300', 'qty' => 6, 'unit_price_cents' => 320000, 'line_total_cents' => 1920000],
         ];
     }
 

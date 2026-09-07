@@ -63,8 +63,8 @@ class OrderAuthorizationTest extends TestCase
             'card_specs' => [],
             'spec_table' => [],
             'modes' => ['buy'],
+            'buy_price_cents' => 690000,
             'buy' => [
-                'price' => '€ 6,900',
                 'unit' => ['en' => '/ panel', 'el' => '/ panel'],
                 'leadTime' => ['en' => '3 weeks', 'el' => '3 εβδομάδες'],
             ],
@@ -138,11 +138,11 @@ class OrderAuthorizationTest extends TestCase
         Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
 
         $this->postJson('/api/orders', $this->orderPayload([
-            'items' => [['slug' => 'aurora-p26', 'qty' => 1, 'price' => '€ 1']],
+            'items' => [['slug' => 'aurora-p26', 'qty' => 1, 'unit_price_cents' => 1]],
         ]))->assertCreated();
 
         // The line is rebuilt from the product, so the tampered price is dropped.
-        $this->assertSame('€ 6,900', Order::first()->items[0]['price']);
+        $this->assertSame(690000, Order::first()->items[0]['unit_price_cents']);
     }
 
     public function test_an_order_must_say_when_and_where(): void

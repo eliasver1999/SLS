@@ -134,16 +134,49 @@ export default function OrderDetail() {
                     <td>
                       {it.name}
                       {it.qty ? ` × ${it.qty}` : ''}
+                      {it.unit_price && (
+                        <div className="muted" style={{ fontSize: 12 }}>
+                          {it.unit_price} {t('each', 'ανά μονάδα')}
+                        </div>
+                      )}
                     </td>
-                    <td style={{ textAlign: 'right' }}>{it.price ?? '—'}</td>
+                    <td style={{ textAlign: 'right' }}>{it.line_total ?? '—'}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16 }}>
-              <span className="muted">{t('Total (ex VAT)', 'Σύνολο (χ/ΦΠΑ)')}</span>
-              <b className="price">{order.total ?? t('To be quoted', 'Προς προσφορά')}</b>
-            </div>
+            {order.total_cents > 0 ? (
+              <div style={{ marginTop: 16 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span className="muted">{t('Subtotal (ex VAT)', 'Υποσύνολο (χ/ΦΠΑ)')}</span>
+                  <span>{order.subtotal}</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                  <span className="muted">
+                    {t('VAT', 'ΦΠΑ')} ({order.vat_percent}%)
+                  </span>
+                  <span>{order.vat}</span>
+                </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'baseline',
+                    marginTop: 10,
+                    paddingTop: 10,
+                    borderTop: '1px solid var(--line)',
+                  }}
+                >
+                  <span>{t('Total', 'Σύνολο')}</span>
+                  <b className="price">{order.total}</b>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginTop: 16 }}>
+                <span className="muted">{t('Total', 'Σύνολο')}</span>
+                <b className="price">{t('To be quoted', 'Προς προσφορά')}</b>
+              </div>
+            )}
             {order.notes && (
               <p className="muted mt16" style={{ fontSize: 13 }}>
                 <b>{t('Your notes: ', 'Σημειώσεις σας: ')}</b>

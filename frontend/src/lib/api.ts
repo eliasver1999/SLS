@@ -159,7 +159,8 @@ export type ProductInput = {
   card_specs: Spec[]
   spec_table: Spec[]
   modes: Mode[]
-  buy?: { price: string; unit: LS; leadTime: LS } | null
+  buy?: { unit: LS; leadTime: LS } | null
+  buy_price_cents?: number | null
   featured: boolean
 }
 
@@ -192,7 +193,12 @@ export type OrderItem = {
   name: string
   mode?: Mode
   qty?: number
-  price?: string
+  /** Money is integer cents everywhere — never a float, never a string. */
+  unit_price_cents?: number
+  line_total_cents?: number
+  /** Server-formatted for display; do not send these back. */
+  unit_price?: string | null
+  line_total?: string | null
 }
 
 export type StatusEvent = {
@@ -219,6 +225,14 @@ export type Order = EventDetails & {
   contact_email: string | null
   company: string | null
   items: OrderItem[]
+  currency: string
+  subtotal_cents: number
+  vat_percent: number
+  vat_cents: number
+  total_cents: number
+  /** Formatted by the server so every screen renders the amount identically. */
+  subtotal: string | null
+  vat: string | null
   total: string | null
   notes: string | null
   status_history: StatusEvent[]
@@ -254,7 +268,9 @@ export async function cancelOrder(id: number) {
 
 export async function updateOrder(
   id: number,
-  patch: { status?: OrderStatus; total?: string | null; note?: string; items?: OrderItem[] },
+  // No total: it is derived from the lines server-side, so an invoice total
+  // can never drift from what it is made of.
+  patch: { status?: OrderStatus; note?: string; items?: OrderItem[] },
 ) {
   const { data } = await api.patch<{ data: Order }>(`/orders/${id}`, patch)
   return data.data

@@ -24,8 +24,7 @@ class OrderSeeder extends Seeder
                 'event_date' => now()->addMonths(2)->toDateString(),
                 'venue' => 'Technopolis, Athens',
                 'delivery_address' => 'Pireos 100, Gazi, 118 54 Athens — loading bay B',
-                'items' => [['slug' => 'aurora-p26', 'name' => 'Aurora P2.6', 'mode' => 'buy', 'qty' => 12]],
-                'total' => '€ 82,800',
+                'items' => [['slug' => 'aurora-p26', 'name' => 'Aurora P2.6', 'mode' => 'buy', 'qty' => 12, 'unit_price_cents' => 690000, 'line_total_cents' => 8280000]],
                 'status_history' => $this->history([
                     ['pending', null, '2026-07-10T09:15:00+00:00', $customer->name],
                 ]),
@@ -38,8 +37,7 @@ class OrderSeeder extends Seeder
                 'event_date' => now()->addWeeks(3)->toDateString(),
                 'venue' => 'Megaron Athens Concert Hall',
                 'delivery_address' => 'Vasilissis Sofias & Kokkali, 115 21 Athens',
-                'items' => [['slug' => 'titan-p39', 'name' => 'Titan P3.9', 'mode' => 'buy', 'qty' => 20]],
-                'total' => '€ 168,000',
+                'items' => [['slug' => 'titan-p39', 'name' => 'Titan P3.9', 'mode' => 'buy', 'qty' => 20, 'unit_price_cents' => 840000, 'line_total_cents' => 16800000]],
                 'status_history' => $this->history([
                     ['pending', null, '2026-07-02T11:00:00+00:00', $customer->name],
                     ['confirmed', 'SOW signed — thank you!', '2026-07-04T14:20:00+00:00', 'SLS Admin'],
@@ -53,8 +51,7 @@ class OrderSeeder extends Seeder
                 'event_type' => 'Wedding reception',
                 'event_date' => now()->addMonths(4)->toDateString(),
                 'venue' => 'Island Art & Taste, Varkiza',
-                'items' => [['slug' => 'stage-kit-s', 'name' => 'Stage Kit S', 'qty' => 1]],
-                'total' => '€ 5,800',
+                'items' => [['slug' => 'stage-kit-s', 'name' => 'Stage Kit S', 'qty' => 1, 'unit_price_cents' => 580000, 'line_total_cents' => 580000]],
                 'status_history' => $this->history([
                     ['pending', null, '2026-07-06T16:40:00+00:00', $customer->name],
                     ['quoted', 'Quote attached — valid for 30 days.', '2026-07-07T09:30:00+00:00', 'SLS Admin'],
@@ -63,7 +60,7 @@ class OrderSeeder extends Seeder
         ];
 
         foreach ($orders as $o) {
-            Order::updateOrCreate(
+            $order = Order::updateOrCreate(
                 ['reference' => $o['reference']],
                 $o + [
                     'user_id' => $customer->id,
@@ -72,6 +69,10 @@ class OrderSeeder extends Seeder
                     'company' => $customer->company,
                 ]
             );
+
+            // Totals come from the lines, here as everywhere else.
+            $order->recalculateTotals();
+            $order->save();
         }
     }
 

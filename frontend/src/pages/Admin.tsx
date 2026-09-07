@@ -30,6 +30,7 @@ import EmailTemplates from '../components/EmailTemplates'
 import Inquiries from '../components/Inquiries'
 import { STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
+import { centsToInput, inputToCents } from '../lib/money'
 import {
   ArrowLeft,
   CalendarDays,
@@ -716,16 +717,21 @@ function ProductForm({
             <div className="row2 mt8">
               <div className="field" style={field}>
                 <label>{t('Price', 'Τιμή')}</label>
-                <input value={form.buy?.price ?? ''} onChange={(e) => upd('buy', { price: e.target.value, unit: form.buy?.unit ?? ls(), leadTime: form.buy?.leadTime ?? ls() })} placeholder="€ 0.00" />
+                <input
+                  value={centsToInput(form.buy_price_cents)}
+                  inputMode="decimal"
+                  onChange={(e) => upd('buy_price_cents', inputToCents(e.target.value))}
+                  placeholder="0.00"
+                />
               </div>
               <div className="field" style={field}>
                 <label>{t('Unit (EN)', 'Μονάδα (EN)')}</label>
-                <input value={form.buy?.unit.en ?? ''} onChange={(e) => upd('buy', { price: form.buy?.price ?? '', unit: { en: e.target.value, el: form.buy?.unit.el ?? '' }, leadTime: form.buy?.leadTime ?? ls() })} placeholder="/ panel · ex VAT" />
+                <input value={form.buy?.unit.en ?? ''} onChange={(e) => upd('buy', { unit: { en: e.target.value, el: form.buy?.unit.el ?? '' }, leadTime: form.buy?.leadTime ?? ls() })} placeholder="/ panel · ex VAT" />
               </div>
             </div>
             <div className="field mt8" style={field}>
               <label>{t('Lead time (EN)', 'Χρόνος (EN)')}</label>
-              <input value={form.buy?.leadTime.en ?? ''} onChange={(e) => upd('buy', { price: form.buy?.price ?? '', unit: form.buy?.unit ?? ls(), leadTime: { en: e.target.value, el: form.buy?.leadTime.el ?? '' } })} placeholder="Made to order · 3–4 weeks" />
+              <input value={form.buy?.leadTime.en ?? ''} onChange={(e) => upd('buy', { unit: form.buy?.unit ?? ls(), leadTime: { en: e.target.value, el: form.buy?.leadTime.el ?? '' } })} placeholder="Made to order · 3–4 weeks" />
             </div>
           </div>
         )}
@@ -916,7 +922,7 @@ function OrdersSection({ type }: { type: OrderType }) {
                   <td className="muted">
                     {o.items.map((i) => `${i.name}${i.qty ? ` ×${i.qty}` : ''}`).join(', ')}
                   </td>
-                  <td>{o.total ?? '—'}</td>
+                  <td>{o.total_cents > 0 ? o.total : <span className="muted">{t('To be quoted', 'Προς προσφορά')}</span>}</td>
                   <td>
                     <span className={`status ${STATUS_PILL[o.status]}`}>{statusText(o.status, t)}</span>
                   </td>
@@ -962,7 +968,6 @@ function AdminOrderDetail({
 }) {
   const { t } = useLang()
   const [status, setStatus] = useState<OrderStatus>(order.status)
-  const [total, setTotal] = useState(order.total ?? '')
   const [note, setNote] = useState('')
   const [items, setItems] = useState<OrderItem[]>(order.items)
   const [saving, setSaving] = useState(false)
@@ -972,7 +977,6 @@ function AdminOrderDetail({
   // Re-sync the form after a save (parent passes back the server's order).
   useEffect(() => {
     setStatus(order.status)
-    setTotal(order.total ?? '')
     setItems(order.items)
   }, [order])
 
@@ -980,27 +984,49 @@ function AdminOrderDetail({
     setItems((prev) => prev.map((it, idx) => (idx === i ? { ...it, ...patch } : it)))
   const removeItem = (i: number) => setItems((prev) => prev.filter((_, idx) => idx !== i))
   const addItem = () =>
-    setItems((prev) => [...prev, { slug: `custom-${prev.length + 1}`, name: '', mode: 'buy', qty: 1, price: '' }])
+    setItems((prev) => [
+      ...prev,
+      { slug: `custom-${prev.length + 1}`, name: '', mode: 'buy', qty: 1, unit_price_cents: 0 },
+    ])
 
   const itemsChanged = JSON.stringify(items) !== JSON.stringify(order.items)
+
+  // Mirrors the server's calculation so the admin sees the effect of a
+  // reprice before saving; the server's numbers remain authoritative.
+  const draftTotals = (() => {
+    const subtotalCents = items.reduce(
+      (sum, it) => sum + (it.unit_price_cents ?? 0) * (it.qty ? Number(it.qty) : 1),
+      0,
+    )
+    const vatCents = Math.round((subtotalCents * order.vat_percent) / 100)
+    const money = (cents: number) =>
+      new Intl.NumberFormat('en-GB', {
+        style: 'currency',
+        currency: order.currency || 'EUR',
+        minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
+      }).format(cents / 100)
+
+    return { subtotal: money(subtotalCents), vat: money(vatCents), total: money(subtotalCents + vatCents) }
+  })()
 
   async function save() {
     setSaving(true)
     setSaved(false)
     setError(null)
     try {
-      // Clean up empty numeric/price fields before sending.
+      // Send only what the server accepts: the formatted display strings it
+      // gave us are not inputs, and the total is derived from the lines.
       const cleanItems = items
         .filter((it) => it.name.trim() !== '')
         .map((it) => ({
-          ...it,
+          slug: it.slug,
           name: it.name.trim(),
-          qty: it.qty ? Number(it.qty) : undefined,
-          price: it.price?.trim() || undefined,
+          mode: it.mode,
+          qty: it.qty ? Number(it.qty) : 1,
+          unit_price_cents: it.unit_price_cents ?? 0,
         }))
       await onUpdate({
         status,
-        total: total.trim() || null,
         note: note.trim() || undefined,
         items: itemsChanged && cleanItems.length ? cleanItems : undefined,
       })
@@ -1015,7 +1041,6 @@ function AdminOrderDetail({
 
   const changed =
     status !== order.status ||
-    (total.trim() || null) !== (order.total ?? null) ||
     note.trim() !== '' ||
     itemsChanged
 
@@ -1083,9 +1108,10 @@ function AdminOrderDetail({
           />
           <input
             style={inp}
-            value={it.price ?? ''}
-            placeholder="€ —"
-            onChange={(e) => setItem(i, { price: e.target.value })}
+            value={centsToInput(it.unit_price_cents)}
+            placeholder={t('Unit price', 'Τιμή')}
+            inputMode="decimal"
+            onChange={(e) => setItem(i, { unit_price_cents: inputToCents(e.target.value) ?? 0 })}
           />
           <button className="btn btn-ghost btn-sm" onClick={() => removeItem(i)} title={t('Remove', 'Αφαίρεση')}>
             ✕
@@ -1101,7 +1127,7 @@ function AdminOrderDetail({
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as OrderStatus)}
-          style={{ width: '100%', background: '#0b1119', border: '1px solid var(--line)', borderRadius: 10, color: '#fff', padding: '10px 12px', fontSize: 14 }}
+          style={{ width: '100%', background: 'var(--input-bg)', border: '1px solid var(--line)', borderRadius: 10, color: 'var(--text)', padding: '10px 12px', fontSize: 14 }}
         >
           {ORDER_STATUSES.map((s) => (
             <option key={s} value={s}>
@@ -1111,9 +1137,37 @@ function AdminOrderDetail({
         </select>
       </div>
 
-      <div className="field mt16" style={{ marginBottom: 0 }}>
-        <label>{t('Total / price (ex VAT)', 'Σύνολο / τιμή (χ/ΦΠΑ)')}</label>
-        <input value={total} onChange={(e) => setTotal(e.target.value)} placeholder="€ 12,500" />
+      {/* Derived from the lines, so it cannot disagree with them. Repricing
+          happens above; a negotiated discount goes in as its own line. */}
+      <div className="panel mt16" style={{ padding: 14, fontSize: 13 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+          <span className="muted">{t('Subtotal (ex VAT)', 'Υποσύνολο (χ/ΦΠΑ)')}</span>
+          <span>{draftTotals.subtotal}</span>
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+          <span className="muted">
+            {t('VAT', 'ΦΠΑ')} ({order.vat_percent}%)
+          </span>
+          <span>{draftTotals.vat}</span>
+        </div>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: 8,
+            paddingTop: 8,
+            borderTop: '1px solid var(--line)',
+            fontWeight: 700,
+          }}
+        >
+          <span>{t('Total', 'Σύνολο')}</span>
+          <span>{draftTotals.total}</span>
+        </div>
+        {itemsChanged && (
+          <p className="muted mt8" style={{ fontSize: 12 }}>
+            {t('Recalculated on save.', 'Υπολογίζεται στην αποθήκευση.')}
+          </p>
+        )}
       </div>
 
       <div className="field mt16" style={{ marginBottom: 0 }}>
@@ -1193,7 +1247,8 @@ function blankInput(): ProductInput {
     card_specs: [],
     spec_table: [],
     modes: ['buy'],
-    buy: { price: '', unit: ls(), leadTime: ls() },
+    buy: { unit: ls(), leadTime: ls() },
+    buy_price_cents: null,
     featured: false,
   }
 }
@@ -1211,9 +1266,8 @@ function toInput(p: Product): ProductInput {
     card_specs: p.cardSpecs,
     spec_table: p.specTable,
     modes: p.modes,
-    // Admins are always approved, so the API includes the price; fall back to
-    // an empty field rather than dropping it if it ever arrives absent.
-    buy: p.buy ? { ...p.buy, price: p.buy.price ?? '' } : null,
+    buy: p.buy ? { unit: p.buy.unit, leadTime: p.buy.leadTime } : null,
+    buy_price_cents: p.buy?.price_cents ?? null,
     featured: !!p.featured,
   }
 }

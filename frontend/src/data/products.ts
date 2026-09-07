@@ -20,8 +20,11 @@ export type Product = {
   cardSpecs: Spec[]
   specTable: Spec[]
   modes: Mode[]
-  /** `price` is omitted by the API unless the caller is an approved partner. */
-  buy?: { price?: string | null; unit: LS; leadTime: LS }
+  /**
+   * `price` (server-formatted) and `price_cents` are both omitted by the API
+   * unless the caller is an approved partner.
+   */
+  buy?: { price?: string | null; price_cents?: number | null; unit: LS; leadTime: LS }
   featured?: boolean
 }
 

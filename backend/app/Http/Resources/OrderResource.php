@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\Money;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -24,8 +25,21 @@ class OrderResource extends JsonResource
             'event_date' => $this->event_date?->toDateString(),
             'venue' => $this->venue,
             'delivery_address' => $this->delivery_address,
-            'items' => $this->items,
-            'total' => $this->total,
+            'currency' => $this->currency,
+            'items' => collect($this->items ?? [])->map(fn (array $item) => [
+                ...$item,
+                'unit_price' => Money::format($item['unit_price_cents'] ?? null, $this->currency),
+                'line_total' => Money::format($item['line_total_cents'] ?? null, $this->currency),
+            ])->all(),
+            'subtotal_cents' => $this->subtotal_cents,
+            'vat_percent' => $this->vat_percent,
+            'vat_cents' => $this->vat_cents,
+            'total_cents' => $this->total_cents,
+            // Formatted alongside the cents so every screen and email renders
+            // the amount identically instead of each rolling its own.
+            'subtotal' => Money::format($this->subtotal_cents, $this->currency),
+            'vat' => Money::format($this->vat_cents, $this->currency),
+            'total' => Money::format($this->total_cents, $this->currency),
             'notes' => $this->notes,
             'status_history' => $this->status_history ?? [],
             'created_at' => $this->created_at?->toIso8601String(),

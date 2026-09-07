@@ -60,7 +60,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Warranty', 'Εγγύηση', '2 years', '2 έτη'),
                 ],
                 'modes' => ['buy'],
-                'buy' => ['price' => '€ 6,900', 'unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες')],
+                'buy_price_cents' => 690000,
+                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες')],
             ],
             [
                 'slug' => 'titan-p39',
@@ -89,7 +90,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Warranty', 'Εγγύηση', '2 years', '2 έτη'),
                 ],
                 'modes' => ['buy'],
-                'buy' => ['price' => '€ 8,400', 'unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες')],
+                'buy_price_cents' => 840000,
+                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες')],
             ],
             [
                 'slug' => 'flex-p29',
@@ -117,7 +119,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Availability', 'Διαθεσιμότητα', 'In stock', 'Διαθέσιμο'),
                 ],
                 'modes' => ['buy'],
-                'buy' => ['price' => '€ 5,400', 'unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('In stock · ships in 1 week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα')],
+                'buy_price_cents' => 540000,
+                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('In stock · ships in 1 week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα')],
             ],
             [
                 'slug' => 'beam-380',
@@ -145,7 +148,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Placement', 'Τοποθέτηση', 'Stage / event', 'Σκηνή / εκδήλωση'),
                 ],
                 'modes' => ['buy'],
-                'buy' => ['price' => '€ 1,900', 'unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
+                'buy_price_cents' => 190000,
+                'buy' => ['unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
             ],
             [
                 'slug' => 'la-12-array',
@@ -173,7 +177,8 @@ class ProductSeeder extends Seeder
                     $this->spec('Placement', 'Τοποθέτηση', 'Live / venue', 'Live / χώρος'),
                 ],
                 'modes' => ['buy'],
-                'buy' => ['price' => '€ 3,200', 'unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
+                'buy_price_cents' => 320000,
+                'buy' => ['unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
             ],
             [
                 'slug' => 'stage-kit-s',

@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Support\Money;
 use Illuminate\Support\Arr;
 
 /**
@@ -52,10 +53,16 @@ class ProductResource extends JsonResource
         // The product routes are public, so the bearer token has to be resolved
         // through Sanctum's guard by name — the default guard is session-based
         // and would report a guest for every token-authenticated request.
+        $buy = $this->buy;
+
         if ($request->user('sanctum')?->isApproved()) {
-            return $this->buy;
+            return [
+                ...$buy,
+                'price_cents' => $this->buy_price_cents,
+                'price' => Money::format($this->buy_price_cents),
+            ];
         }
 
-        return Arr::except($this->buy, ['price']);
+        return Arr::except($buy, ['price', 'price_cents']);
     }
 }
