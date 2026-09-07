@@ -103,88 +103,90 @@ export default function Inquiries() {
         <p style={{ color: '#ff7a7a', fontSize: 13, marginTop: 12 }}>{error}</p>
       )}
 
-      <table className="tbl mt16">
-        <tbody>
-          <tr>
-            <th>{t('Received', 'Ελήφθη')}</th>
-            <th>{t('From', 'Από')}</th>
-            <th>{t('Event', 'Εκδήλωση')}</th>
-            <th>{t('Status', 'Κατάσταση')}</th>
-            <th>{t('Action', 'Ενέργεια')}</th>
-          </tr>
-
-          {items.length === 0 && (
+      <div className="table-scroll">
+        <table className="tbl mt16">
+          <tbody>
             <tr>
-              <td colSpan={5} className="muted">
-                {t('No enquiries yet.', 'Κανένα αίτημα ακόμη.')}
-              </td>
+              <th>{t('Received', 'Ελήφθη')}</th>
+              <th>{t('From', 'Από')}</th>
+              <th>{t('Event', 'Εκδήλωση')}</th>
+              <th>{t('Status', 'Κατάσταση')}</th>
+              <th>{t('Action', 'Ενέργεια')}</th>
             </tr>
-          )}
 
-          {items.map((inq) => (
-            <Fragment key={inq.id}>
-              <tr
-                onClick={() => setOpen(open === inq.id ? null : inq.id)}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>{date(inq.created_at)}</td>
-                <td>
-                  <b>{inq.name}</b>
-                  <div className="muted" style={{ fontSize: 12 }}>
-                    {inq.email}
-                  </div>
-                </td>
-                <td>
-                  {inq.event_type}
-                  {inq.event_date && (
-                    <div className="muted" style={{ fontSize: 12 }}>
-                      {date(inq.event_date)}
-                    </div>
-                  )}
-                </td>
-                <td>
-                  <span className={`status ${inq.status === 'new' ? 'wait' : 'ok'}`}>
-                    {inq.status === 'new' ? t('New', 'Νέο') : t('Handled', 'Διεκπεραιωμένο')}
-                  </span>
-                </td>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  <button
-                    className="btn btn-ghost btn-sm"
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setStatus(inq, inq.status === 'new' ? 'handled' : 'new')
-                    }}
-                  >
-                    {inq.status === 'new' ? t('Mark handled', 'Διεκπεραιώθηκε') : t('Reopen', 'Επαναφορά')}
-                  </button>
+            {items.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  {t('No enquiries yet.', 'Κανένα αίτημα ακόμη.')}
                 </td>
               </tr>
+            )}
 
-              {open === inq.id && (
-                <tr>
-                  <td colSpan={5} style={{ background: 'rgba(255,255,255,.02)' }}>
-                    <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: 10 }}>
-                      <a className="btn btn-ghost btn-sm" href={`mailto:${inq.email}`}>
-                        <Mail size={13} aria-hidden />
-                        {t('Reply', 'Απάντηση')}
-                      </a>
-                      {inq.phone && (
-                        <a className="btn btn-ghost btn-sm" href={`tel:${inq.phone}`}>
-                          <Phone size={13} aria-hidden />
-                          {inq.phone}
-                        </a>
-                      )}
-                    </div>
-                    <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.6 }}>
-                      {inq.message}
+            {items.map((inq) => (
+              <Fragment key={inq.id}>
+                <tr
+                  onClick={() => setOpen(open === inq.id ? null : inq.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td>{date(inq.created_at)}</td>
+                  <td>
+                    <b>{inq.name}</b>
+                    <div className="muted" style={{ fontSize: 12 }}>
+                      {inq.email}
                     </div>
                   </td>
+                  <td>
+                    {inq.event_type}
+                    {inq.event_date && (
+                      <div className="muted" style={{ fontSize: 12 }}>
+                        {date(inq.event_date)}
+                      </div>
+                    )}
+                  </td>
+                  <td>
+                    <span className={`status ${inq.status === 'new' ? 'wait' : 'ok'}`}>
+                      {inq.status === 'new' ? t('New', 'Νέο') : t('Handled', 'Διεκπεραιωμένο')}
+                    </span>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <button
+                      className="btn btn-ghost btn-sm"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        setStatus(inq, inq.status === 'new' ? 'handled' : 'new')
+                      }}
+                    >
+                      {inq.status === 'new' ? t('Mark handled', 'Διεκπεραιώθηκε') : t('Reopen', 'Επαναφορά')}
+                    </button>
+                  </td>
                 </tr>
-              )}
-            </Fragment>
-          ))}
-        </tbody>
-      </table>
+
+                {open === inq.id && (
+                  <tr>
+                    <td colSpan={5} style={{ background: 'rgba(255,255,255,.02)' }}>
+                      <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', marginBottom: 10 }}>
+                        <a className="btn btn-ghost btn-sm" href={`mailto:${inq.email}`}>
+                          <Mail size={13} aria-hidden />
+                          {t('Reply', 'Απάντηση')}
+                        </a>
+                        {inq.phone && (
+                          <a className="btn btn-ghost btn-sm" href={`tel:${inq.phone}`}>
+                            <Phone size={13} aria-hidden />
+                            {inq.phone}
+                          </a>
+                        )}
+                      </div>
+                      <div style={{ whiteSpace: 'pre-wrap', fontSize: 14, lineHeight: 1.6 }}>
+                        {inq.message}
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </Fragment>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </>
   )
 }

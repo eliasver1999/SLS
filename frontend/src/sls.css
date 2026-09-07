@@ -1098,10 +1098,83 @@ body[data-auth='pending'] .guest-strict {
 .mobile-nav .btn {
   margin-top: 14px;
 }
+/* Wide data tables stay readable on narrow screens by scrolling inside their
+   own box, rather than stretching the page and clipping the last columns. */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  /* A grid/flex item defaults to min-width:auto, which refuses to shrink below
+     its content — that is what let a wide table stretch the whole page. */
+  min-width: 0;
+}
+.table-scroll > .tbl {
+  min-width: 560px;
+}
+.dash-main,
+.dash .side {
+  min-width: 0;
+}
+
+/* Email template editor: event list beside the form, stacking when there is
+   not room for both. */
+.email-editor {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) 1fr;
+  gap: 24px;
+  margin-top: 24px;
+  align-items: start;
+}
+.email-editor > * {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .email-editor {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Horizontal section switcher for the dashboard/admin, shown only when the
+   sidebar is hidden (see the .side rule below). */
+.dash-tabs {
+  display: none;
+}
+
 @media (max-width: 900px) {
   .nav,
   .header .actions .btn-ghost {
     display: none;
+  }
+  .dash-tabs {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 6px;
+    margin-bottom: 20px;
+  }
+  .dash-tabs button {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: none;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--grey);
+    font: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 14px;
+    cursor: pointer;
+  }
+  .dash-tabs button.on {
+    background: rgba(31, 139, 255, 0.16);
+    border-color: rgba(31, 139, 255, 0.5);
+    color: #fff;
+  }
+  .dash-tabs button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
   .burger {
     display: grid;

@@ -142,6 +142,21 @@ export default function Admin() {
       </aside>
 
       <div className="dash-main">
+        {/* The sidebar is hidden on narrow screens, so the same sections need
+            a reachable switcher here. */}
+        <nav className="dash-tabs">
+          {nav.map((n) => (
+            <button
+              key={n.key}
+              className={section === n.key ? 'on' : undefined}
+              onClick={() => setSection(n.key)}
+            >
+              <n.Icon size={15} aria-hidden />
+              {n.label}
+            </button>
+          ))}
+        </nav>
+
         <ErrorNote message={loadError} />
         {section === 'members' && (
           <MembersSection
@@ -233,46 +248,48 @@ function MembersSection({
 
       <ErrorNote message={error} />
 
-      <table className="tbl mt24">
-        <tbody>
-          <tr>
-            <th>{t('Name', 'Όνομα')}</th>
-            <th>{t('Company', 'Εταιρεία')}</th>
-            <th>Email</th>
-            <th>{t('Status', 'Κατάσταση')}</th>
-            <th>{t('Action', 'Ενέργεια')}</th>
-          </tr>
-          {members.length === 0 && (
+      <div className="table-scroll">
+        <table className="tbl mt24">
+          <tbody>
             <tr>
-              <td colSpan={5} className="muted">
-                {t('No registered members yet.', 'Καμία εγγραφή ακόμη.')}
-              </td>
+              <th>{t('Name', 'Όνομα')}</th>
+              <th>{t('Company', 'Εταιρεία')}</th>
+              <th>Email</th>
+              <th>{t('Status', 'Κατάσταση')}</th>
+              <th>{t('Action', 'Ενέργεια')}</th>
             </tr>
-          )}
-          {members.map((m) => (
-            <tr key={m.id}>
-              <td>
-                <b>{m.name}</b>
-              </td>
-              <td className="muted">{m.company ?? '—'}</td>
-              <td className="muted">{m.email}</td>
-              <td>{statusPill(m.status)}</td>
-              <td style={{ whiteSpace: 'nowrap' }}>
-                {m.status !== 'approved' && (
-                  <span className="btn btn-primary btn-sm" onClick={() => decide(m, 'approved')}>
-                    {t('Approve', 'Έγκριση')}
-                  </span>
-                )}{' '}
-                {m.status !== 'rejected' && (
-                  <span className="btn btn-ghost btn-sm" onClick={() => decide(m, 'rejected')}>
-                    {t('Reject', 'Απόρριψη')}
-                  </span>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            {members.length === 0 && (
+              <tr>
+                <td colSpan={5} className="muted">
+                  {t('No registered members yet.', 'Καμία εγγραφή ακόμη.')}
+                </td>
+              </tr>
+            )}
+            {members.map((m) => (
+              <tr key={m.id}>
+                <td>
+                  <b>{m.name}</b>
+                </td>
+                <td className="muted">{m.company ?? '—'}</td>
+                <td className="muted">{m.email}</td>
+                <td>{statusPill(m.status)}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  {m.status !== 'approved' && (
+                    <span className="btn btn-primary btn-sm" onClick={() => decide(m, 'approved')}>
+                      {t('Approve', 'Έγκριση')}
+                    </span>
+                  )}{' '}
+                  {m.status !== 'rejected' && (
+                    <span className="btn btn-ghost btn-sm" onClick={() => decide(m, 'rejected')}>
+                      {t('Reject', 'Απόρριψη')}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {hasMore && (
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <button className="btn btn-ghost btn-sm" onClick={onLoadMore}>
@@ -333,47 +350,49 @@ function ApprovalsSection({
       <ErrorNote message={error} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
-        <table className="tbl">
-          <tbody>
-            <tr>
-              <th>{t('Company', 'Εταιρεία')}</th>
-              <th>{t('VAT', 'ΑΦΜ')}</th>
-              <th>{t('Contact / role', 'Επαφή / ρόλος')}</th>
-              <th>{t('Action', 'Ενέργεια')}</th>
-            </tr>
-            {apps.length === 0 && (
+        <div className="table-scroll">
+          <table className="tbl">
+            <tbody>
               <tr>
-                <td colSpan={4} className="muted">
-                  <PartyPopper size={15} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
-                  {t('No pending applications', 'Καμία εκκρεμής αίτηση')}
-                </td>
+                <th>{t('Company', 'Εταιρεία')}</th>
+                <th>{t('VAT', 'ΑΦΜ')}</th>
+                <th>{t('Contact / role', 'Επαφή / ρόλος')}</th>
+                <th>{t('Action', 'Ενέργεια')}</th>
               </tr>
-            )}
-            {apps.map((a) => (
-              <tr
-                key={a.id}
-                onClick={() => setSelected(a)}
-                style={{ cursor: 'pointer', background: selected?.id === a.id ? 'rgba(31,139,255,.06)' : undefined }}
-              >
-                <td>
-                  <b>{a.company}</b>
-                </td>
-                <td>{a.vat}</td>
-                <td>
-                  {a.contact_name} · <span className="muted">{a.role}</span>
-                </td>
-                <td style={{ whiteSpace: 'nowrap' }}>
-                  <span className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); decide(a, 'approved') }}>
-                    {t('Approve', 'Έγκριση')}
-                  </span>{' '}
-                  <span className="btn btn-ghost btn-sm" onClick={(e) => { e.stopPropagation(); decide(a, 'rejected') }}>
-                    {t('Reject', 'Απόρριψη')}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              {apps.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="muted">
+                    <PartyPopper size={15} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
+                    {t('No pending applications', 'Καμία εκκρεμής αίτηση')}
+                  </td>
+                </tr>
+              )}
+              {apps.map((a) => (
+                <tr
+                  key={a.id}
+                  onClick={() => setSelected(a)}
+                  style={{ cursor: 'pointer', background: selected?.id === a.id ? 'rgba(31,139,255,.06)' : undefined }}
+                >
+                  <td>
+                    <b>{a.company}</b>
+                  </td>
+                  <td>{a.vat}</td>
+                  <td>
+                    {a.contact_name} · <span className="muted">{a.role}</span>
+                  </td>
+                  <td style={{ whiteSpace: 'nowrap' }}>
+                    <span className="btn btn-primary btn-sm" onClick={(e) => { e.stopPropagation(); decide(a, 'approved') }}>
+                      {t('Approve', 'Έγκριση')}
+                    </span>{' '}
+                    <span className="btn btn-ghost btn-sm" onClick={(e) => { e.stopPropagation(); decide(a, 'rejected') }}>
+                      {t('Reject', 'Απόρριψη')}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <aside className="panel">
           <div className="eyebrow">{t('Applicant', 'Αιτών')}</div>
@@ -486,40 +505,42 @@ function ProductsSection({
 
       <ErrorNote message={error} />
 
-      <table className="tbl mt24">
-        <tbody>
-          <tr>
-            <th>{t('Name', 'Όνομα')}</th>
-            <th>{t('Category', 'Κατηγορία')}</th>
-            <th>{t('Modes', 'Λειτουργίες')}</th>
-            <th>{t('Price', 'Τιμή')}</th>
-            <th>{t('Action', 'Ενέργεια')}</th>
-          </tr>
-          {products.map((p) => (
-            <tr key={p.slug}>
-              <td>
-                <b>{p.name}</b>{' '}
-                {p.featured && (
-                  <span className="status blue">
-                    <Star size={11} aria-label="Featured" />
-                  </span>
-                )}
-              </td>
-              <td className="muted">{p.category}</td>
-              <td className="muted">{p.buy ? t('Buy', 'Αγορά') : t('Quote', 'Προσφορά')}</td>
-              <td>{p.buy?.price ?? '—'}</td>
-              <td style={{ whiteSpace: 'nowrap' }}>
-                <span className="btn btn-ghost btn-sm" onClick={() => edit(p)}>
-                  {t('Edit', 'Επεξεργασία')}
-                </span>{' '}
-                <span className="btn btn-ghost btn-sm" onClick={() => remove(p)}>
-                  {t('Delete', 'Διαγραφή')}
-                </span>
-              </td>
+      <div className="table-scroll">
+        <table className="tbl mt24">
+          <tbody>
+            <tr>
+              <th>{t('Name', 'Όνομα')}</th>
+              <th>{t('Category', 'Κατηγορία')}</th>
+              <th>{t('Modes', 'Λειτουργίες')}</th>
+              <th>{t('Price', 'Τιμή')}</th>
+              <th>{t('Action', 'Ενέργεια')}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+            {products.map((p) => (
+              <tr key={p.slug}>
+                <td>
+                  <b>{p.name}</b>{' '}
+                  {p.featured && (
+                    <span className="status blue">
+                      <Star size={11} aria-label="Featured" />
+                    </span>
+                  )}
+                </td>
+                <td className="muted">{p.category}</td>
+                <td className="muted">{p.buy ? t('Buy', 'Αγορά') : t('Quote', 'Προσφορά')}</td>
+                <td>{p.buy?.price ?? '—'}</td>
+                <td style={{ whiteSpace: 'nowrap' }}>
+                  <span className="btn btn-ghost btn-sm" onClick={() => edit(p)}>
+                    {t('Edit', 'Επεξεργασία')}
+                  </span>{' '}
+                  <span className="btn btn-ghost btn-sm" onClick={() => remove(p)}>
+                    {t('Delete', 'Διαγραφή')}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       {hasMore && (
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <button className="btn btn-ghost btn-sm" onClick={onLoadMore}>
@@ -841,48 +862,50 @@ function OrdersSection({ type }: { type: OrderType }) {
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
         <div>
-        <table className="tbl">
-          <tbody>
-            <tr>
-              <th>#</th>
-              <th>{t('Company', 'Εταιρεία')}</th>
-              <th>{t('Items', 'Είδη')}</th>
-              <th>{t('Total', 'Σύνολο')}</th>
-              <th>{t('Status', 'Κατάσταση')}</th>
-            </tr>
-            {loading && (
+        <div className="table-scroll">
+          <table className="tbl">
+            <tbody>
               <tr>
-                <td colSpan={5} className="muted">
-                  {t('Loading…', 'Φόρτωση…')}
-                </td>
+                <th>#</th>
+                <th>{t('Company', 'Εταιρεία')}</th>
+                <th>{t('Items', 'Είδη')}</th>
+                <th>{t('Total', 'Σύνολο')}</th>
+                <th>{t('Status', 'Κατάσταση')}</th>
               </tr>
-            )}
-            {!loading && orders.length === 0 && (
-              <tr>
-                <td colSpan={5} className="muted">
-                  {t('No requests yet.', 'Καμία αίτηση ακόμη.')}
-                </td>
-              </tr>
-            )}
-            {orders.map((o) => (
-              <tr
-                key={o.id}
-                onClick={() => setSelectedId(o.id)}
-                style={{ cursor: 'pointer', background: selectedId === o.id ? 'rgba(31,139,255,.06)' : undefined }}
-              >
-                <td>{o.reference.replace('SLS-', '')}</td>
-                <td>{o.company ?? o.contact_name}</td>
-                <td className="muted">
-                  {o.items.map((i) => `${i.name}${i.qty ? ` ×${i.qty}` : ''}`).join(', ')}
-                </td>
-                <td>{o.total ?? '—'}</td>
-                <td>
-                  <span className={`status ${STATUS_PILL[o.status]}`}>{statusText(o.status, t)}</span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              {loading && (
+                <tr>
+                  <td colSpan={5} className="muted">
+                    {t('Loading…', 'Φόρτωση…')}
+                  </td>
+                </tr>
+              )}
+              {!loading && orders.length === 0 && (
+                <tr>
+                  <td colSpan={5} className="muted">
+                    {t('No requests yet.', 'Καμία αίτηση ακόμη.')}
+                  </td>
+                </tr>
+              )}
+              {orders.map((o) => (
+                <tr
+                  key={o.id}
+                  onClick={() => setSelectedId(o.id)}
+                  style={{ cursor: 'pointer', background: selectedId === o.id ? 'rgba(31,139,255,.06)' : undefined }}
+                >
+                  <td>{o.reference.replace('SLS-', '')}</td>
+                  <td>{o.company ?? o.contact_name}</td>
+                  <td className="muted">
+                    {o.items.map((i) => `${i.name}${i.qty ? ` ×${i.qty}` : ''}`).join(', ')}
+                  </td>
+                  <td>{o.total ?? '—'}</td>
+                  <td>
+                    <span className={`status ${STATUS_PILL[o.status]}`}>{statusText(o.status, t)}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
           {pageInfo.page < pageInfo.lastPage && (
             <div style={{ textAlign: 'center', marginTop: 16 }}>
               <button className="btn btn-ghost btn-sm" onClick={() => load(pageInfo.page + 1)}>

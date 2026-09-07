@@ -155,6 +155,27 @@ export default function Dashboard() {
       </aside>
 
       <div className="dash-main">
+        {/* The sidebar is hidden on narrow screens, so the same views need a
+            reachable switcher here. */}
+        <nav className="dash-tabs">
+          <button className={view === 'all' ? 'on' : undefined} onClick={() => setView('all')}>
+            <LayoutDashboard size={15} aria-hidden />
+            {t('Dashboard', 'Πίνακας')}
+          </button>
+          <button className={view === 'quote' ? 'on' : undefined} onClick={() => setView('quote')}>
+            <FileText size={15} aria-hidden />
+            {t('Quotes', 'Προσφορές')}
+          </button>
+          <button className={view === 'order' ? 'on' : undefined} onClick={() => setView('order')}>
+            <ShoppingCart size={15} aria-hidden />
+            {t('Orders', 'Παραγγελίες')}
+          </button>
+          <Link className="btn btn-ghost btn-sm" to="/catalogue" style={{ flex: 'none' }}>
+            <Package size={15} aria-hidden />
+            {t('Catalogue', 'Κατάλογος')}
+          </Link>
+        </nav>
+
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <div>
             <h1 className="h2" style={{ fontSize: 26 }}>
@@ -206,49 +227,51 @@ export default function Dashboard() {
               ? t('YOUR ORDERS', 'ΟΙ ΠΑΡΑΓΓΕΛΙΕΣ ΣΑΣ')
               : t('RECENT QUOTES & ORDERS', 'ΠΡΟΣΦΑΤΕΣ ΠΡΟΣΦΟΡΕΣ & ΠΑΡΑΓΓΕΛΙΕΣ')}
         </h3>
-        <table className="tbl mt16">
-          <tbody>
-            <tr>
-              <th>#</th>
-              <th>{t('Item', 'Είδος')}</th>
-              <th>{t('Type', 'Τύπος')}</th>
-              <th>{t('Total (ex VAT)', 'Σύνολο (χ/ΦΠΑ)')}</th>
-              <th>{t('Status', 'Κατάσταση')}</th>
-              <th></th>
-            </tr>
-            {visible.length === 0 && (
+        <div className="table-scroll">
+          <table className="tbl mt16">
+            <tbody>
               <tr>
-                <td colSpan={6} className="muted">
-                  {t('No requests yet — browse the catalogue to get started.', 'Καμία αίτηση ακόμη — δείτε τον κατάλογο.')}
-                </td>
+                <th>#</th>
+                <th>{t('Item', 'Είδος')}</th>
+                <th>{t('Type', 'Τύπος')}</th>
+                <th>{t('Total (ex VAT)', 'Σύνολο (χ/ΦΠΑ)')}</th>
+                <th>{t('Status', 'Κατάσταση')}</th>
+                <th></th>
               </tr>
-            )}
-            {visible.map((o) => (
-              <tr
-                key={o.id}
-                onClick={() => navigate(`/orders/${o.id}`)}
-                style={{ cursor: 'pointer' }}
-              >
-                <td>{o.reference.replace('SLS-', '')}</td>
-                <td>{itemSummary(o)}</td>
-                <td>{typeLabel(o)}</td>
-                <td>{o.total ?? '—'}</td>
-                <td>
-                  <span className={`status ${STATUS_STYLE[o.status]}`}>{statusLabel(o.status)}</span>
-                </td>
-                <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
-                  <Link
-                    className="btn btn-ghost btn-sm"
-                    to={`/orders/${o.id}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {t('Track', 'Παρακολούθηση')}
-                  </Link>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+              {visible.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="muted">
+                    {t('No requests yet — browse the catalogue to get started.', 'Καμία αίτηση ακόμη — δείτε τον κατάλογο.')}
+                  </td>
+                </tr>
+              )}
+              {visible.map((o) => (
+                <tr
+                  key={o.id}
+                  onClick={() => navigate(`/orders/${o.id}`)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td>{o.reference.replace('SLS-', '')}</td>
+                  <td>{itemSummary(o)}</td>
+                  <td>{typeLabel(o)}</td>
+                  <td>{o.total ?? '—'}</td>
+                  <td>
+                    <span className={`status ${STATUS_STYLE[o.status]}`}>{statusLabel(o.status)}</span>
+                  </td>
+                  <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
+                    <Link
+                      className="btn btn-ghost btn-sm"
+                      to={`/orders/${o.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {t('Track', 'Παρακολούθηση')}
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
         <div className="grid g2 mt24">
           <div className="panel">

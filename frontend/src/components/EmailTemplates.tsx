@@ -187,7 +187,7 @@ export default function EmailTemplates() {
         )}
       </p>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(200px, 260px) 1fr', gap: 24, marginTop: 24, alignItems: 'start' }}>
+      <div className="email-editor">
         {/* Event list */}
         <div className="panel" style={{ padding: 12 }}>
           {Object.entries(groups).map(([group, items]) => (
