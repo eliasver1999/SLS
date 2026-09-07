@@ -25,6 +25,43 @@ class OrderDocumentController extends Controller
     private const MAX_KILOBYTES = 10240; // 10 MB
 
     /**
+     * Every document across the signed-in member's own orders, newest first.
+     *
+     * Backs the dashboard's Invoices view, which previously had nothing to
+     * show. Optionally narrowed by kind.
+     */
+    public function index(Request $request)
+    {
+        $data = $request->validate([
+            'kind' => ['nullable', Rule::in(['sow', 'quote', 'invoice', 'other'])],
+        ]);
+
+        $user = $request->user();
+
+        $documents = OrderDocument::query()
+            ->with('order:id,reference,type,status')
+            // Admins get everything; a member only ever their own.
+            ->when(! $user->isAdmin(), fn ($q) => $q->whereHas(
+                'order',
+                fn ($o) => $o->where('user_id', $user->id),
+            ))
+            ->when($data['kind'] ?? null, fn ($q, $kind) => $q->where('kind', $kind))
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'data' => $documents->map(fn (OrderDocument $d) => [
+                ...$this->payload($d),
+                'order' => [
+                    'id' => $d->order->id,
+                    'reference' => $d->order->reference,
+                    'status' => $d->order->status,
+                ],
+            ]),
+        ]);
+    }
+
+    /**
      * Attach a document. Admin only: this is the team's paperwork, not
      * something a customer uploads to their own order.
      */

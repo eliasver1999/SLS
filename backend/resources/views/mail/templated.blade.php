@@ -91,6 +91,12 @@ Payment reference: **{{ $vars['reference'] ?? '' }}**
 </x-mail::panel>
 @endif
 
+@if (in_array('order_button', $blocks, true) && ! empty($vars['order_url']))
+<x-mail::button :url="$vars['order_url']">
+View your order
+</x-mail::button>
+@endif
+
 @if (in_array('signin_button', $blocks, true))
 <x-mail::button :url="$vars['app_url'] ?? config('app.url')">
 Sign in to SLS

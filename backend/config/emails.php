@@ -20,7 +20,7 @@
 
 $globals = ['sales_email', 'iban', 'bank_name', 'account_name', 'deposit_percent', 'balance_percent', 'vat_percent', 'app_url'];
 
-$orderVars = ['reference', 'type', 'contact_name', 'company', 'vat_number', 'contact_email', 'notes',
+$orderVars = ['reference', 'order_url', 'type', 'contact_name', 'company', 'vat_number', 'contact_email', 'notes',
     'subtotal', 'vat', 'total',
     'event_type', 'event_date', 'venue', 'delivery_address'];
 
@@ -29,9 +29,9 @@ $statusVars = [...$orderVars, 'status', 'status_label', 'previous_status', 'note
 $statusDefaults = [
     'pending' => 'Your request is being reviewed by our team.',
     'quoted' => 'We’ve prepared your quote — our team will email the details and next steps.',
-    'confirmed' => 'Your request is confirmed. We’ll follow up with the Scope of Work and invoice.',
+    'confirmed' => 'Your request is confirmed. Your Scope of Work and invoice appear on your order page as we issue them.',
     'in_production' => 'Good news — your order is now in production. We’ll let you know when it’s ready to dispatch.',
-    'completed' => 'This request is complete. Thank you for working with SLS!',
+    'completed' => 'This request is complete — thank you for working with SLS. Your paperwork stays available on your order page.',
     'cancelled' => 'This request has been cancelled. If that’s unexpected, just reply and we’ll sort it out.',
 ];
 
@@ -53,10 +53,12 @@ foreach ($statusDefaults as $status => $sentence) {
         'description' => "Sent to the customer when an admin moves an order to “{$statusLabels[$status]}”.",
         'audience' => 'customer',
         'placeholders' => $statusVars,
-        'blocks' => ['note_panel', 'total_line', 'bank_panel', 'event_details_table'],
+        'blocks' => ['note_panel', 'total_line', 'bank_panel', 'event_details_table', 'order_button'],
         'default_subject' => 'SLS — {{ reference }} is now “{{ status_label }}”',
         'default_body' => "# Update on {{ reference }}\n\nHi {{ contact_name }}, the status of your {{ type }} is now **{{ status_label }}**.\n\n{$sentence}\n\nQuestions? Contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
-        'default_blocks' => $status === 'cancelled' ? ['note_panel'] : ['note_panel', 'total_line'],
+        'default_blocks' => $status === 'cancelled'
+            ? ['note_panel']
+            : ['note_panel', 'total_line', 'order_button'],
     ];
 }
 
@@ -72,6 +74,7 @@ return [
         'signin_button' => '“Sign in to SLS” button',
         'admin_button' => '“Open admin” button',
         'order_details_table' => 'Order details table (internal)',
+        'order_button' => '“View your order” button (paperwork lives there)',
         'enquiry_details_table' => 'Enquiry details table (internal)',
         'event_details_table' => 'Event details (date, venue, delivery)',
     ],

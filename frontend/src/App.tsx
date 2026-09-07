@@ -22,6 +22,7 @@ import NotFound from './pages/NotFound'
 import Quote from './pages/Quote'
 import Legal from './pages/Legal'
 import Profile from './pages/Profile'
+import Documents from './pages/Documents'
 import { RequireAdmin, RequireAuth } from './components/Guards'
 
 export default function App() {
@@ -59,6 +60,14 @@ export default function App() {
             }
           />
           <Route
+            path="documents"
+            element={
+              <RequireAuth>
+                <Documents />
+              </RequireAuth>
+            }
+          />
+          <Route
             path="orders/:id"
             element={
               <RequireAuth>
@@ -78,8 +87,26 @@ export default function App() {
           <Route path="privacy" element={<Legal doc="privacy" />} />
           <Route path="cookies" element={<Legal doc="storage" />} />
           <Route path="terms" element={<Legal doc="terms" />} />
-          <Route path="ui-kit" element={<UIKit />} />
-          <Route path="sitemap" element={<Sitemap />} />
+          {/* Internal references — the design system and the IA diagram.
+              They were reachable by anyone who guessed the URL, and used to
+              be linked from the footer. Kept for the team, behind the admin
+              guard. */}
+          <Route
+            path="ui-kit"
+            element={
+              <RequireAdmin>
+                <UIKit />
+              </RequireAdmin>
+            }
+          />
+          <Route
+            path="sitemap"
+            element={
+              <RequireAdmin>
+                <Sitemap />
+              </RequireAdmin>
+            }
+          />
           <Route path="*" element={<NotFound />} />
         </Route>
       </Routes>

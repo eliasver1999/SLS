@@ -142,13 +142,10 @@ export default function Dashboard() {
           </a>
           {/* Not built yet — shown as unavailable rather than as a link that
               silently does nothing when clicked. */}
-          <a aria-disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>
+          <Link to="/documents">
             <Receipt size={17} aria-hidden />
-            {t('Invoices', 'Τιμολόγια')}
-            <span className="status wait" style={{ marginLeft: 'auto' }}>
-              {t('Soon', 'Σύντομα')}
-            </span>
-          </a>
+            {t('Documents', 'Έγγραφα')}
+          </Link>
           <Link to="/profile">
             <Building2 size={17} aria-hidden />
             {t('Company profile', 'Προφίλ εταιρείας')}

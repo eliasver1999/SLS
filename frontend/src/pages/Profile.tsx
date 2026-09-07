@@ -4,15 +4,15 @@ import { ArrowLeft, CircleAlert, CircleCheck } from 'lucide-react'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
 import { useApplyTheme } from '../context/theme'
-import { updateProfile } from '../lib/api'
+import { changePassword, updateProfile } from '../lib/api'
 import { errorMessage } from '../lib/errors'
 
 /**
- * A member maintains their own company details.
+ * A member maintains their own company details and password.
  *
- * Email and password are deliberately absent: changing an email is an
- * identity change that needs verifying before it is trusted, and the
- * password already has its own reset flow.
+ * Email is deliberately absent: changing a sign-in address is an identity
+ * change that should be verified before it is trusted, so it stays a
+ * conversation with the team rather than a form field.
  */
 export default function Profile() {
   const { t } = useLang()
@@ -25,6 +25,13 @@ export default function Profile() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [pwBusy, setPwBusy] = useState(false)
+  const [pwDone, setPwDone] = useState<string | null>(null)
+  const [pwError, setPwError] = useState<string | null>(null)
 
   const dirty =
     name !== (user?.name ?? '') ||
@@ -47,6 +54,28 @@ export default function Profile() {
       setError(errorMessage(e, t('Could not save your details.', 'Αδυναμία αποθήκευσης.')))
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function savePassword() {
+    setPwBusy(true)
+    setPwDone(null)
+    setPwError(null)
+    try {
+      setPwDone(
+        await changePassword({
+          current_password: current,
+          password: next,
+          password_confirmation: confirm,
+        }),
+      )
+      setCurrent('')
+      setNext('')
+      setConfirm('')
+    } catch (e) {
+      setPwError(errorMessage(e, t('Could not change your password.', 'Αδυναμία αλλαγής κωδικού.')))
+    } finally {
+      setPwBusy(false)
     }
   }
 
@@ -136,6 +165,66 @@ export default function Profile() {
                 </div>
                 <div>{error}</div>
               </div>
+            )}
+          </div>
+
+          {/* Changing a password asks for the current one even though the
+              session is already authenticated — a leaked token must not be
+              enough to lock the owner out. Doing so also signs out every
+              other device. */}
+          <div className="panel mt24">
+            <h3 style={{ fontSize: 16 }}>{t('Password', 'Κωδικός')}</h3>
+            <p className="muted mt8" style={{ fontSize: 12.5 }}>
+              {t(
+                'Changing it signs you out everywhere else.',
+                'Η αλλαγή αποσυνδέει τις άλλες συσκευές.',
+              )}
+            </p>
+
+            <div className="field mt16">
+              <label>{t('Current password', 'Τρέχων κωδικός')}</label>
+              <input
+                type="password"
+                value={current}
+                autoComplete="current-password"
+                onChange={(e) => setCurrent(e.target.value)}
+              />
+            </div>
+            <div className="field mt16">
+              <label>{t('New password', 'Νέος κωδικός')}</label>
+              <input
+                type="password"
+                value={next}
+                autoComplete="new-password"
+                onChange={(e) => setNext(e.target.value)}
+              />
+            </div>
+            <div className="field mt16">
+              <label>{t('Confirm new password', 'Επιβεβαίωση')}</label>
+              <input
+                type="password"
+                value={confirm}
+                autoComplete="new-password"
+                onChange={(e) => setConfirm(e.target.value)}
+              />
+            </div>
+
+            <button
+              className="btn btn-ghost btn-block mt24"
+              onClick={savePassword}
+              disabled={pwBusy || !current || next.length < 8 || !confirm}
+            >
+              {pwBusy ? t('Changing…', 'Αλλαγή…') : t('Change password', 'Αλλαγή κωδικού')}
+            </button>
+
+            {pwDone && (
+              <p style={{ color: 'var(--ok)', fontSize: 13, marginTop: 12 }}>
+                <CircleCheck size={14} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
+                {pwDone}
+              </p>
+            )}
+            {pwError && (
+              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 12 }}>{pwError}</p>
             )}
           </div>
 

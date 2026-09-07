@@ -134,6 +134,7 @@ class TransactionalMail
     {
         return array_merge([
             'reference' => $order->reference,
+            'order_url' => rtrim((string) config('app.frontend_url'), '/').'/orders/'.$order->id,
             'type' => $order->type,
             'contact_name' => $order->contact_name,
             'company' => $order->company,
@@ -186,6 +187,7 @@ class TransactionalMail
             'name' => 'Maria Papadopoulou',
             'email' => 'maria@novaevents.gr',
             'reference' => $isQuote ? 'SLS-Q-2001' : 'SLS-O-2001',
+            'order_url' => rtrim((string) config('app.frontend_url'), '/').'/orders/1',
             'type' => $isQuote ? 'quote' : 'order',
             'contact_name' => 'Maria Papadopoulou',
             'contact_email' => 'maria@novaevents.gr',

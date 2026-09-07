@@ -330,6 +330,27 @@ export type OrderDocument = {
   created_at: string
 }
 
+export type MemberDocument = OrderDocument & {
+  order: { id: number; reference: string; status: OrderStatus }
+}
+
+/** Every document across the member's own orders, newest first. */
+export async function fetchMyDocuments(kind?: OrderDocumentKind) {
+  const { data } = await api.get<{ data: MemberDocument[] }>('/documents', {
+    params: kind ? { kind } : undefined,
+  })
+  return data.data
+}
+
+export async function changePassword(input: {
+  current_password: string
+  password: string
+  password_confirmation: string
+}) {
+  const { data } = await api.patch<{ message: string }>('/me/password', input)
+  return data.message
+}
+
 export async function uploadOrderDocument(
   orderId: number,
   file: File,

@@ -136,6 +136,33 @@ class AuthController extends Controller
         return response()->json(['user' => $this->userPayload($user->fresh())]);
     }
 
+    /**
+     * Change the password of the signed-in member.
+     *
+     * The current password is required even though the caller already holds a
+     * valid token: a token that leaked would otherwise be enough to lock the
+     * real owner out of their own account permanently.
+     *
+     * Every other token is revoked afterwards, so a session opened with the
+     * old password cannot outlive it — except the one making the request,
+     * which would log the user out of the page they are standing on.
+     */
+    public function updatePassword(Request $request)
+    {
+        $data = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'string', 'min:8', 'confirmed', 'different:current_password'],
+        ]);
+
+        $user = $request->user();
+        $user->update(['password' => $data['password']]); // hashed by the model cast
+
+        $keep = $user->currentAccessToken()->id;
+        $user->tokens()->whereKeyNot($keep)->delete();
+
+        return response()->json(['message' => 'Your password has been changed.']);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

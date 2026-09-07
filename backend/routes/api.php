@@ -30,6 +30,7 @@ Route::post('/partner-applications', [PartnerApplicationController::class, 'stor
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::patch('/me', [AuthController::class, 'updateProfile']);
+    Route::patch('/me/password', [AuthController::class, 'updatePassword'])->middleware('throttle:6,1');
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Orders / quotes — approved customers see their own and place new requests.
@@ -38,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
     // Download is for the order's owner or an admin; the controller checks.
+    Route::get('/documents', [OrderDocumentController::class, 'index']);
     Route::get('/orders/{order}/documents/{document}', [OrderDocumentController::class, 'show']);
 });
 

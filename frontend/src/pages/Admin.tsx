@@ -729,6 +729,81 @@ function ProductForm({
           )}
         </div>
 
+        {/* The product page has a thumbnail gallery, but it was not editable:
+            an admin set one image and the gallery silently fell back to just
+            that. Pick as many as the product has views. */}
+        <div className="field mt16" style={field}>
+          <label>
+            {t('Gallery', 'Γκαλερί')}{' '}
+            <span className="muted" style={{ fontWeight: 400 }}>
+              {form.thumbs.length > 0
+                ? t(`${form.thumbs.length} selected`, `${form.thumbs.length} επιλεγμένες`)
+                : t('(defaults to the main image)', '(προεπιλογή: η κύρια εικόνα)')}
+            </span>
+          </label>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(84px, 1fr))',
+              gap: 8,
+            }}
+          >
+            {PRODUCT_IMAGES.map((src) => {
+              const at = form.thumbs.indexOf(src)
+              const chosen = at !== -1
+              return (
+                <button
+                  key={src}
+                  type="button"
+                  title={src}
+                  aria-pressed={chosen}
+                  onClick={() =>
+                    upd(
+                      'thumbs',
+                      chosen
+                        ? form.thumbs.filter((x) => x !== src)
+                        : [...form.thumbs, src],
+                    )
+                  }
+                  style={{
+                    position: 'relative',
+                    padding: 0,
+                    border: chosen ? '2px solid var(--electric)' : '1px solid var(--line)',
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    background: 'var(--input-bg)',
+                    aspectRatio: '4 / 3',
+                    opacity: chosen ? 1 : 0.55,
+                  }}
+                >
+                  <img src={src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {chosen && (
+                    <span
+                      style={{
+                        position: 'absolute',
+                        top: 4,
+                        right: 4,
+                        background: 'var(--electric)',
+                        color: '#fff',
+                        borderRadius: 999,
+                        fontSize: 10,
+                        fontWeight: 700,
+                        width: 17,
+                        height: 17,
+                        display: 'grid',
+                        placeItems: 'center',
+                      }}
+                    >
+                      {at + 1}
+                    </span>
+                  )}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         <div className="row2 mt16">
           <div className="field" style={field}>
             <label>{t('Tag (EN)', 'Ετικέτα (EN)')}</label>
