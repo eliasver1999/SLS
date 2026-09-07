@@ -112,7 +112,7 @@ export default function Catalogue() {
               background: 'rgba(255,206,84,.08)',
             }}
           >
-            <div className="ic" style={{ color: '#ffce54' }}>
+            <div className="ic" style={{ color: 'var(--warn)' }}>
               <Hourglass size={18} aria-hidden />
             </div>
             <div>
@@ -133,7 +133,7 @@ export default function Catalogue() {
               background: 'rgba(72,211,138,.08)',
             }}
           >
-            <div className="ic" style={{ color: '#48d38a' }}>
+            <div className="ic" style={{ color: 'var(--ok)' }}>
               <CircleCheck size={18} aria-hidden />
             </div>
             <div>

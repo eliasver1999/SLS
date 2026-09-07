@@ -11,7 +11,7 @@ import {
 } from '../lib/api'
 import { errorMessage } from '../lib/errors'
 
-type Draft ={ subject: string; body: string; blocks: string[]; enabled: boolean }
+type Draft = { subject: string; body: string; blocks: string[]; enabled: boolean }
 
 /**
  * Admin editor for the transactional emails (joining, new order, order
@@ -334,7 +334,7 @@ export default function EmailTemplates() {
                 </p>
               )}
               {msg && (
-                <p style={{ fontSize: 13, marginTop: 10, color: msg.kind === 'ok' ? '#48d38a' : '#ff7a7a' }}>
+                <p style={{ fontSize: 13, marginTop: 10, color: msg.kind === 'ok' ? 'var(--ok)' : 'var(--danger)' }}>
                   {msg.text}
                 </p>
               )}
@@ -347,7 +347,7 @@ export default function EmailTemplates() {
                 </div>
                 <b style={{ fontSize: 14 }}>{preview.subject}</b>
                 {preview.unknown.length > 0 && (
-                  <p style={{ fontSize: 13, marginTop: 8, color: '#ff7a7a' }}>
+                  <p style={{ fontSize: 13, marginTop: 8, color: 'var(--danger)' }}>
                     {t('Unknown placeholders: ', 'Άγνωστα placeholders: ')}
                     {preview.unknown.join(', ')}
                   </p>

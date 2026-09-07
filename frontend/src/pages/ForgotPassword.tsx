@@ -44,7 +44,7 @@ export default function ForgotPassword() {
         <div className="container" style={{ maxWidth: 460 }}>
           {sent ? (
             <div className="notice" style={{ borderColor: 'rgba(72,211,138,.35)', background: 'rgba(72,211,138,.08)' }}>
-              <div className="ic" style={{ color: '#48d38a' }}><CircleCheck size={18} aria-hidden /></div>
+              <div className="ic" style={{ color: 'var(--ok)' }}><CircleCheck size={18} aria-hidden /></div>
               <div>
                 {t(
                   'If that email has an account, a reset link is on its way. Check your inbox.',

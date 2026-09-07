@@ -20,6 +20,29 @@
   --white: #ffffff;
   --grey: #9aa6b2;
   --grey-2: #6c7a8c;
+
+  /* ── Themeable surface + status tokens ────────────────────────────
+     Everything below is redefined under [data-theme='light'] further
+     down. The public storefront never sets that attribute, so it stays
+     dark and on-brand; only the signed-in tooling opts in. Read these
+     rather than hardcoding a colour, or it will not follow the theme. */
+  --text: #ffffff;
+  --text-soft: #cdd8e6;
+  --surface-sunken: #0a0f18;
+  --input-bg: #0b1119;
+  --ghost-bg: rgba(255, 255, 255, 0.02);
+  --header-bg: rgba(5, 7, 13, 0.72);
+  --footer-bg: #070a12;
+  --row-hover: rgba(255, 255, 255, 0.02);
+
+  --ok: #48d38a;
+  --ok-bg: rgba(46, 204, 113, 0.14);
+  --warn: #ffce54;
+  --warn-bg: rgba(255, 193, 7, 0.14);
+  --danger: #ff7a7a;
+  --danger-bg: rgba(255, 86, 86, 0.14);
+  --info: #57c2ff;
+  --info-bg: rgba(31, 139, 255, 0.16);
   --radius: 16px;
   --radius-sm: 10px;
   --radius-lg: 26px;
@@ -31,6 +54,61 @@
   --head: 'Poppins', system-ui, sans-serif;
   --body: 'Inter', system-ui, sans-serif;
 }
+/* ── Light theme ───────────────────────────────────────────────────
+   Opt-in, and only the signed-in tooling sets it (see ThemeProvider):
+   the storefront's hero photography and brand glow are built for the
+   dark ground, so the public site deliberately stays dark.
+
+   Every value here was picked against WCAG AA on both the card and the
+   page ground — muted text 5.0:1+, status colours 5.1:1+ — and the
+   surfaces keep a visible elevation step (panel/bg 1.19:1, border
+   1.47:1) so cards read as cards, as in dark. */
+[data-theme='light'] {
+  --bg: #e8ecf2;
+  --panel: #ffffff;
+  --panel-2: #f2f5f9;
+  --line: #ccd6e4;
+
+  --text: #101a2b;
+  --text-soft: #33455e;
+  --grey: #54657a;
+  --grey-2: #54657a;
+
+  --surface-sunken: #e9eef5;
+  --input-bg: #ffffff;
+  --ghost-bg: rgba(16, 26, 43, 0.03);
+  --row-hover: rgba(16, 26, 43, 0.03);
+  --header-bg: rgba(255, 255, 255, 0.82);
+  --footer-bg: #dfe5ee;
+
+  /* Electric Blue is only 3.4:1 on white, so text-weight blues use the
+     brandbook's Deep Blue instead. */
+  --sky: #0a4fc4;
+  --ok: #13712f;
+  --ok-bg: rgba(19, 113, 47, 0.1);
+  --warn: #8a5a00;
+  --warn-bg: rgba(138, 90, 0, 0.1);
+  --danger: #b91c1c;
+  --danger-bg: rgba(185, 28, 28, 0.1);
+  --info: #0a4fc4;
+  --info-bg: rgba(10, 79, 196, 0.1);
+
+  --shadow: 0 18px 50px rgba(16, 26, 43, 0.12);
+  --glow: 0 0 40px rgba(31, 139, 255, 0.18);
+  --glow-sm: 0 0 14px rgba(31, 139, 255, 0.22);
+}
+/* The brand glow is painted for a near-black ground; flatten it. */
+[data-theme='light'] body::before {
+  background: var(--bg);
+}
+/* White-on-blue-tint reads poorly once the tint sits on a light ground. */
+[data-theme='light'] .chip.on,
+[data-theme='light'] .dash-tabs button.on,
+[data-theme='light'] .side nav a.on,
+[data-theme='light'] .side nav a:hover {
+  color: var(--info);
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -41,7 +119,7 @@ html {
 }
 body {
   background: var(--bg);
-  color: var(--white);
+  color: var(--text);
   font-family: var(--body);
   font-size: 16px;
   line-height: 1.6;
@@ -148,9 +226,9 @@ img {
   filter: brightness(1.08);
 }
 .btn-ghost {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--ghost-bg);
   border-color: var(--line);
-  color: #fff;
+  color: var(--text);
 }
 .btn-ghost:hover {
   border-color: var(--electric);
@@ -191,7 +269,7 @@ img {
   position: sticky;
   top: 0;
   z-index: 50;
-  background: rgba(5, 7, 13, 0.72);
+  background: var(--header-bg);
   backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--line);
 }
@@ -223,7 +301,7 @@ img {
 }
 .nav a:hover,
 .nav a.active {
-  color: #fff;
+  color: var(--text);
 }
 .nav a.active::after {
   content: '';
@@ -336,7 +414,7 @@ img {
   font-weight: 600;
 }
 .trust .item b {
-  color: #fff;
+  color: var(--text);
   font-family: var(--head);
 }
 .trust .ic {
@@ -364,7 +442,7 @@ img {
   grid-template-columns: repeat(2, 1fr);
 }
 .card {
-  background: linear-gradient(180deg, var(--panel), #0d1521);
+  background: linear-gradient(180deg, var(--panel), var(--surface-sunken));
   border: 1px solid var(--line);
   border-radius: var(--radius);
   overflow: hidden;
@@ -419,7 +497,7 @@ img {
   padding-bottom: 5px;
 }
 .card .specs b {
-  color: #cdd8e6;
+  color: var(--text-soft);
   font-weight: 600;
 }
 .card .foot {
@@ -433,7 +511,7 @@ img {
   font-family: var(--head);
   font-weight: 700;
   font-size: 20px;
-  color: #fff;
+  color: var(--text);
 }
 .price small {
   display: block;
@@ -515,7 +593,7 @@ img {
 /* footer */
 .footer {
   border-top: 1px solid var(--line);
-  background: #070a12;
+  background: var(--footer-bg);
   padding: 56px 0 30px;
   margin-top: 20px;
 }
@@ -539,7 +617,7 @@ img {
   padding: 5px 0;
 }
 .footer a:hover {
-  color: #fff;
+  color: var(--text);
 }
 .footer .brand img {
   height: 38px;
@@ -629,7 +707,7 @@ img {
   display: flex;
   align-items: center;
   gap: 9px;
-  color: #cdd8e6;
+  color: var(--text-soft);
   font-size: 14px;
   padding: 5px 0;
   cursor: pointer;
@@ -734,7 +812,7 @@ body[data-auth='pending'] .guest-strict {
 .spec-table td {
   padding: 11px 0;
   border-bottom: 1px solid var(--line);
-  color: #cdd8e6;
+  color: var(--text-soft);
 }
 .spec-table td:first-child {
   color: var(--grey);
@@ -762,7 +840,7 @@ body[data-auth='pending'] .guest-strict {
 
 /* calendar */
 .cal {
-  background: #0d1521;
+  background: var(--surface-sunken);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 16px;
@@ -790,7 +868,7 @@ body[data-auth='pending'] .guest-strict {
   padding: 9px 0;
   border-radius: 8px;
   font-size: 13px;
-  color: #cdd8e6;
+  color: var(--text-soft);
   border: 1px solid transparent;
 }
 .cal .d.out {
@@ -816,7 +894,7 @@ body[data-auth='pending'] .guest-strict {
   min-height: 70vh;
 }
 .side {
-  background: #0a0f18;
+  background: var(--surface-sunken);
   border-right: 1px solid var(--line);
   padding: 26px 16px;
 }
@@ -900,13 +978,13 @@ body[data-auth='pending'] .guest-strict {
   letter-spacing: 1px;
   color: var(--grey);
   padding: 14px 16px;
-  background: #0d1521;
+  background: var(--surface-sunken);
   border-bottom: 1px solid var(--line);
 }
 .tbl td {
   padding: 14px 16px;
   border-bottom: 1px solid var(--line);
-  color: #cdd8e6;
+  color: var(--text-soft);
 }
 .tbl tr:last-child td {
   border-bottom: 0;
@@ -922,20 +1000,20 @@ body[data-auth='pending'] .guest-strict {
   font-family: var(--head);
 }
 .status.ok {
-  background: rgba(46, 204, 113, 0.14);
-  color: #48d38a;
+  background: var(--ok-bg);
+  color: var(--ok);
 }
 .status.wait {
-  background: rgba(255, 193, 7, 0.14);
-  color: #ffce54;
+  background: var(--warn-bg);
+  color: var(--warn);
 }
 .status.rej {
-  background: rgba(255, 86, 86, 0.14);
-  color: #ff7a7a;
+  background: var(--danger-bg);
+  color: var(--danger);
 }
 .status.blue {
-  background: rgba(31, 139, 255, 0.16);
-  color: var(--sky);
+  background: var(--info-bg);
+  color: var(--info);
 }
 
 /* forms */
@@ -959,11 +1037,11 @@ body[data-auth='pending'] .guest-strict {
 .field select,
 .field textarea {
   width: 100%;
-  background: #0b1119;
+  background: var(--input-bg);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 13px 14px;
-  color: #fff;
+  color: var(--text);
   font-family: var(--body);
   font-size: 15px;
 }
@@ -1075,7 +1153,7 @@ body[data-auth='pending'] .guest-strict {
   display: none;
   background: transparent;
   border: 1px solid var(--line);
-  color: #fff;
+  color: var(--text);
   border-radius: 9px;
   width: 42px;
   height: 42px;
@@ -1097,7 +1175,7 @@ body[data-auth='pending'] .guest-strict {
   border-bottom: 1px solid var(--line);
 }
 .mobile-nav a.active {
-  color: #fff;
+  color: var(--text);
 }
 .mobile-nav .btn {
   margin-top: 14px;
@@ -1141,6 +1219,27 @@ body[data-auth='pending'] .guest-strict {
    sidebar is hidden (see the .side rule below). */
 .dash-tabs {
   display: none;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  margin-top: 18px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--ghost-bg);
+  color: var(--grey);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--electric);
 }
 
 @media (max-width: 900px) {

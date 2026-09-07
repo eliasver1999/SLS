@@ -79,9 +79,9 @@ export default function Login() {
             {error && (
               <div
                 className="notice"
-                style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
+                style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}
               >
-                <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
+                <div className="ic" style={{ color: 'var(--danger)' }}><CircleAlert size={18} aria-hidden /></div>
                 <div>{error}</div>
               </div>
             )}

@@ -5,15 +5,18 @@ import App from './App.tsx'
 import { LanguageProvider } from './context/language'
 import { AuthProvider } from './context/auth'
 import { CartProvider } from './context/cart'
+import { ThemeProvider } from './context/theme'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <LanguageProvider>
-      <AuthProvider>
-        <CartProvider>
-          <App />
-        </CartProvider>
-      </AuthProvider>
+      <ThemeProvider>
+        <AuthProvider>
+          <CartProvider>
+            <App />
+          </CartProvider>
+        </AuthProvider>
+      </ThemeProvider>
     </LanguageProvider>
   </StrictMode>,
 )

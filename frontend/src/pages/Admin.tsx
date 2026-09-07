@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
+import { useApplyTheme, useTheme } from '../context/theme'
 import {
   createProduct,
   deleteProduct,
@@ -36,10 +37,12 @@ import {
   FileText,
   Mail,
   MessageSquare,
+  Moon,
   Package,
   PartyPopper,
   ShoppingCart,
   Star,
+  Sun,
   Users,
   type LucideIcon,
 } from 'lucide-react'
@@ -49,6 +52,8 @@ type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes' | 'inq
 export default function Admin() {
   const { t } = useLang()
   const { user } = useAuth()
+  const { theme, toggle } = useTheme()
+  useApplyTheme()
   const [section, setSection] = useState<Section>('members')
 
   const [members, setMembers] = useState<Member[]>([])
@@ -139,6 +144,11 @@ export default function Admin() {
             </a>
           ))}
         </nav>
+
+        <button className="theme-toggle" onClick={toggle} title={t('Switch theme', 'Αλλαγή θέματος')}>
+          {theme === 'light' ? <Moon size={16} aria-hidden /> : <Sun size={16} aria-hidden />}
+          {theme === 'light' ? t('Dark mode', 'Σκούρο') : t('Light mode', 'Φωτεινό')}
+        </button>
       </aside>
 
       <div className="dash-main">
@@ -155,6 +165,12 @@ export default function Admin() {
               {n.label}
             </button>
           ))}
+          {/* The sidebar toggle is hidden with the sidebar, so it needs to be
+              reachable here as well. */}
+          <button onClick={toggle} title={t('Switch theme', 'Αλλαγή θέματος')}>
+            {theme === 'light' ? <Moon size={15} aria-hidden /> : <Sun size={15} aria-hidden />}
+            {theme === 'light' ? t('Dark', 'Σκούρο') : t('Light', 'Φωτεινό')}
+          </button>
         </nav>
 
         <ErrorNote message={loadError} />
@@ -241,9 +257,9 @@ function MembersSection({
       </p>
 
       <div className="kpis mt24">
-        <Kpi n={counts.pending} color="#ffce54" label={t('Pending', 'Σε αναμονή')} />
-        <Kpi n={counts.approved} color="#48d38a" label={t('Approved', 'Εγκεκριμένοι')} />
-        <Kpi n={counts.rejected} color="#ff7a7a" label={t('Rejected', 'Απορριφθέντες')} />
+        <Kpi n={counts.pending} color="var(--warn)" label={t('Pending', 'Σε αναμονή')} />
+        <Kpi n={counts.approved} color="var(--ok)" label={t('Approved', 'Εγκεκριμένοι')} />
+        <Kpi n={counts.rejected} color="var(--danger)" label={t('Rejected', 'Απορριφθέντες')} />
       </div>
 
       <ErrorNote message={error} />
@@ -342,9 +358,9 @@ function ApprovalsSection({
       </p>
 
       <div className="kpis mt24">
-        <Kpi n={counts.pending} color="#ffce54" label={t('Pending', 'Σε αναμονή')} />
-        <Kpi n={counts.approved} color="#48d38a" label={t('Approved', 'Εγκεκριμένοι')} />
-        <Kpi n={counts.rejected} color="#ff7a7a" label={t('Rejected', 'Απορριφθέντες')} />
+        <Kpi n={counts.pending} color="var(--warn)" label={t('Pending', 'Σε αναμονή')} />
+        <Kpi n={counts.approved} color="var(--ok)" label={t('Approved', 'Εγκεκριμένοι')} />
+        <Kpi n={counts.rejected} color="var(--danger)" label={t('Rejected', 'Απορριφθέντες')} />
       </div>
 
       <ErrorNote message={error} />
@@ -723,8 +739,8 @@ function ProductForm({
         />
 
         {error && (
-          <div className="notice mt16" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-            <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
+          <div className="notice mt16" style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}>
+            <div className="ic" style={{ color: 'var(--danger)' }}><CircleAlert size={18} aria-hidden /></div>
             <div>{error}</div>
           </div>
         )}
@@ -1077,7 +1093,7 @@ function AdminOrderDetail({
         {saving ? t('Saving…', 'Αποθήκευση…') : t('Update & notify customer', 'Ενημέρωση & email πελάτη')}
       </button>
       {saved && !error && (
-        <p className="muted mt8" style={{ fontSize: 12.5, color: '#48d38a' }}>
+        <p className="muted mt8" style={{ fontSize: 12.5, color: 'var(--ok)' }}>
           {t('Saved — the customer has been emailed.', 'Αποθηκεύτηκε — στάλθηκε email στον πελάτη.')}
         </p>
       )}
@@ -1094,9 +1110,9 @@ function ErrorNote({ message }: { message: string | null }) {
   return (
     <div
       className="notice mt16"
-      style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
+      style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}
     >
-      <div className="ic" style={{ color: '#ff7a7a' }}>
+      <div className="ic" style={{ color: 'var(--danger)' }}>
         <CircleAlert size={18} aria-hidden />
       </div>
       <div>{message}</div>

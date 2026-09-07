@@ -41,9 +41,9 @@ export default function OrderTimeline({ order }: { order: Order }) {
                       placeItems: 'center',
                       fontSize: 13,
                       border: '2px solid',
-                      borderColor: done ? '#48d38a' : 'var(--line)',
+                      borderColor: done ? 'var(--ok)' : 'var(--line)',
                       background: done ? 'rgba(72,211,138,.15)' : 'transparent',
-                      color: done ? '#48d38a' : 'var(--grey)',
+                      color: done ? 'var(--ok)' : 'var(--grey)',
                       boxShadow: current ? '0 0 0 4px rgba(72,211,138,.12)' : undefined,
                     }}
                   >
@@ -65,7 +65,7 @@ export default function OrderTimeline({ order }: { order: Order }) {
                     style={{
                       width: 34,
                       height: 2,
-                      background: reachedIdx > i ? '#48d38a' : 'var(--line)',
+                      background: reachedIdx > i ? 'var(--ok)' : 'var(--line)',
                       marginBottom: 18,
                     }}
                   />
@@ -77,8 +77,8 @@ export default function OrderTimeline({ order }: { order: Order }) {
       )}
 
       {cancelled && (
-        <div className="notice" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)', marginBottom: 20 }}>
-          <div className="ic" style={{ color: '#ff7a7a' }}>✕</div>
+        <div className="notice" style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)', marginBottom: 20 }}>
+          <div className="ic" style={{ color: 'var(--danger)' }}>✕</div>
           <div>{t('This order was cancelled.', 'Αυτή η παραγγελία ακυρώθηκε.')}</div>
         </div>
       )}
@@ -101,7 +101,7 @@ export default function OrderTimeline({ order }: { order: Order }) {
                   width: 12,
                   height: 12,
                   borderRadius: '50%',
-                  background: i === 0 ? '#48d38a' : 'var(--line)',
+                  background: i === 0 ? 'var(--ok)' : 'var(--line)',
                   marginTop: 5,
                   flexShrink: 0,
                 }}

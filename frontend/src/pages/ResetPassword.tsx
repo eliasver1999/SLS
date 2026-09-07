@@ -57,8 +57,8 @@ export default function ResetPassword() {
       <section className="section-sm">
         <div className="container" style={{ maxWidth: 460 }}>
           {invalidLink ? (
-            <div className="notice" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-              <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
+            <div className="notice" style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}>
+              <div className="ic" style={{ color: 'var(--danger)' }}><CircleAlert size={18} aria-hidden /></div>
               <div>
                 {t(
                   'This reset link is missing or invalid. Please request a new one.',
@@ -98,8 +98,8 @@ export default function ResetPassword() {
                 />
               </div>
               {error && (
-                <div className="notice" style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}>
-                  <div className="ic" style={{ color: '#ff7a7a' }}><CircleAlert size={18} aria-hidden /></div>
+                <div className="notice" style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}>
+                  <div className="ic" style={{ color: 'var(--danger)' }}><CircleAlert size={18} aria-hidden /></div>
                   <div>{error}</div>
                 </div>
               )}

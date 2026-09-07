@@ -73,13 +73,13 @@ export default function Inquiries() {
 
       <div className="kpis mt24">
         <div className="kpi">
-          <div className="n" style={{ color: '#ffce54' }}>
+          <div className="n" style={{ color: 'var(--warn)' }}>
             {counts.new}
           </div>
           <div className="l">{t('New', 'Νέα')}</div>
         </div>
         <div className="kpi">
-          <div className="n" style={{ color: '#48d38a' }}>
+          <div className="n" style={{ color: 'var(--ok)' }}>
             {counts.handled}
           </div>
           <div className="l">{t('Handled', 'Διεκπεραιωμένα')}</div>
@@ -100,7 +100,7 @@ export default function Inquiries() {
       </div>
 
       {error && (
-        <p style={{ color: '#ff7a7a', fontSize: 13, marginTop: 12 }}>{error}</p>
+        <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 12 }}>{error}</p>
       )}
 
       <div className="table-scroll">

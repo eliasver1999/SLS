@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
+import { useApplyTheme, useTheme } from '../context/theme'
 import { fetchOrders, type MemberStatus, type Order, type OrderStatus, type OrderType } from '../lib/api'
 import { errorMessage } from '../lib/errors'
 import {
@@ -10,9 +11,11 @@ import {
   FileText,
   Hourglass,
   LayoutDashboard,
+  Moon,
   Package,
   Receipt,
   ShoppingCart,
+  Sun,
   X,
 } from 'lucide-react'
 
@@ -28,6 +31,8 @@ const STATUS_STYLE: Record<OrderStatus, string> = {
 export default function Dashboard() {
   const { t } = useLang()
   const { user, isApproved } = useAuth()
+  const { theme, toggle } = useTheme()
+  useApplyTheme()
   const navigate = useNavigate()
   const [orders, setOrders] = useState<Order[]>([])
   const [view, setView] = useState<'all' | OrderType>('all')
@@ -152,6 +157,11 @@ export default function Dashboard() {
             </span>
           </a>
         </nav>
+
+        <button className="theme-toggle" onClick={toggle} title={t('Switch theme', 'Αλλαγή θέματος')}>
+          {theme === 'light' ? <Moon size={16} aria-hidden /> : <Sun size={16} aria-hidden />}
+          {theme === 'light' ? t('Dark mode', 'Σκούρο') : t('Light mode', 'Φωτεινό')}
+        </button>
       </aside>
 
       <div className="dash-main">
@@ -174,6 +184,12 @@ export default function Dashboard() {
             <Package size={15} aria-hidden />
             {t('Catalogue', 'Κατάλογος')}
           </Link>
+          {/* The sidebar toggle is hidden with the sidebar, so it needs to be
+              reachable here as well. */}
+          <button onClick={toggle} title={t('Switch theme', 'Αλλαγή θέματος')}>
+            {theme === 'light' ? <Moon size={15} aria-hidden /> : <Sun size={15} aria-hidden />}
+            {theme === 'light' ? t('Dark', 'Σκούρο') : t('Light', 'Φωτεινό')}
+          </button>
         </nav>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
@@ -201,7 +217,7 @@ export default function Dashboard() {
             <div className="l">{t('Active orders', 'Ενεργές παραγγελίες')}</div>
           </div>
           <div className="kpi">
-            <div className="n" style={{ color: '#48d38a' }}>
+            <div className="n" style={{ color: 'var(--ok)' }}>
               {kpis.completed}
             </div>
             <div className="l">{t('Completed', 'Ολοκληρωμένες')}</div>
@@ -211,9 +227,9 @@ export default function Dashboard() {
         {error && (
           <div
             className="notice mt24"
-            style={{ borderColor: 'rgba(255,86,86,.35)', background: 'rgba(255,86,86,.08)' }}
+            style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}
           >
-            <div className="ic" style={{ color: '#ff7a7a' }}>
+            <div className="ic" style={{ color: 'var(--danger)' }}>
               <CircleAlert size={18} aria-hidden />
             </div>
             <div>{error}</div>
@@ -339,7 +355,7 @@ function PendingDashboard({ status }: { status: MemberStatus }) {
               display: 'grid',
               placeItems: 'center',
               margin: '0 auto 18px',
-              color: rejected ? '#ff7a7a' : '#ffce54',
+              color: rejected ? 'var(--danger)' : 'var(--warn)',
               fontSize: 28,
             }}
           >

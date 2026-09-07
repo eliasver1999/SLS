@@ -122,7 +122,7 @@ export default function OrderDetail() {
               </button>
             )}
             {cancelError && (
-              <p style={{ color: '#ff7a7a', fontSize: 13, marginTop: 10 }}>{cancelError}</p>
+              <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 10 }}>{cancelError}</p>
             )}
           </div>
 

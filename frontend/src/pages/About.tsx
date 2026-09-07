@@ -133,7 +133,7 @@ export default function About() {
                     <tbody>
                       {group.items.map((it, i) => (
                         <tr key={i}>
-                          <td colSpan={2} style={{ width: 'auto', color: '#cdd8e6' }}>
+                          <td colSpan={2} style={{ width: 'auto', color: 'var(--text-soft)' }}>
                             {lang === 'el' ? it[1] : it[0]}
                           </td>
                         </tr>
