@@ -22,6 +22,19 @@ class ProductController extends Controller
         if ($request->boolean('featured')) {
             $query->where('featured', true);
         }
+        // Indoor / outdoor only classifies screens; lighting and sound carry
+        // their category here instead, so they simply do not match.
+        if ($request->filled('placement')) {
+            $query->where('placement_key', $request->string('placement'));
+        }
+        // A pitch range excludes anything with no pitch at all, which is the
+        // honest answer for a lighting fixture.
+        if ($request->filled('pitch_min')) {
+            $query->where('pitch_mm', '>=', $request->float('pitch_min'));
+        }
+        if ($request->filled('pitch_max')) {
+            $query->where('pitch_mm', '<=', $request->float('pitch_max'));
+        }
 
         return ProductResource::collection(
             $query->paginate($request->integer('per_page', 24))

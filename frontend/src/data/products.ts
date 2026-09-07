@@ -13,6 +13,8 @@ export type Product = {
   name: string
   category: Category
   placementKey: 'indoor' | 'outdoor' | 'lighting' | 'sound' | 'package'
+  /** Pixel pitch in mm; null for lighting and sound. */
+  pitchMm?: number | null
   tag: LS
   image: string
   thumbs: string[]

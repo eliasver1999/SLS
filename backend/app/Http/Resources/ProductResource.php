@@ -24,6 +24,7 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'category' => $this->category,
             'placementKey' => $this->placement_key,
+            'pitchMm' => $this->pitch_mm,
             'tag' => $this->tag,
             'image' => $this->image,
             'thumbs' => $this->thumbs,

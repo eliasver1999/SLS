@@ -8,11 +8,23 @@ import { fetchProducts } from '../lib/api'
 import { CircleCheck, Hourglass, Lock } from 'lucide-react'
 
 type TypeFilter = 'all' | Category
+type Placement = 'all' | 'indoor' | 'outdoor'
+
+/** Pitch bands as the trade talks about them, in mm. */
+const PITCH_BANDS = [
+  { key: 'fine', label: 'P1.5 – P2.6', min: 1.5, max: 2.6 },
+  { key: 'mid', label: 'P2.9 – P3.9', min: 2.9, max: 3.9 },
+  { key: 'coarse', label: 'P4.8 – P10', min: 4.8, max: 10 },
+] as const
+
+type PitchKey = (typeof PITCH_BANDS)[number]['key']
 
 export default function Catalogue() {
   const { t } = useLang()
   const { isApproved } = useAuth()
   const [type, setType] = useState<TypeFilter>('all')
+  const [placement, setPlacement] = useState<Placement>('all')
+  const [pitch, setPitch] = useState<PitchKey | null>(null)
 
   // Load from the API; the bundled list is the initial paint + offline fallback.
   const [all, setAll] = useState<Product[]>(PRODUCTS)
@@ -24,23 +36,40 @@ export default function Catalogue() {
   // Refetch when approval changes: the API only includes pricing for approved
   // partners, so signing in has to pull a fresh payload rather than reveal a
   // price the guest response never contained.
+  const band = PITCH_BANDS.find((b) => b.key === pitch)
+
+  const params = useMemo(
+    () => ({
+      category: type === 'all' ? undefined : type,
+      placement: placement === 'all' ? undefined : placement,
+      pitch_min: band?.min,
+      pitch_max: band?.max,
+    }),
+    [type, placement, band],
+  )
+
+  // Filtering happens server-side so it covers the whole catalogue, not just
+  // the page already fetched — and so it still holds once "load more" is used.
   useEffect(() => {
-    fetchProducts({ page: 1 })
+    let current = true
+    fetchProducts({ ...params, page: 1 })
       .then((res) => {
-        if (res.items.length) {
-          setAll(res.items)
-          setPage(res.page)
-          setLastPage(res.lastPage)
-          setTotal(res.total)
-        }
+        if (!current) return
+        setAll(res.items)
+        setPage(res.page)
+        setLastPage(res.lastPage)
+        setTotal(res.total)
       })
       .catch(() => {})
-  }, [isApproved])
+    return () => {
+      current = false
+    }
+  }, [params, isApproved])
 
   async function loadMore() {
     setLoadingMore(true)
     try {
-      const res = await fetchProducts({ page: page + 1 })
+      const res = await fetchProducts({ ...params, page: page + 1 })
       setAll((prev) => [...prev, ...res.items])
       setPage(res.page)
       setLastPage(res.lastPage)
@@ -52,10 +81,14 @@ export default function Catalogue() {
     }
   }
 
-  const shown = useMemo(
-    () => all.filter((p) => (type === 'all' ? true : p.category === type)),
-    [all, type],
-  )
+  const shown = all
+  const filtered = type !== 'all' || placement !== 'all' || pitch !== null
+
+  function clearFilters() {
+    setType('all')
+    setPlacement('all')
+    setPitch(null)
+  }
 
   const typeChips: { key: TypeFilter; label: string }[] = [
     { key: 'screens', label: t('Screens', 'Οθόνες') },
@@ -176,46 +209,83 @@ export default function Catalogue() {
                 </span>
               ))}
             </div>
-            <h4>{t('Placement', 'Τοποθέτηση')}</h4>
-            <div>
-              <span className="chip on">Indoor</span>
-              <span className="chip">Outdoor</span>
-            </div>
-            <h4>{t('Pixel pitch', 'Pixel pitch')}</h4>
-            <label className="check on">
-              <i /> P1.5 – P2.6
-            </label>
-            <label className="check on">
-              <i /> P2.9 – P3.9
-            </label>
-            <label className="check">
-              <i /> P4.8 – P10
-            </label>
-            <h4>{t('Use case', 'Χρήση')}</h4>
-            <label className="check on">
-              <i /> <span>{t('Festival / concert', 'Φεστιβάλ / συναυλία')}</span>
-            </label>
-            <label className="check">
-              <i /> <span>{t('Corporate', 'Εταιρικό')}</span>
-            </label>
-            <label className="check">
-              <i /> <span>{t('Retail', 'Λιανική')}</span>
-            </label>
+            {/* Indoor/outdoor and pitch only classify screens, so these are
+                hidden when the selection cannot contain any — better than
+                offering a filter that would always return nothing. */}
+            {(type === 'all' || type === 'screens') && (
+              <>
+                <h4>{t('Placement', 'Τοποθέτηση')}</h4>
+                <div>
+                  {(['all', 'indoor', 'outdoor'] as const).map((key) => (
+                    <span
+                      key={key}
+                      className={`chip${placement === key ? ' on' : ''}`}
+                      onClick={() => setPlacement(key)}
+                    >
+                      {key === 'all'
+                        ? t('Any', 'Όλα')
+                        : key === 'indoor'
+                          ? t('Indoor', 'Εσωτερικό')
+                          : t('Outdoor', 'Εξωτερικό')}
+                    </span>
+                  ))}
+                </div>
+
+                <h4>{t('Pixel pitch', 'Pixel pitch')}</h4>
+                {PITCH_BANDS.map((b) => (
+                  <label
+                    key={b.key}
+                    className={`check${pitch === b.key ? ' on' : ''}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setPitch(pitch === b.key ? null : b.key)}
+                  >
+                    <i /> {b.label}
+                  </label>
+                ))}
+              </>
+            )}
+
+            {filtered && (
+              <button className="btn btn-ghost btn-sm mt16" onClick={clearFilters}>
+                {t('Clear filters', 'Καθαρισμός φίλτρων')}
+              </button>
+            )}
           </aside>
 
           {/* GRID */}
           <div>
             <div className="muted" style={{ fontSize: 14, marginBottom: 16 }}>
               {t(
-                `Showing ${shown.length} of ${total} products`,
-                `Εμφάνιση ${shown.length} από ${total} προϊόντα`,
+                filtered
+                  ? `${total} ${total === 1 ? 'match' : 'matches'}`
+                  : `Showing ${shown.length} of ${total} products`,
+                filtered
+                  ? `${total} ${total === 1 ? 'αποτέλεσμα' : 'αποτελέσματα'}`
+                  : `Εμφάνιση ${shown.length} από ${total} προϊόντα`,
               )}
             </div>
-            <div className="grid g3">
-              {shown.map((p) => (
-                <ProductCard key={p.slug} product={p} />
-              ))}
-            </div>
+            {shown.length === 0 ? (
+              <div className="panel center" style={{ padding: 36 }}>
+                <h3 style={{ fontSize: 17 }}>
+                  {t('Nothing matches those filters', 'Κανένα αποτέλεσμα')}
+                </h3>
+                <p className="muted mt8" style={{ fontSize: 14 }}>
+                  {t(
+                    'Try widening the pitch range or placement.',
+                    'Δοκιμάστε ευρύτερο pixel pitch ή τοποθέτηση.',
+                  )}
+                </p>
+                <button className="btn btn-ghost btn-sm mt16" onClick={clearFilters}>
+                  {t('Clear filters', 'Καθαρισμός φίλτρων')}
+                </button>
+              </div>
+            ) : (
+              <div className="grid g3">
+                {shown.map((p) => (
+                  <ProductCard key={p.slug} product={p} />
+                ))}
+              </div>
+            )}
             {type === 'all' && page < lastPage && (
               <div style={{ textAlign: 'center', marginTop: 24 }}>
                 <button className="btn btn-ghost" onClick={loadMore} disabled={loadingMore}>

@@ -143,6 +143,11 @@ function toPage<T>(data: { data: T[]; meta?: PageMeta }): Paginated<T> {
 export async function fetchProducts(params?: {
   category?: Category
   featured?: boolean
+  /** placement_key, e.g. "indoor" — only screens are classified this way. */
+  placement?: string
+  /** Inclusive pixel-pitch bounds in mm; excludes products with no pitch. */
+  pitch_min?: number
+  pitch_max?: number
   page?: number
   per_page?: number
 }) {
