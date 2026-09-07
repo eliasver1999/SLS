@@ -11,11 +11,13 @@ class Order extends Model
         'reference', 'type', 'status', 'user_id',
         'contact_name', 'contact_email', 'company', 'items', 'total', 'notes',
         'status_history',
+        'event_type', 'event_date', 'venue', 'delivery_address',
     ];
 
     protected $casts = [
         'items' => 'array',
         'status_history' => 'array',
+        'event_date' => 'date',
     ];
 
     protected $attributes = [

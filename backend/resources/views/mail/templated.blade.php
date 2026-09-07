@@ -21,6 +21,25 @@
 </x-mail::table>
 @endif
 
+@if (in_array('event_details_table', $blocks, true) && (! empty($vars['event_date']) || ! empty($vars['venue'])))
+<x-mail::table>
+| Event | Details |
+|:------|:--------|
+@if (! empty($vars['event_type']))
+| Type | {{ $cell($vars['event_type']) }} |
+@endif
+@if (! empty($vars['event_date']))
+| Date | {{ $cell($vars['event_date']) }} |
+@endif
+@if (! empty($vars['venue']))
+| Venue | {{ $cell($vars['venue']) }} |
+@endif
+@if (! empty($vars['delivery_address']))
+| Delivery | {{ $cell($vars['delivery_address']) }} |
+@endif
+</x-mail::table>
+@endif
+
 @if (in_array('enquiry_details_table', $blocks, true))
 <x-mail::table>
 | Field | Value |

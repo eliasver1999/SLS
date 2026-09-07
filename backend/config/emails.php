@@ -20,7 +20,8 @@
 
 $globals = ['sales_email', 'iban', 'bank_name', 'account_name', 'deposit_percent', 'balance_percent', 'vat_percent', 'app_url'];
 
-$orderVars = ['reference', 'type', 'contact_name', 'company', 'contact_email', 'total', 'notes'];
+$orderVars = ['reference', 'type', 'contact_name', 'company', 'contact_email', 'total', 'notes',
+    'event_type', 'event_date', 'venue', 'delivery_address'];
 
 $statusVars = [...$orderVars, 'status', 'status_label', 'previous_status', 'note'];
 
@@ -51,7 +52,7 @@ foreach ($statusDefaults as $status => $sentence) {
         'description' => "Sent to the customer when an admin moves an order to “{$statusLabels[$status]}”.",
         'audience' => 'customer',
         'placeholders' => $statusVars,
-        'blocks' => ['note_panel', 'total_line', 'bank_panel'],
+        'blocks' => ['note_panel', 'total_line', 'bank_panel', 'event_details_table'],
         'default_subject' => 'SLS — {{ reference }} is now “{{ status_label }}”',
         'default_body' => "# Update on {{ reference }}\n\nHi {{ contact_name }}, the status of your {{ type }} is now **{{ status_label }}**.\n\n{$sentence}\n\nQuestions? Contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
         'default_blocks' => $status === 'cancelled' ? ['note_panel'] : ['note_panel', 'total_line'],
@@ -71,6 +72,7 @@ return [
         'admin_button' => '“Open admin” button',
         'order_details_table' => 'Order details table (internal)',
         'enquiry_details_table' => 'Enquiry details table (internal)',
+        'event_details_table' => 'Event details (date, venue, delivery)',
     ],
 
     'events' => [
@@ -107,10 +109,10 @@ return [
             'description' => 'Sent to the customer immediately after they submit an order request.',
             'audience' => 'customer',
             'placeholders' => [...$orderVars, ...$globals],
-            'blocks' => ['items_table', 'bank_panel'],
+            'blocks' => ['event_details_table', 'items_table', 'bank_panel'],
             'default_subject' => 'SLS — order request received ({{ reference }})',
             'default_body' => "# Thanks, {{ contact_name }} 👋\n\nWe’ve received your **order request** ({{ reference }}) for **{{ company }}**.\nNo payment is taken on the website — everything is handled by our team, as set out below.\n\n## How payment works\n1. We email you a **Scope of Work (SOW)** confirming the details.\n2. A **{{ deposit_percent }}% deposit** confirms the order and starts production — pay by bank transfer (IBAN) to the account below.\n3. The remaining **{{ balance_percent }}%** is due **before dispatch**.\n\nAll prices are **ex VAT**; **{{ vat_percent }}% VAT** is added on the invoice.\n\nPlease **do not transfer any deposit yet** — wait for our SOW and invoice so the amount and reference are confirmed.\n\nA member of the SLS team will be in touch shortly. Questions? Just reply to this email or contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
-            'default_blocks' => ['items_table', 'bank_panel'],
+            'default_blocks' => ['event_details_table', 'items_table', 'bank_panel'],
         ],
 
         'order.received.quote' => [
@@ -119,10 +121,10 @@ return [
             'description' => 'Sent to the customer immediately after they submit a quote request.',
             'audience' => 'customer',
             'placeholders' => [...$orderVars, ...$globals],
-            'blocks' => ['items_table'],
+            'blocks' => ['event_details_table', 'items_table'],
             'default_subject' => 'SLS — quote request received ({{ reference }})',
             'default_body' => "# Thanks, {{ contact_name }} 👋\n\nWe’ve received your **quote request** ({{ reference }}) for **{{ company }}**.\nNo payment is taken on the website — everything is handled by our team.\n\n## What happens next\nOur team will prepare a formal quote and email it to you, usually **within one business day**. Once you approve it, we’ll send a Scope of Work and payment details.\n\nAll prices are **ex VAT**; **{{ vat_percent }}% VAT** is added on the invoice.\n\nQuestions? Just reply to this email or contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
-            'default_blocks' => ['items_table'],
+            'default_blocks' => ['event_details_table', 'items_table'],
         ],
 
         'order.admin_notify' => [
@@ -131,10 +133,10 @@ return [
             'description' => 'Sent to the sales inbox so the team knows to follow up.',
             'audience' => 'sales',
             'placeholders' => [...$orderVars, ...$globals],
-            'blocks' => ['order_details_table', 'items_table', 'admin_button'],
+            'blocks' => ['order_details_table', 'event_details_table', 'items_table', 'admin_button'],
             'default_subject' => 'New {{ type }} — {{ reference }}',
             'default_body' => "# New {{ type }} — {{ reference }}\n\nA customer just submitted a **{{ type }}** request. Follow up to send the SOW / quote.\n\nSLS internal notification.",
-            'default_blocks' => ['order_details_table', 'items_table', 'admin_button'],
+            'default_blocks' => ['order_details_table', 'event_details_table', 'items_table', 'admin_button'],
         ],
 
         // ── Contact form ───────────────────────────────────────────

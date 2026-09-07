@@ -22,6 +22,18 @@ export default function Product() {
   const [config, setConfig] = useState('4 × 3 (6 m²)')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // An order has to say when and where — the API rejects one that does not.
+  const [eventType, setEventType] = useState('')
+  const [eventDate, setEventDate] = useState('')
+  const [venue, setVenue] = useState('')
+  const [deliveryAddress, setDeliveryAddress] = useState('')
+
+  const eventDetails = () => ({
+    event_type: eventType.trim() || undefined,
+    event_date: eventDate || undefined,
+    venue: venue.trim() || undefined,
+    delivery_address: deliveryAddress.trim() || undefined,
+  })
 
   // Refetch when approval changes: the API only includes pricing for approved
   // partners, so signing in has to pull a fresh payload rather than reveal a
@@ -81,7 +93,7 @@ export default function Product() {
     setBusy(true)
     setError(null)
     try {
-      const order = await createOrder({ type: 'order', items: [item] })
+      const order = await createOrder({ type: 'order', items: [item], ...eventDetails() })
       navigate('/order-received', { state: { reference: order.reference, type: 'order' } })
     } catch (e) {
       setError(
@@ -111,7 +123,7 @@ export default function Product() {
     setBusy(true)
     setError(null)
     try {
-      const order = await createOrder({ type: 'quote', items: cart.items })
+      const order = await createOrder({ type: 'quote', items: cart.items, ...eventDetails() })
       cart.clear()
       navigate('/order-received', { state: { reference: order.reference, type: 'quote' } })
     } catch (e) {
@@ -217,6 +229,59 @@ export default function Product() {
                     <input value={config} onChange={(e) => setConfig(e.target.value)} />
                   </div>
                 </div>
+
+                <h4 className="head mt24" style={{ fontSize: 13, letterSpacing: 1, color: 'var(--grey)' }}>
+                  {t('EVENT DETAILS', 'ΣΤΟΙΧΕΙΑ ΕΚΔΗΛΩΣΗΣ')}
+                </h4>
+                <div className="row2 mt8">
+                  <div className="field">
+                    <label>{t('Event date', 'Ημερομηνία')}</label>
+                    <input
+                      type="date"
+                      value={eventDate}
+                      min={new Date().toISOString().slice(0, 10)}
+                      onChange={(e) => setEventDate(e.target.value)}
+                    />
+                  </div>
+                  <div className="field">
+                    <label>{t('Event type', 'Τύπος εκδήλωσης')}</label>
+                    <input
+                      value={eventType}
+                      onChange={(e) => setEventType(e.target.value)}
+                      placeholder={t('Festival main stage', 'Κύρια σκηνή φεστιβάλ')}
+                    />
+                  </div>
+                </div>
+                <div className="field mt16">
+                  <label>{t('Venue', 'Χώρος')}</label>
+                  <input
+                    value={venue}
+                    onChange={(e) => setVenue(e.target.value)}
+                    placeholder={t('Technopolis, Athens', 'Τεχνόπολη, Αθήνα')}
+                  />
+                </div>
+                <div className="field mt16">
+                  <label>
+                    {t('Delivery address', 'Διεύθυνση παράδοσης')}{' '}
+                    <span className="muted" style={{ fontWeight: 400 }}>
+                      {t('(optional)', '(προαιρετικό)')}
+                    </span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    placeholder={t('Street, city, access notes', 'Οδός, πόλη, σημειώσεις πρόσβασης')}
+                    style={{ resize: 'vertical' }}
+                  />
+                </div>
+                <p className="muted mt8" style={{ fontSize: 12.5 }}>
+                  {t(
+                    'The date and venue let us schedule crew and delivery — required for an order, optional for a quote.',
+                    'Η ημερομηνία και ο χώρος μας επιτρέπουν να προγραμματίσουμε συνεργείο και παράδοση.',
+                  )}
+                </p>
+                <div className="mt16" />
                 <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                   {product.buy && (
                     <button

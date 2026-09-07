@@ -20,6 +20,10 @@ class OrderSeeder extends Seeder
                 'reference' => 'SLS-Q-2041',
                 'type' => 'quote',
                 'status' => 'pending',
+                'event_type' => 'Festival main stage',
+                'event_date' => now()->addMonths(2)->toDateString(),
+                'venue' => 'Technopolis, Athens',
+                'delivery_address' => 'Pireos 100, Gazi, 118 54 Athens — loading bay B',
                 'items' => [['slug' => 'aurora-p26', 'name' => 'Aurora P2.6', 'mode' => 'buy', 'qty' => 12]],
                 'total' => '€ 82,800',
                 'status_history' => $this->history([
@@ -30,6 +34,10 @@ class OrderSeeder extends Seeder
                 'reference' => 'SLS-O-1180',
                 'type' => 'order',
                 'status' => 'in_production',
+                'event_type' => 'Corporate product launch',
+                'event_date' => now()->addWeeks(3)->toDateString(),
+                'venue' => 'Megaron Athens Concert Hall',
+                'delivery_address' => 'Vasilissis Sofias & Kokkali, 115 21 Athens',
                 'items' => [['slug' => 'titan-p39', 'name' => 'Titan P3.9', 'mode' => 'buy', 'qty' => 20]],
                 'total' => '€ 168,000',
                 'status_history' => $this->history([
@@ -42,6 +50,9 @@ class OrderSeeder extends Seeder
                 'reference' => 'SLS-Q-2038',
                 'type' => 'quote',
                 'status' => 'quoted',
+                'event_type' => 'Wedding reception',
+                'event_date' => now()->addMonths(4)->toDateString(),
+                'venue' => 'Island Art & Taste, Varkiza',
                 'items' => [['slug' => 'stage-kit-s', 'name' => 'Stage Kit S', 'qty' => 1]],
                 'total' => '€ 5,800',
                 'status_history' => $this->history([

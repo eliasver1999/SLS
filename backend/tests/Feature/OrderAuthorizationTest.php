@@ -33,6 +33,22 @@ class OrderAuthorizationTest extends TestCase
         ]);
     }
 
+    /**
+     * A payload that satisfies the order rules, so tests about authorization
+     * are not also restating the event-detail requirements.
+     *
+     * @return array<string, mixed>
+     */
+    private function orderPayload(array $overrides = []): array
+    {
+        return array_merge([
+            'type' => 'order',
+            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
+            'event_date' => now()->addMonth()->toDateString(),
+            'venue' => 'Technopolis, Athens',
+        ], $overrides);
+    }
+
     private function product(): Product
     {
         return Product::create([
@@ -99,10 +115,9 @@ class OrderAuthorizationTest extends TestCase
         $this->product();
         Sanctum::actingAs(User::factory()->create(['status' => 'pending']));
 
-        $this->postJson('/api/orders', [
-            'type' => 'order',
-            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
-        ])->assertForbidden();
+        // Valid payload, so this proves the block is about approval and not
+        // about a missing field.
+        $this->postJson('/api/orders', $this->orderPayload())->assertForbidden();
 
         $this->assertDatabaseCount('orders', 0);
     }
@@ -112,10 +127,7 @@ class OrderAuthorizationTest extends TestCase
         $this->product();
         Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
 
-        $this->postJson('/api/orders', [
-            'type' => 'order',
-            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
-        ])->assertCreated();
+        $this->postJson('/api/orders', $this->orderPayload())->assertCreated();
 
         $this->assertDatabaseCount('orders', 1);
     }
@@ -125,13 +137,73 @@ class OrderAuthorizationTest extends TestCase
         $this->product();
         Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
 
-        $this->postJson('/api/orders', [
-            'type' => 'order',
+        $this->postJson('/api/orders', $this->orderPayload([
             'items' => [['slug' => 'aurora-p26', 'qty' => 1, 'price' => '€ 1']],
-        ])->assertCreated();
+        ]))->assertCreated();
 
         // The line is rebuilt from the product, so the tampered price is dropped.
         $this->assertSame('€ 6,900', Order::first()->items[0]['price']);
+    }
+
+    public function test_an_order_must_say_when_and_where(): void
+    {
+        $this->product();
+        Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
+
+        // Event tech is delivered to a place on a date; without them the team
+        // has to chase the customer before they can quote or schedule.
+        $this->postJson('/api/orders', [
+            'type' => 'order',
+            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
+        ])->assertStatus(422)->assertJsonValidationErrors(['event_date', 'venue']);
+
+        $this->assertDatabaseCount('orders', 0);
+    }
+
+    public function test_a_quote_does_not_need_event_details_yet(): void
+    {
+        $this->product();
+        Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
+
+        // A quote is exploratory — the customer may not have a venue booked.
+        $this->postJson('/api/orders', [
+            'type' => 'quote',
+            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
+        ])->assertCreated();
+    }
+
+    public function test_an_order_rejects_an_event_date_in_the_past(): void
+    {
+        $this->product();
+        Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
+
+        $this->postJson('/api/orders', [
+            'type' => 'order',
+            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
+            'event_date' => now()->subDay()->toDateString(),
+            'venue' => 'Technopolis, Athens',
+        ])->assertStatus(422)->assertJsonValidationErrors(['event_date']);
+    }
+
+    public function test_event_details_are_stored_and_returned(): void
+    {
+        $this->product();
+        Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
+
+        $date = now()->addMonth()->toDateString();
+
+        $this->postJson('/api/orders', [
+            'type' => 'order',
+            'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
+            'event_type' => 'Festival main stage',
+            'event_date' => $date,
+            'venue' => 'Technopolis, Athens',
+            'delivery_address' => 'Pireos 100, loading bay B',
+        ])->assertCreated()
+            ->assertJsonPath('data.event_type', 'Festival main stage')
+            ->assertJsonPath('data.event_date', $date)
+            ->assertJsonPath('data.venue', 'Technopolis, Athens')
+            ->assertJsonPath('data.delivery_address', 'Pireos 100, loading bay B');
     }
 
     public function test_guests_cannot_touch_orders(): void

@@ -70,6 +70,10 @@ class OrderController extends Controller
             'contact_name' => $user->name,
             'contact_email' => $user->email,
             'company' => $user->company,
+            'event_type' => $data['event_type'] ?? null,
+            'event_date' => $data['event_date'] ?? null,
+            'venue' => $data['venue'] ?? null,
+            'delivery_address' => $data['delivery_address'] ?? null,
             'items' => $items,
             'notes' => $data['notes'] ?? null,
             'status_history' => [[

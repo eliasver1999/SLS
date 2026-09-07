@@ -32,10 +32,12 @@ import { STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 import {
   ArrowLeft,
+  CalendarDays,
   CircleAlert,
   ClipboardCheck,
   FileText,
   Mail,
+  MapPin,
   MessageSquare,
   Moon,
   Package,
@@ -43,6 +45,7 @@ import {
   ShoppingCart,
   Star,
   Sun,
+  Truck,
   Users,
   type LucideIcon,
 } from 'lucide-react'
@@ -1025,6 +1028,40 @@ function AdminOrderDetail({
       <div className="muted" style={{ fontSize: 13 }}>
         {order.contact_email}
       </div>
+
+      {(order.event_date || order.venue || order.event_type) && (
+        <>
+          <h4 className="head mt16" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 8 }}>
+            {t('EVENT', 'ΕΚΔΗΛΩΣΗ')}
+          </h4>
+          <div className="panel" style={{ padding: 12, fontSize: 13, lineHeight: 1.7 }}>
+            {order.event_date && (
+              <div>
+                <CalendarDays size={13} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
+                {new Date(order.event_date).toLocaleDateString('en-GB', {
+                  weekday: 'short',
+                  day: '2-digit',
+                  month: 'short',
+                  year: 'numeric',
+                })}
+                {order.event_type ? ` · ${order.event_type}` : ''}
+              </div>
+            )}
+            {order.venue && (
+              <div>
+                <MapPin size={13} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
+                {order.venue}
+              </div>
+            )}
+            {order.delivery_address && (
+              <div className="muted" style={{ fontSize: 12.5 }}>
+                <Truck size={13} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
+                {order.delivery_address}
+              </div>
+            )}
+          </div>
+        </>
+      )}
 
       <h4 className="head mt16" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 8 }}>
         {t('LINE ITEMS', 'ΕΙΔΗ')}

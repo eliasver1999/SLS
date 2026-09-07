@@ -7,7 +7,7 @@ import { statusLabel, STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 
 export default function OrderDetail() {
-  const { t } = useLang()
+  const { t, lang } = useLang()
   const { id } = useParams()
   const [order, setOrder] = useState<Order | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -48,6 +48,12 @@ export default function OrderDetail() {
   }
 
   const typeLabel = { quote: t('Quote', 'Προσφορά'), order: t('Order', 'Παραγγελία') }[order.type]
+  const eventDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(lang === 'el' ? 'el-GR' : 'en-GB', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    })
   const cancellable = order.status === 'pending' || order.status === 'quoted'
 
   async function onCancel() {
@@ -86,6 +92,40 @@ export default function OrderDetail() {
         <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
           {/* Items + summary */}
           <div className="panel">
+            {(order.event_date || order.venue || order.event_type) && (
+              <div style={{ marginBottom: 20 }}>
+                <h3 style={{ fontSize: 16 }}>{t('Event', 'Εκδήλωση')}</h3>
+                <table className="spec-table mt8">
+                  <tbody>
+                    {order.event_type && (
+                      <tr>
+                        <td className="muted">{t('Type', 'Τύπος')}</td>
+                        <td style={{ textAlign: 'right' }}>{order.event_type}</td>
+                      </tr>
+                    )}
+                    {order.event_date && (
+                      <tr>
+                        <td className="muted">{t('Date', 'Ημερομηνία')}</td>
+                        <td style={{ textAlign: 'right' }}>{eventDate(order.event_date)}</td>
+                      </tr>
+                    )}
+                    {order.venue && (
+                      <tr>
+                        <td className="muted">{t('Venue', 'Χώρος')}</td>
+                        <td style={{ textAlign: 'right' }}>{order.venue}</td>
+                      </tr>
+                    )}
+                    {order.delivery_address && (
+                      <tr>
+                        <td className="muted">{t('Delivery', 'Παράδοση')}</td>
+                        <td style={{ textAlign: 'right' }}>{order.delivery_address}</td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
             <h3 style={{ fontSize: 16 }}>{t('Items', 'Είδη')}</h3>
             <table className="spec-table mt8">
               <tbody>

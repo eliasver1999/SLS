@@ -202,7 +202,15 @@ export type StatusEvent = {
   by: string
 }
 
-export type Order = {
+/** When and where the job happens — required to place an order. */
+export type EventDetails = {
+  event_type?: string | null
+  event_date?: string | null
+  venue?: string | null
+  delivery_address?: string | null
+}
+
+export type Order = EventDetails & {
   id: number
   reference: string
   type: OrderType
@@ -217,7 +225,9 @@ export type Order = {
   created_at: string
 }
 
-export async function createOrder(payload: { type: OrderType; items: OrderItem[]; notes?: string }) {
+export async function createOrder(
+  payload: { type: OrderType; items: OrderItem[]; notes?: string } & EventDetails,
+) {
   const { data } = await api.post<{ data: Order }>('/orders', payload)
   return data.data
 }

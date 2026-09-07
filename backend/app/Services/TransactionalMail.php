@@ -120,6 +120,10 @@ class TransactionalMail
             'notes' => $order->notes,
             'status' => $order->status,
             'status_label' => static::statusLabel($order->status),
+            'event_type' => $order->event_type,
+            'event_date' => $order->event_date?->isoFormat('D MMM YYYY'),
+            'venue' => $order->venue,
+            'delivery_address' => $order->delivery_address,
         ], $extra);
     }
 
