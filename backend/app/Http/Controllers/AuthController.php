@@ -109,6 +109,33 @@ class AuthController extends Controller
         return response()->json(['user' => $this->userPayload($request->user())]);
     }
 
+    /**
+     * A member maintains their own company details.
+     *
+     * Only the three fields below are read from the request. The User model's
+     * fillable list includes role and status, so passing $request->all() here
+     * would let any customer make themselves an approved admin — the fields
+     * are named explicitly for that reason, and a test pins it.
+     */
+    public function updateProfile(Request $request)
+    {
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+            'company' => ['nullable', 'string', 'max:160'],
+            'vat_number' => ['nullable', 'string', 'max:32'],
+        ]);
+
+        $user = $request->user();
+
+        $user->update([
+            'name' => $data['name'],
+            'company' => $data['company'] ?? null,
+            'vat_number' => $data['vat_number'] ?? null,
+        ]);
+
+        return response()->json(['user' => $this->userPayload($user->fresh())]);
+    }
+
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

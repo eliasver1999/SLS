@@ -35,6 +35,8 @@ type AuthValue = {
   login: (email: string, password: string) => Promise<AuthUser>
   register: (p: { name: string; email: string; password: string; company?: string }) => Promise<AuthUser>
   logout: () => Promise<void>
+  /** Replace the cached user after a profile save. */
+  setUser: (u: AuthUser) => void
 }
 
 const AuthContext = createContext<AuthValue | null>(null)
@@ -91,6 +93,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(u)
   }, [])
 
+  // A profile save returns the updated user; keep the cached copy in step so
+  // the header and dashboard do not show stale details until the next reload.
+  const updateCachedUser = useCallback((u: AuthUser) => {
+    localStorage.setItem(USER_KEY, JSON.stringify(u))
+    setUser(u)
+  }, [])
+
   const login = useCallback(
     async (email: string, password: string) => {
       const { token, user: u } = await loginApi(email, password)
@@ -131,8 +140,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      setUser: updateCachedUser,
     }),
-    [user, loading, login, register, logout],
+    [user, loading, login, register, logout, updateCachedUser],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

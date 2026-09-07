@@ -23,6 +23,7 @@ export type AuthUser = {
   email: string
   role: Role
   company: string | null
+  vat_number: string | null
   status: MemberStatus
   // Admin-gated: true once an admin approves the account (always true for admins).
   // Pricing, cart and ordering stay locked until this is true.
@@ -42,6 +43,14 @@ export async function register(payload: {
 }) {
   const { data } = await api.post<{ token: string; user: AuthUser }>('/register', payload)
   return data
+}
+
+export type ProfileInput = { name: string; company?: string | null; vat_number?: string | null }
+
+/** Updates the signed-in member's own company details. */
+export async function updateProfile(input: ProfileInput) {
+  const { data } = await api.patch<{ user: AuthUser }>('/me', input)
+  return data.user
 }
 
 export async function fetchMe() {
@@ -355,6 +364,7 @@ export type Member = {
   name: string
   email: string
   company: string | null
+  vat_number: string | null
   status: MemberStatus
   created_at: string
 }

@@ -149,13 +149,10 @@ export default function Dashboard() {
               {t('Soon', 'Σύντομα')}
             </span>
           </a>
-          <a aria-disabled style={{ opacity: 0.45, cursor: 'not-allowed' }}>
+          <Link to="/profile">
             <Building2 size={17} aria-hidden />
             {t('Company profile', 'Προφίλ εταιρείας')}
-            <span className="status wait" style={{ marginLeft: 'auto' }}>
-              {t('Soon', 'Σύντομα')}
-            </span>
-          </a>
+          </Link>
         </nav>
 
         <button className="theme-toggle" onClick={toggle} title={t('Switch theme', 'Αλλαγή θέματος')}>

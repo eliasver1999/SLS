@@ -28,6 +28,7 @@ Route::post('/partner-applications', [PartnerApplicationController::class, 'stor
 // ── Authenticated (any signed-in user) ────────────────────────────
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
+    Route::patch('/me', [AuthController::class, 'updateProfile']);
     Route::post('/logout', [AuthController::class, 'logout']);
 
     // Orders / quotes — approved customers see their own and place new requests.

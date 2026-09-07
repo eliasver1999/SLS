@@ -21,6 +21,7 @@ import Sitemap from './pages/Sitemap'
 import NotFound from './pages/NotFound'
 import Quote from './pages/Quote'
 import Legal from './pages/Legal'
+import Profile from './pages/Profile'
 import { RequireAdmin, RequireAuth } from './components/Guards'
 
 export default function App() {
@@ -46,6 +47,14 @@ export default function App() {
             element={
               <RequireAuth>
                 <Dashboard />
+              </RequireAuth>
+            }
+          />
+          <Route
+            path="profile"
+            element={
+              <RequireAuth>
+                <Profile />
               </RequireAuth>
             }
           />
