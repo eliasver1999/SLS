@@ -1328,3 +1328,38 @@ body[data-auth='pending'] .guest-strict {
     gap: 16px;
   }
 }
+
+/* Quote basket link in the header. The label drops before the row runs out of
+   room, so the buttons beside it never wrap onto two lines. */
+.quote-link {
+  gap: 7px;
+}
+/* Only above the mobile breakpoint: on a phone the actions row is narrow
+   enough that "Become a Partner" has to wrap, and forcing one line there
+   overflows the header instead. */
+@media (min-width: 901px) {
+  .header .actions .btn {
+    white-space: nowrap;
+  }
+}
+@media (max-width: 1300px) {
+  .quote-link-label {
+    display: none;
+  }
+}
+
+/* Quote page: the lines get the room, the summary sits beside them. */
+.quote-layout {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 30px;
+  align-items: start;
+}
+.quote-layout > * {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .quote-layout {
+    grid-template-columns: 1fr;
+  }
+}

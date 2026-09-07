@@ -117,31 +117,6 @@ export default function Product() {
     document.getElementById('quote')?.scrollIntoView({ behavior: 'smooth' })
   }
 
-  async function requestQuote() {
-    if (!isApproved) {
-      navigate('/login')
-      return
-    }
-    if (cart.count === 0) return
-    setBusy(true)
-    setError(null)
-    try {
-      const order = await createOrder({ type: 'quote', items: cart.items, ...eventDetails() })
-      cart.clear()
-      navigate('/order-received', { state: { reference: order.reference, type: 'quote' } })
-    } catch (e) {
-      setError(
-        errorMessage(
-          e,
-          t(
-            'We could not submit that request. Please try again or email us.',
-            'Δεν μπορέσαμε να υποβάλουμε το αίτημα. Δοκιμάστε ξανά ή στείλτε μας email.',
-          ),
-        ),
-      )
-      setBusy(false)
-    }
-  }
 
   return (
     <>
@@ -388,17 +363,22 @@ export default function Product() {
             ))}
             {cart.count > 0 && (
               <>
-                <button
-                  className="btn btn-primary btn-block mt16"
-                  disabled={busy}
-                  onClick={requestQuote}
-                >
-                  {busy ? t('Sending…', 'Αποστολή…') : t('Request quote', 'Αίτημα προσφοράς')}
-                </button>
+                {cart.subtotalCents > 0 && (
+                  <div
+                    className="approved-only"
+                    style={{ display: 'flex', justifyContent: 'space-between', marginTop: 16, fontSize: 14 }}
+                  >
+                    <span className="muted">{t('Estimated subtotal', 'Εκτιμώμενο υποσύνολο')}</span>
+                    <b>{money(cart.subtotalCents)}</b>
+                  </div>
+                )}
+                <Link className="btn btn-primary btn-block mt16" to="/quote">
+                  {t('Review & submit', 'Έλεγχος & υποβολή')}
+                </Link>
                 <p className="muted mt8" style={{ fontSize: 12.5, textAlign: 'center' }}>
                   {t(
-                    'Submitting sends a request — no payment is taken online.',
-                    'Η υποβολή στέλνει αίτημα — δεν γίνεται πληρωμή online.',
+                    'Set the event details and submit on the next step — no payment is taken online.',
+                    'Ορίστε τα στοιχεία της εκδήλωσης στο επόμενο βήμα — δεν γίνεται πληρωμή online.',
                   )}
                 </p>
               </>

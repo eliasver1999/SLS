@@ -19,6 +19,7 @@ import ResetPassword from './pages/ResetPassword'
 import UIKit from './pages/UIKit'
 import Sitemap from './pages/Sitemap'
 import NotFound from './pages/NotFound'
+import Quote from './pages/Quote'
 import { RequireAdmin, RequireAuth } from './components/Guards'
 
 export default function App() {
@@ -63,6 +64,7 @@ export default function App() {
               </RequireAdmin>
             }
           />
+          <Route path="quote" element={<Quote />} />
           <Route path="ui-kit" element={<UIKit />} />
           <Route path="sitemap" element={<Sitemap />} />
           <Route path="*" element={<NotFound />} />

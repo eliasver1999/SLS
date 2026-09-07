@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { FileText } from 'lucide-react'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
+import { useCart } from '../context/cart'
 
 type NavItem = { to: string; key: string; en: string; el: string }
 
@@ -17,6 +19,7 @@ const NAV: NavItem[] = [
 export default function Header() {
   const { lang, setLang } = useLang()
   const { user, isAdmin, logout } = useAuth()
+  const cart = useCart()
   const { pathname } = useLocation()
   const navigate = useNavigate()
   const [open, setOpen] = useState(false)
@@ -59,6 +62,13 @@ export default function Header() {
         </nav>
         <div className="spacer" />
         <div className="actions">
+          {cart.count > 0 && (
+            <Link className="btn btn-ghost btn-sm quote-link" to="/quote" title={lang === 'el' ? 'Η προσφορά σας' : 'Your quote'}>
+              <FileText size={15} aria-hidden />
+              <span className="quote-link-label">{lang === 'el' ? 'Προσφορά' : 'Quote'}</span>
+              <span className="status blue">{cart.count}</span>
+            </Link>
+          )}
           <div className="lang">
             <button className={lang === 'en' ? 'on' : undefined} onClick={() => setLang('en')}>
               EN
@@ -96,6 +106,11 @@ export default function Header() {
       </div>
 
       <div className={`mobile-nav${open ? ' open' : ''}`}>
+        {cart.count > 0 && (
+          <Link className="active" to="/quote" onClick={() => setOpen(false)}>
+            {lang === 'el' ? 'Η προσφορά σας' : 'Your quote'} ({cart.count})
+          </Link>
+        )}
         {NAV.map((n) => (
           <Link
             key={n.key}
