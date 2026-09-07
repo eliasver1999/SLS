@@ -5,8 +5,9 @@ import { useLang } from '../context/language'
  * Privacy, browser-storage and terms pages.
  *
  * The factual parts describe what this application actually does — the exact
- * browser-storage keys, the fields each form collects, the one third party it
- * contacts — and were written from the code rather than from a template.
+ * browser-storage keys, the fields each form collects, and the fact that it
+ * contacts no third party at all — and were written from the code rather than
+ * from a template.
  *
  * The parts marked NEEDS LEGAL REVIEW are the ones no engineer can supply:
  * the controller's registered identity, retention periods, lawful basis and
@@ -89,8 +90,8 @@ function privacy(t: (en: string, el: string) => string): Doc {
         heading: t('Who else sees it', 'Ποιος άλλος το βλέπει'),
         body: [
           t(
-            'Your enquiry and order details are emailed to our sales inbox so the team can follow up. This site also loads its typefaces from Google Fonts, which means Google receives your IP address when a page loads. Nothing else is shared with a third party.',
-            'Τα αιτήματα και οι παραγγελίες αποστέλλονται στο τμήμα πωλήσεων. Ο ιστότοπος φορτώνει γραμματοσειρές από το Google Fonts, οπότε η Google λαμβάνει τη διεύθυνση IP σας. Τίποτε άλλο δεν κοινοποιείται.',
+            'Your enquiry and order details are emailed to our sales inbox so the team can follow up. Beyond that, nothing is shared with a third party: this site loads no external scripts, fonts or images, so browsing it does not reveal your visit to anyone else.',
+            'Τα αιτήματα και οι παραγγελίες αποστέλλονται στο τμήμα πωλήσεων. Πέραν αυτού, τίποτε δεν κοινοποιείται σε τρίτους: ο ιστότοπος δεν φορτώνει εξωτερικά scripts, γραμματοσειρές ή εικόνες.',
           ),
           `${PLACEHOLDER} — ${t(
             'the email and hosting providers used, and where they process data.',
@@ -119,8 +120,8 @@ function storage(t: (en: string, el: string) => string): Doc {
   return {
     title: t('Cookies and browser storage', 'Cookies και αποθήκευση'),
     intro: t(
-      'This site sets no cookies and runs no tracking. It does keep a few things in your own browser so it can work.',
-      'Ο ιστότοπος δεν χρησιμοποιεί cookies ούτε tracking. Κρατά μόνο μερικά στοιχεία στο πρόγραμμα περιήγησής σας.',
+      'This site sets no cookies, runs no tracking and contacts no third party. It does keep a few things in your own browser so it can work.',
+      'Ο ιστότοπος δεν χρησιμοποιεί cookies, tracking ούτε τρίτους. Κρατά μόνο μερικά στοιχεία στο πρόγραμμα περιήγησής σας.',
     ),
     blocks: [
       {
@@ -164,11 +165,11 @@ function storage(t: (en: string, el: string) => string): Doc {
         ],
       },
       {
-        heading: t('Google Fonts', 'Google Fonts'),
+        heading: t('No third-party requests', 'Χωρίς αιτήματα σε τρίτους'),
         body: [
           t(
-            'Our typefaces are loaded from Google Fonts, so Google receives your IP address when a page loads. This is the only request this site makes to a third party.',
-            'Οι γραμματοσειρές φορτώνονται από το Google Fonts, οπότε η Google λαμβάνει τη διεύθυνση IP σας. Είναι το μόνο αίτημα προς τρίτο μέρος.',
+            'Everything this site needs is served from our own domain, including the typefaces. No external script, font or image is loaded, so visiting a page does not reveal your visit to anyone but us.',
+            'Όλα εξυπηρετούνται από τον δικό μας domain, συμπεριλαμβανομένων των γραμματοσειρών. Δεν φορτώνεται εξωτερικό script, γραμματοσειρά ή εικόνα.',
           ),
         ],
       },

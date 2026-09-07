@@ -1,7 +1,7 @@
 /* ============ SLS Design System ============
    Ported from the prototype styles.css. Custom brand fonts (Ginto/DejaVu)
    are unavailable, so per the brandbook we use Poppins (display) + Inter
-   (body), loaded via Google Fonts in index.html. Everything else is faithful
+   (body), self-hosted via src/fonts.css. Everything else is faithful
    to the prototype. */
 
 :root {
