@@ -32,6 +32,7 @@ import Reports from '../components/Reports'
 import { STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 import { centsToInput, inputToCents } from '../lib/money'
+import { PRODUCT_IMAGES } from '../data/productImages'
 import {
   ArrowLeft,
   CalendarDays,
@@ -667,9 +668,62 @@ function ProductForm({
           </div>
         </div>
 
+        {/* A free-text path meant any product added through the admin
+            rendered a broken image until someone guessed a filename that
+            existed. Pick from what is actually deployed instead — the field
+            below still accepts a path, for anything not in the list. */}
         <div className="field mt16" style={field}>
-          <label>{t('Image path', 'Εικόνα')}</label>
-          <input value={form.image} onChange={(e) => upd('image', e.target.value)} placeholder="/assets/led-wall.jpg" />
+          <label>{t('Product image', 'Εικόνα προϊόντος')}</label>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(96px, 1fr))',
+              gap: 8,
+              marginBottom: 10,
+            }}
+          >
+            {PRODUCT_IMAGES.map((src) => {
+              const chosen = form.image === src
+              return (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => upd('image', src)}
+                  title={src}
+                  aria-pressed={chosen}
+                  style={{
+                    padding: 0,
+                    border: chosen ? '2px solid var(--electric)' : '1px solid var(--line)',
+                    borderRadius: 10,
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                    background: 'var(--input-bg)',
+                    aspectRatio: '4 / 3',
+                    boxShadow: chosen ? 'var(--glow-sm)' : undefined,
+                  }}
+                >
+                  <img
+                    src={src}
+                    alt=""
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </button>
+              )
+            })}
+          </div>
+          <input
+            value={form.image}
+            onChange={(e) => upd('image', e.target.value)}
+            placeholder="/assets/led-wall.jpg"
+          />
+          {form.image && !PRODUCT_IMAGES.includes(form.image as (typeof PRODUCT_IMAGES)[number]) && (
+            <p className="muted mt8" style={{ fontSize: 12.5 }}>
+              {t(
+                'Not one of the deployed images — double-check the path renders before saving.',
+                'Δεν είναι από τις διαθέσιμες εικόνες — ελέγξτε ότι η διαδρομή εμφανίζεται.',
+              )}
+            </p>
+          )}
         </div>
 
         <div className="row2 mt16">
