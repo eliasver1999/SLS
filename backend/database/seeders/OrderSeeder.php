@@ -67,6 +67,7 @@ class OrderSeeder extends Seeder
                     'contact_name' => $customer->name,
                     'contact_email' => $customer->email,
                     'company' => $customer->company,
+                    'vat_number' => $customer->vat_number,
                 ]
             );
 

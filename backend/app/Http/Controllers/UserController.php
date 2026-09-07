@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartnerApplication;
 use App\Models\User;
 use App\Services\TransactionalMail;
 use Illuminate\Http\Request;
@@ -61,6 +62,19 @@ class UserController extends Controller
         $previousStatus = $user->status;
         $user->update($validated);
 
+        // The number was gathered on the public application form; adopt it on
+        // approval so the account it belongs to actually carries it.
+        if ($validated['status'] === 'approved' && ! $user->vat_number) {
+            $vat = PartnerApplication::where('email', $user->email)
+                ->whereNotNull('vat')
+                ->latest()
+                ->value('vat');
+
+            if ($vat) {
+                $user->update(['vat_number' => $vat]);
+            }
+        }
+
         // Notify the member the first time their status changes to a decision
         // (approved / rejected), not on re-saves of the same status.
         if ($validated['status'] !== $previousStatus && $user->email) {
@@ -91,6 +105,7 @@ class UserController extends Controller
             'name' => $user->name,
             'email' => $user->email,
             'company' => $user->company,
+            'vat_number' => $user->vat_number,
             'status' => $user->status,
             'created_at' => $user->created_at,
         ];

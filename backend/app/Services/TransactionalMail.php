@@ -116,6 +116,7 @@ class TransactionalMail
             'type' => $order->type,
             'contact_name' => $order->contact_name,
             'company' => $order->company,
+            'vat_number' => $order->vat_number,
             'contact_email' => $order->contact_email,
             'subtotal' => Money::format($order->subtotal_cents, $order->currency),
             'vat' => Money::format($order->vat_cents, $order->currency),

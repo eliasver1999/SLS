@@ -9,7 +9,7 @@ class Order extends Model
 {
     protected $fillable = [
         'reference', 'type', 'status', 'user_id',
-        'contact_name', 'contact_email', 'company', 'items', 'notes',
+        'contact_name', 'contact_email', 'company', 'vat_number', 'items', 'notes',
         'status_history',
         'event_type', 'event_date', 'venue', 'delivery_address',
         'currency', 'subtotal_cents', 'vat_percent', 'vat_cents', 'total_cents',

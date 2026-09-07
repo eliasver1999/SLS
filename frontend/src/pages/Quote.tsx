@@ -49,6 +49,7 @@ export default function Quote() {
           name: it.name,
           mode: it.mode,
           qty: it.qty ?? 1,
+          configuration: it.configuration ?? undefined,
         })),
         notes: notes.trim() || undefined,
         event_type: eventType.trim() || undefined,
@@ -122,6 +123,11 @@ export default function Quote() {
                         <tr key={`${it.slug}-${i}`}>
                           <td>
                             <b>{it.name}</b>
+                            {it.configuration && (
+                              <div className="muted" style={{ fontSize: 12 }}>
+                                {it.configuration}
+                              </div>
+                            )}
                             {it.unit_price_cents ? (
                               <div className="muted" style={{ fontSize: 12 }}>
                                 {money(it.unit_price_cents)} {t('each', 'ανά μονάδα')}

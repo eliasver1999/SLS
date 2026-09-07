@@ -25,6 +25,8 @@ class StoreOrderRequest extends FormRequest
             // resolved server-side from the product to prevent tampering.
             'items.*.slug' => ['required', 'string', Rule::exists('products', 'slug')],
             'items.*.qty' => ['nullable', 'integer', 'min:1', 'max:9999'],
+            // How the customer wants it built (panel layout, rigging, etc).
+            'items.*.configuration' => ['nullable', 'string', 'max:160'],
             'notes' => ['nullable', 'string', 'max:2000'],
 
             // An order is committed work that has to be built, delivered and

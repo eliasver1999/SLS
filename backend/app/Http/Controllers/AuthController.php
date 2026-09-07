@@ -40,6 +40,9 @@ class AuthController extends Controller
             'email' => ['required', 'email', 'max:180', 'unique:users,email'],
             'password' => ['required', 'string', 'min:8'],
             'company' => ['nullable', 'string', 'max:160'],
+            // Needed on a B2B invoice, so ask while the customer is here
+            // rather than chasing it later.
+            'vat_number' => ['nullable', 'string', 'max:32'],
         ]);
 
         $user = User::create([
@@ -47,6 +50,7 @@ class AuthController extends Controller
             'email' => $data['email'],
             'password' => $data['password'], // hashed via model cast
             'company' => $data['company'] ?? null,
+            'vat_number' => $data['vat_number'] ?? null,
             'role' => 'customer',
             'status' => 'pending', // admin must approve before pricing/cart unlock
         ]);
@@ -123,6 +127,7 @@ class AuthController extends Controller
             'email' => $user->email,
             'role' => $user->role,
             'company' => $user->company,
+            'vat_number' => $user->vat_number,
             'status' => $user->status,
             'approved' => $user->isApproved(),
         ];

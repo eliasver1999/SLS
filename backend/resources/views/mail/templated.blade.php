@@ -62,7 +62,7 @@
 | Item | Qty | Unit | Line total |
 |:-----|:----|:-----|:-----------|
 @foreach ($items as $item)
-| {{ $cell($item['name'] ?? null) }} | {{ $cell($item['qty'] ?? '—') }} | {{ $cell(\App\Support\Money::format($item['unit_price_cents'] ?? null) ?? '—') }} | {{ $cell(\App\Support\Money::format($item['line_total_cents'] ?? null) ?? '—') }} |
+| {{ $cell($item['name'] ?? null) }}{{ ! empty($item['configuration']) ? ' — '.$cell($item['configuration']) : '' }} | {{ $cell($item['qty'] ?? '—') }} | {{ $cell(\App\Support\Money::format($item['unit_price_cents'] ?? null) ?? '—') }} | {{ $cell(\App\Support\Money::format($item['line_total_cents'] ?? null) ?? '—') }} |
 @endforeach
 </x-mail::table>
 @endif

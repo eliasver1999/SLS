@@ -16,7 +16,7 @@ class UserSeeder extends Seeder
 
         User::updateOrCreate(
             ['email' => 'maria@novaevents.gr'],
-            ['name' => 'Maria Papadopoulou', 'password' => 'password', 'role' => 'customer', 'company' => 'Nova Events Ltd', 'status' => 'approved']
+            ['name' => 'Maria Papadopoulou', 'password' => 'password', 'role' => 'customer', 'company' => 'Nova Events Ltd', 'vat_number' => 'EL123456789', 'status' => 'approved']
         );
 
         // A pending registration so the admin Members approvals screen has

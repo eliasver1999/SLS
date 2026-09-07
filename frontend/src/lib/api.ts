@@ -193,6 +193,8 @@ export type OrderItem = {
   name: string
   mode?: Mode
   qty?: number
+  /** How the customer wants it built, e.g. "4 × 3 panels (6 m²)". */
+  configuration?: string | null
   /** Money is integer cents everywhere — never a float, never a string. */
   unit_price_cents?: number
   line_total_cents?: number

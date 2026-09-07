@@ -21,6 +21,7 @@ class OrderResource extends JsonResource
             'contact_name' => $this->contact_name,
             'contact_email' => $this->contact_email,
             'company' => $this->company,
+            'vat_number' => $this->vat_number,
             'event_type' => $this->event_type,
             'event_date' => $this->event_date?->toDateString(),
             'venue' => $this->venue,

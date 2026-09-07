@@ -20,7 +20,7 @@
 
 $globals = ['sales_email', 'iban', 'bank_name', 'account_name', 'deposit_percent', 'balance_percent', 'vat_percent', 'app_url'];
 
-$orderVars = ['reference', 'type', 'contact_name', 'company', 'contact_email', 'notes',
+$orderVars = ['reference', 'type', 'contact_name', 'company', 'vat_number', 'contact_email', 'notes',
     'subtotal', 'vat', 'total',
     'event_type', 'event_date', 'venue', 'delivery_address'];
 

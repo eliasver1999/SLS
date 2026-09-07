@@ -134,6 +134,11 @@ export default function OrderDetail() {
                     <td>
                       {it.name}
                       {it.qty ? ` × ${it.qty}` : ''}
+                      {it.configuration && (
+                        <div className="muted" style={{ fontSize: 12 }}>
+                          {it.configuration}
+                        </div>
+                      )}
                       {it.unit_price && (
                         <div className="muted" style={{ fontSize: 12 }}>
                           {it.unit_price} {t('each', 'ανά μονάδα')}

@@ -60,6 +60,7 @@ class OrderController extends Controller
                 'name' => $product?->name,
                 'mode' => 'buy',
                 'qty' => $qty,
+                'configuration' => $item['configuration'] ?? null,
                 'unit_price_cents' => $unit,
                 'line_total_cents' => $unit * $qty,
             ];
@@ -73,6 +74,7 @@ class OrderController extends Controller
             'contact_name' => $user->name,
             'contact_email' => $user->email,
             'company' => $user->company,
+            'vat_number' => $user->vat_number,
             'event_type' => $data['event_type'] ?? null,
             'event_date' => $data['event_date'] ?? null,
             'venue' => $data['venue'] ?? null,
@@ -171,6 +173,7 @@ class OrderController extends Controller
             'items.*.name' => ['required_with:items', 'string'],
             'items.*.mode' => ['nullable', Rule::in(['buy'])],
             'items.*.qty' => ['nullable', 'integer', 'min:1'],
+            'items.*.configuration' => ['nullable', 'string', 'max:160'],
             // Signed, so a discount or credit line is expressible.
             'items.*.unit_price_cents' => ['nullable', 'integer', 'min:-100000000', 'max:100000000'],
         ]);

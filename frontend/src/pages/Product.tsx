@@ -20,7 +20,7 @@ export default function Product() {
 
   const [mainImg, setMainImg] = useState(product?.image ?? '')
   const [qty, setQty] = useState('12')
-  const [config, setConfig] = useState('4 × 3 (6 m²)')
+  const [config, setConfig] = useState('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // An order has to say when and where — the API rejects one that does not.
@@ -76,6 +76,7 @@ export default function Product() {
     name: p.name,
     mode: 'buy',
     qty: parseInt(qty, 10) || 1,
+    configuration: config.trim() || undefined,
     unit_price_cents: p.buy?.price_cents ?? undefined,
   })
 
@@ -84,6 +85,7 @@ export default function Product() {
     name: p.name,
     mode: p.buy ? 'buy' : undefined,
     qty: parseInt(qty, 10) || 1,
+    configuration: config.trim() || undefined,
     unit_price_cents: p.buy?.price_cents ?? undefined,
   })
 
@@ -203,8 +205,17 @@ export default function Product() {
                     <input value={qty} onChange={(e) => setQty(e.target.value)} />
                   </div>
                   <div className="field">
-                    <label>{t('Configuration', 'Διαμόρφωση')}</label>
-                    <input value={config} onChange={(e) => setConfig(e.target.value)} />
+                    <label>
+                      {t('Configuration', 'Διαμόρφωση')}{' '}
+                      <span className="muted" style={{ fontWeight: 400 }}>
+                        {t('(optional)', '(προαιρετικό)')}
+                      </span>
+                    </label>
+                    <input
+                      value={config}
+                      onChange={(e) => setConfig(e.target.value)}
+                      placeholder={t('e.g. 4 × 3 panels', 'π.χ. 4 × 3 panels')}
+                    />
                   </div>
                 </div>
 
@@ -344,7 +355,7 @@ export default function Product() {
                   <b>{it.name}</b>
                   <div className="muted" style={{ fontSize: 13 }}>
                     {it.qty ? `${it.qty} × ` : ''}
-                    {t('Buy', 'Αγορά')}
+                    {it.configuration || t('Buy', 'Αγορά')}
                   </div>
                 </div>
                 {it.unit_price_cents != null && it.unit_price_cents > 0 && (
