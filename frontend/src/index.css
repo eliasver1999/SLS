@@ -7,7 +7,7 @@
   --color-electric: #1f8bff; /* primary — logo & key accents */
   --color-sky: #57c2ff; /* accent highlight */
   --color-deep: #0a4fc4; /* support */
-  --color-charcoal: #121a28; /* panels */
+  --color-charcoal: #121a28; /* brand charcoal (panels sit lighter — see --panel) */
   --color-nearblack: #05070d; /* default background */
   --color-platinum: #ffffff; /* text on dark */
 

@@ -7,9 +7,13 @@
 :root {
   --nearblack: #05070d;
   --bg: #05070d;
-  --panel: #121a28;
-  --panel-2: #182233;
-  --line: #20304a;
+  /* Surfaces sit far enough above the near-black ground to read as surfaces:
+     panel/bg 1.40:1, panel-2/panel 1.19:1, line/panel 1.50:1. At the
+     brandbook's original charcoal these were 1.15 / 1.09 / 1.31, so cards and
+     tables barely separated from the page behind them. */
+  --panel: #1d2a40;
+  --panel-2: #263651;
+  --line: #2e456b;
   --electric: #1f8bff;
   --sky: #57c2ff;
   --deep: #0a4fc4;

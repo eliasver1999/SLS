@@ -6,7 +6,8 @@ const SWATCHES = [
   { name: 'Electric Blue', hex: '#1F8BFF', note: 'Primary · CTAs · AAA on #05070D' },
   { name: 'Sky Blue', hex: '#57C2FF', note: 'Accent · AAA' },
   { name: 'Deep Blue', hex: '#0A4FC4', note: 'Support' },
-  { name: 'Charcoal', hex: '#121A28', note: 'Panels' },
+  { name: 'Charcoal', hex: '#121A28', note: 'Brand charcoal' },
+  { name: 'Panel', hex: '#1D2A40', note: 'Panel surface · 1.40:1 on background' },
   { name: 'Near-Black', hex: '#05070D', note: 'Background', border: true },
   { name: 'Platinum', hex: '#FFFFFF', note: 'Text · 19.2:1' },
 ]
@@ -42,7 +43,7 @@ export default function UIKit() {
                   className="c"
                   style={{
                     background: s.hex,
-                    borderBottom: s.border ? '1px solid #20304a' : undefined,
+                    borderBottom: s.border ? '1px solid var(--line)' : undefined,
                   }}
                 />
                 <div className="m">
@@ -179,7 +180,8 @@ export default function UIKit() {
             className="panel mt16"
             style={{ fontFamily: 'monospace', fontSize: 13, color: '#cdd8e6', lineHeight: 2 }}
           >
-            --electric:#1F8BFF · --sky:#57C2FF · --deep:#0A4FC4 · --panel:#121A28 · --bg:#05070D ·
+            --electric:#1F8BFF · --sky:#57C2FF · --deep:#0A4FC4 · --panel:#1D2A40 · --panel-2:#263651 ·
+            --line:#2E456B · --bg:#05070D ·
             --white:#FFFFFF · --grey:#9AA6B2
             <br />
             --radius:16px · --radius-lg:26px · --maxw:1240px · space:8/16/24/40/88 · breakpoints: 560 /
