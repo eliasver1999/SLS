@@ -6,6 +6,7 @@ use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('/partner-applications/{partnerApplication}', [PartnerApplicationController::class, 'update']);
 
     Route::patch('/orders/{order}', [OrderController::class, 'update']);
+
+    // Order reporting (values are ex VAT).
+    Route::get('/reports/orders', [ReportController::class, 'orders']);
 
     // Transactional email templates (joining, new order, order progress).
     Route::get('/email-templates', [EmailTemplateController::class, 'index']);

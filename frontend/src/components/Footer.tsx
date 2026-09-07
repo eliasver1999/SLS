@@ -27,10 +27,11 @@ const COLS: Col[] = [
     en: 'Legal',
     el: 'Νομικά',
     links: [
-      { to: '/sitemap', en: 'Privacy Policy', el: 'Πολιτική Απορρήτου' },
-      { to: '/sitemap', en: 'Cookie Consent', el: 'Συγκατάθεση Cookies' },
-      { to: '/sitemap', en: 'Terms', el: 'Όροι' },
-      { to: '/sitemap', en: 'GDPR', el: 'GDPR' },
+      { to: '/privacy', en: 'Privacy Policy', el: 'Πολιτική Απορρήτου' },
+      // No cookies are set, so this is a storage notice rather than consent.
+      { to: '/cookies', en: 'Cookies & storage', el: 'Cookies & αποθήκευση' },
+      { to: '/terms', en: 'Terms', el: 'Όροι' },
+      { to: '/privacy', en: 'GDPR', el: 'GDPR' },
     ],
   },
 ]

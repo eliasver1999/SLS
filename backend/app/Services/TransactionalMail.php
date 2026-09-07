@@ -7,6 +7,7 @@ use App\Support\Money;
 use App\Models\EmailTemplate;
 use App\Models\Order;
 use App\Models\User;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -74,13 +75,33 @@ class TransactionalMail
             return false;
         }
 
-        Mail::to($to)->send(new TemplatedMail(
+        $mailable = new TemplatedMail(
             subjectLine: $rendered['subject'],
             body: $rendered['body'],
             blocks: $rendered['blocks'],
             vars: array_merge($this->globals(), $vars),
             items: $items,
-        ));
+        );
+
+        // Handed off after the response so the customer is not left watching a
+        // spinner while SMTP negotiates — placing an order was doing two sends
+        // inline, which reads as a hang on a small instance.
+        //
+        // Deliberately in-process rather than on a real queue: the deployment
+        // runs no queue worker, and an email that silently waits forever for
+        // one is worse than a slightly busier request. Failures are logged
+        // here because nothing upstream can catch them any more.
+        dispatch(function () use ($to, $mailable, $event) {
+            try {
+                Mail::to($to)->send($mailable);
+            } catch (\Throwable $e) {
+                Log::error('Transactional email failed', [
+                    'event' => $event,
+                    'to' => $to,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        })->afterResponse();
 
         return true;
     }

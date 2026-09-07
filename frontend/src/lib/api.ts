@@ -278,6 +278,29 @@ export async function updateOrder(
   return data.data
 }
 
+// ── Reporting ─────────────────────────────────────────────────────
+/** All figures are ex VAT — the tax is not revenue. */
+export type OrderReport = {
+  currency: string
+  headline: {
+    pipeline_cents: number
+    pipeline: string
+    won_cents: number
+    won: string
+    open_count: number
+    average_order_cents: number
+    average_order: string
+  }
+  by_status: { status: OrderStatus; count: number; cents: number; value: string }[]
+  by_type: { type: OrderType; count: number; cents: number; value: string }[]
+  by_month: { month: string; label: string; count: number; cents: number; value: string }[]
+}
+
+export async function fetchOrderReport() {
+  const { data } = await api.get<OrderReport>('/reports/orders')
+  return data
+}
+
 // ── Partner applications ──────────────────────────────────────────
 export type PartnerApplicationPayload = {
   company: string

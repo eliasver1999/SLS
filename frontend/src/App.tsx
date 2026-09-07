@@ -20,6 +20,7 @@ import UIKit from './pages/UIKit'
 import Sitemap from './pages/Sitemap'
 import NotFound from './pages/NotFound'
 import Quote from './pages/Quote'
+import Legal from './pages/Legal'
 import { RequireAdmin, RequireAuth } from './components/Guards'
 
 export default function App() {
@@ -65,6 +66,9 @@ export default function App() {
             }
           />
           <Route path="quote" element={<Quote />} />
+          <Route path="privacy" element={<Legal doc="privacy" />} />
+          <Route path="cookies" element={<Legal doc="storage" />} />
+          <Route path="terms" element={<Legal doc="terms" />} />
           <Route path="ui-kit" element={<UIKit />} />
           <Route path="sitemap" element={<Sitemap />} />
           <Route path="*" element={<NotFound />} />
