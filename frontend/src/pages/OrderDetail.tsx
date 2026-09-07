@@ -1,13 +1,20 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { RotateCcw } from 'lucide-react'
 import { useLang } from '../context/language'
+import { useAuth } from '../context/auth'
+import { useCart } from '../context/cart'
 import OrderTimeline from '../components/OrderTimeline'
+import OrderDocuments from '../components/OrderDocuments'
 import { cancelOrder, fetchOrder, type Order } from '../lib/api'
 import { statusLabel, STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 
 export default function OrderDetail() {
   const { t, lang } = useLang()
+  const { isApproved } = useAuth()
+  const cart = useCart()
+  const navigate = useNavigate()
   const { id } = useParams()
   const [order, setOrder] = useState<Order | null>(null)
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
@@ -55,6 +62,21 @@ export default function OrderDetail() {
       year: 'numeric',
     })
   const cancellable = order.status === 'pending' || order.status === 'quoted'
+
+  function reorder() {
+    if (!order) return
+    for (const item of order.items) {
+      cart.add({
+        slug: item.slug,
+        name: item.name,
+        mode: item.mode,
+        qty: item.qty ?? 1,
+        configuration: item.configuration ?? undefined,
+        unit_price_cents: item.unit_price_cents,
+      })
+    }
+    navigate('/quote')
+  }
 
   async function onCancel() {
     if (!order) return
@@ -194,6 +216,18 @@ export default function OrderDetail() {
                 'Δεν γίνεται πληρωμή online — η ομάδα μας επιβεβαιώνει και τιμολογεί με τραπεζικό έμβασμα (IBAN).',
               )}
             </p>
+            {/* The same rig goes out repeatedly, so repeating a past job
+                should not mean rebuilding it item by item. This refills the
+                basket rather than cloning the order server-side: the new
+                event needs its own date and venue, and the lines get
+                repriced from the current catalogue on submit rather than
+                carrying last year's prices forward. */}
+            {isApproved && order.items.length > 0 && (
+              <button className="btn btn-ghost btn-sm mt16" style={{ marginRight: 8 }} onClick={reorder}>
+                <RotateCcw size={13} aria-hidden />
+                {t('Order this again', 'Παραγγείλτε ξανά')}
+              </button>
+            )}
             {cancellable && (
               <button className="btn btn-ghost btn-sm mt16" onClick={onCancel} disabled={cancelling}>
                 {cancelling ? t('Cancelling…', 'Ακύρωση…') : t('Cancel request', 'Ακύρωση αιτήματος')}
@@ -208,6 +242,14 @@ export default function OrderDetail() {
           <div className="panel">
             <h3 style={{ fontSize: 16, marginBottom: 16 }}>{t('Tracking', 'Παρακολούθηση')}</h3>
             <OrderTimeline order={order} />
+
+            <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
+            <OrderDocuments
+              orderId={order.id}
+              documents={order.documents ?? []}
+              canManage={false}
+              onChange={() => fetchOrder(order.id).then(setOrder).catch(() => {})}
+            />
           </div>
         </div>
       </section>

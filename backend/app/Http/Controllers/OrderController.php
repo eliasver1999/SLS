@@ -21,7 +21,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Order::query()->latest();
+        $query = Order::query()->with('documents')->latest();
 
         if (! $user->isAdmin()) {
             $query->where('user_id', $user->id);
@@ -31,6 +31,20 @@ class OrderController extends Controller
         }
         if ($request->filled('status')) {
             $query->where('status', $request->string('status'));
+        }
+
+        // Free-text search across the fields someone would actually have to
+        // hand: a reference from an email, a company, or the venue they are
+        // ringing about. Grouped so it cannot widen a customer's own-orders
+        // restriction above into an OR across everybody's.
+        if ($request->filled('q')) {
+            $term = '%'.str_replace(['%', '_'], ['\%', '\_'], trim($request->string('q'))).'%';
+
+            $query->where(function ($scoped) use ($term) {
+                foreach (['reference', 'company', 'contact_name', 'contact_email', 'venue', 'event_type'] as $column) {
+                    $scoped->orWhere($column, 'like', $term);
+                }
+            });
         }
 
         return OrderResource::collection($query->paginate($request->integer('per_page', 15)));
@@ -120,7 +134,7 @@ class OrderController extends Controller
             abort(403, 'This order is not yours.');
         }
 
-        return new OrderResource($order);
+        return new OrderResource($order->load('documents'));
     }
 
     /**
@@ -151,7 +165,7 @@ class OrderController extends Controller
 
         Log::info('Order cancelled by customer', ['reference' => $order->reference, 'user_id' => $user->id]);
 
-        return new OrderResource($order);
+        return new OrderResource($order->load('documents'));
     }
 
     /**
@@ -220,6 +234,6 @@ class OrderController extends Controller
             }
         }
 
-        return new OrderResource($order);
+        return new OrderResource($order->load('documents'));
     }
 }

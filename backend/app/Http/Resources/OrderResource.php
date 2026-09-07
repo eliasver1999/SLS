@@ -42,6 +42,14 @@ class OrderResource extends JsonResource
             'vat' => Money::format($this->vat_cents, $this->currency),
             'total' => Money::format($this->total_cents, $this->currency),
             'notes' => $this->notes,
+            'documents' => $this->whenLoaded('documents', fn () => $this->documents->map(fn ($d) => [
+                'id' => $d->id,
+                'kind' => $d->kind,
+                'name' => $d->original_name,
+                'mime' => $d->mime,
+                'size' => $d->size,
+                'created_at' => $d->created_at?->toIso8601String(),
+            ]), []),
             'status_history' => $this->status_history ?? [],
             'created_at' => $this->created_at?->toIso8601String(),
         ];

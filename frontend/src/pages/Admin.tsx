@@ -7,6 +7,7 @@ import {
   createProduct,
   deleteProduct,
   fetchMembers,
+  fetchOrder,
   fetchOrders,
   fetchPartnerApplications,
   fetchProducts,
@@ -29,6 +30,7 @@ import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
 import Inquiries from '../components/Inquiries'
 import Reports from '../components/Reports'
+import OrderDocuments from '../components/OrderDocuments'
 import { STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 import { centsToInput, inputToCents } from '../lib/money'
@@ -45,6 +47,7 @@ import {
   Moon,
   Package,
   PartyPopper,
+  Search,
   ShoppingCart,
   Star,
   Sun,
@@ -902,11 +905,25 @@ function OrdersSection({ type }: { type: OrderType }) {
   const [loading, setLoading] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [pageInfo, setPageInfo] = useState({ page: 1, lastPage: 1 })
+  const [search, setSearch] = useState('')
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | 'all'>('all')
+  // Debounced so typing does not fire a request per keystroke.
+  const [query, setQuery] = useState('')
+
+  useEffect(() => {
+    const id = setTimeout(() => setQuery(search.trim()), 300)
+    return () => clearTimeout(id)
+  }, [search])
 
   const load = useCallback(
     (page = 1) => {
       setLoading(true)
-      fetchOrders({ type, page })
+      fetchOrders({
+        type,
+        page,
+        q: query || undefined,
+        status: statusFilter === 'all' ? undefined : statusFilter,
+      })
         .then((res) => {
           setOrders((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
           setPageInfo({ page: res.page, lastPage: res.lastPage })
@@ -917,7 +934,7 @@ function OrdersSection({ type }: { type: OrderType }) {
         .catch(() => {})
         .finally(() => setLoading(false))
     },
-    [type],
+    [type, query, statusFilter],
   )
 
   useEffect(() => {
@@ -925,6 +942,14 @@ function OrdersSection({ type }: { type: OrderType }) {
   }, [load])
 
   const selected = orders.find((o) => o.id === selectedId) ?? null
+
+  // Attaching or removing a document changes the order, so refetch the one
+  // in view rather than guessing at the new document list.
+  async function refreshSelected() {
+    if (!selected) return
+    const fresh = await fetchOrder(selected.id)
+    setOrders((prev) => prev.map((x) => (x.id === fresh.id ? fresh : x)))
+  }
 
   async function applyUpdate(patch: { status?: OrderStatus; total?: string | null; note?: string; items?: OrderItem[] }) {
     if (!selected) return
@@ -942,6 +967,67 @@ function OrdersSection({ type }: { type: OrderType }) {
       <p className="muted">
         {t('Manage requests, update status and notify the customer.', 'Διαχείριση αιτημάτων, κατάστασης και ενημέρωση πελάτη.')}
       </p>
+
+      <div className="mt24" style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center' }}>
+        <div style={{ position: 'relative', flex: '1 1 260px', minWidth: 200 }}>
+          <Search
+            size={15}
+            aria-hidden
+            style={{
+              position: 'absolute',
+              left: 12,
+              top: '50%',
+              transform: 'translateY(-50%)',
+              color: 'var(--grey)',
+              pointerEvents: 'none',
+            }}
+          />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={t('Reference, company, contact or venue', 'Αριθμός, εταιρεία, επαφή ή χώρος')}
+            style={{
+              width: '100%',
+              background: 'var(--input-bg)',
+              border: '1px solid var(--line)',
+              borderRadius: 10,
+              color: 'var(--text)',
+              padding: '10px 12px 10px 34px',
+              fontSize: 14,
+            }}
+          />
+        </div>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value as OrderStatus | 'all')}
+          style={{
+            background: 'var(--input-bg)',
+            border: '1px solid var(--line)',
+            borderRadius: 10,
+            color: 'var(--text)',
+            padding: '10px 12px',
+            fontSize: 14,
+          }}
+        >
+          <option value="all">{t('Any status', 'Κάθε κατάσταση')}</option>
+          {ORDER_STATUSES.map((s) => (
+            <option key={s} value={s}>
+              {statusText(s, t)}
+            </option>
+          ))}
+        </select>
+        {(query || statusFilter !== 'all') && (
+          <button
+            className="btn btn-ghost btn-sm"
+            onClick={() => {
+              setSearch('')
+              setStatusFilter('all')
+            }}
+          >
+            {t('Clear', 'Καθαρισμός')}
+          </button>
+        )}
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
         <div>
@@ -965,7 +1051,9 @@ function OrdersSection({ type }: { type: OrderType }) {
               {!loading && orders.length === 0 && (
                 <tr>
                   <td colSpan={5} className="muted">
-                    {t('No requests yet.', 'Καμία αίτηση ακόμη.')}
+                    {query || statusFilter !== 'all'
+                      ? t('Nothing matches that search.', 'Καμία αντιστοιχία.')
+                      : t('No requests yet.', 'Καμία αίτηση ακόμη.')}
                   </td>
                 </tr>
               )}
@@ -1000,7 +1088,12 @@ function OrdersSection({ type }: { type: OrderType }) {
 
         <aside className="panel">
           {selected ? (
-            <AdminOrderDetail key={selected.id} order={selected} onUpdate={applyUpdate} />
+            <AdminOrderDetail
+              key={selected.id}
+              order={selected}
+              onUpdate={applyUpdate}
+              onDocumentsChanged={refreshSelected}
+            />
           ) : (
             <p className="muted" style={{ fontSize: 14 }}>
               {t('Select a request to manage.', 'Επιλέξτε αίτημα για διαχείριση.')}
@@ -1015,6 +1108,7 @@ function OrdersSection({ type }: { type: OrderType }) {
 function AdminOrderDetail({
   order,
   onUpdate,
+  onDocumentsChanged,
 }: {
   order: Order
   onUpdate: (patch: {
@@ -1023,6 +1117,7 @@ function AdminOrderDetail({
     note?: string
     items?: OrderItem[]
   }) => Promise<void>
+  onDocumentsChanged: () => void
 }) {
   const { t } = useLang()
   const [status, setStatus] = useState<OrderStatus>(order.status)
@@ -1247,6 +1342,14 @@ function AdminOrderDetail({
         </p>
       )}
       <ErrorNote message={error} />
+
+      <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
+      <OrderDocuments
+        orderId={order.id}
+        documents={order.documents ?? []}
+        canManage
+        onChange={onDocumentsChanged}
+      />
 
       <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
       <OrderTimeline order={order} />

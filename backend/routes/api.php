@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\OrderDocumentController;
 use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
@@ -36,6 +37,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
+    // Download is for the order's owner or an admin; the controller checks.
+    Route::get('/orders/{order}/documents/{document}', [OrderDocumentController::class, 'show']);
 });
 
 // ── Admin only ────────────────────────────────────────────────────
@@ -55,6 +58,8 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('/partner-applications/{partnerApplication}', [PartnerApplicationController::class, 'update']);
 
     Route::patch('/orders/{order}', [OrderController::class, 'update']);
+    Route::post('/orders/{order}/documents', [OrderDocumentController::class, 'store']);
+    Route::delete('/orders/{order}/documents/{document}', [OrderDocumentController::class, 'destroy']);
 
     // Order reporting (values are ex VAT).
     Route::get('/reports/orders', [ReportController::class, 'orders']);

@@ -247,6 +247,7 @@ export type Order = EventDetails & {
   total: string | null
   notes: string | null
   status_history: StatusEvent[]
+  documents?: OrderDocument[]
   created_at: string
 }
 
@@ -260,6 +261,8 @@ export async function createOrder(
 export async function fetchOrders(params?: {
   type?: OrderType
   status?: OrderStatus
+  /** Free-text across reference, company, contact, venue and event type. */
+  q?: string
   page?: number
   per_page?: number
 }) {
@@ -308,6 +311,53 @@ export type OrderReport = {
 export async function fetchOrderReport() {
   const { data } = await api.get<OrderReport>('/reports/orders')
   return data
+}
+
+// ── Order documents ───────────────────────────────────────────────
+export type OrderDocumentKind = 'sow' | 'quote' | 'invoice' | 'other'
+
+export type OrderDocument = {
+  id: number
+  kind: OrderDocumentKind
+  name: string
+  mime: string
+  size: number
+  created_at: string
+}
+
+export async function uploadOrderDocument(
+  orderId: number,
+  file: File,
+  kind: OrderDocumentKind = 'other',
+) {
+  const body = new FormData()
+  body.append('file', file)
+  body.append('kind', kind)
+  const { data } = await api.post<{ data: OrderDocument }>(`/orders/${orderId}/documents`, body)
+  return data.data
+}
+
+/**
+ * Documents sit behind an authorization check, so they cannot be linked to
+ * directly — a plain href carries no bearer token. Fetch the bytes, hand the
+ * browser a blob, and revoke it once the download has started.
+ */
+export async function downloadOrderDocument(orderId: number, doc: OrderDocument) {
+  const { data } = await api.get<Blob>(`/orders/${orderId}/documents/${doc.id}`, {
+    responseType: 'blob',
+  })
+  const url = URL.createObjectURL(data)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = doc.name
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+export async function deleteOrderDocument(orderId: number, documentId: number) {
+  await api.delete(`/orders/${orderId}/documents/${documentId}`)
 }
 
 // ── Partner applications ──────────────────────────────────────────
