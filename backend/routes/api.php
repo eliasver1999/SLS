@@ -10,6 +10,7 @@ use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SystemCheckController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -49,6 +50,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     // What the team has missed since they last looked.
     Route::get('/activity', [ActivityController::class, 'index']);
     Route::post('/activity/seen', [ActivityController::class, 'seen']);
+
+    // Whether this deployment can do what its screens imply — chiefly,
+    // whether the transactional emails are being delivered at all.
+    Route::get('/system-checks', [SystemCheckController::class, 'index']);
 
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{product}', [ProductController::class, 'update']);

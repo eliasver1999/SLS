@@ -167,12 +167,14 @@ export default function EmailTemplates() {
   const doTest = () =>
     run('test', async () => {
       if (!current || !draft) return
-      const message = await sendTestEmail(current.event, {
+      const { message, delivered } = await sendTestEmail(current.event, {
         subject: draft.subject,
         body: draft.body,
         blocks: draft.blocks,
       })
-      setMsg({ kind: 'ok', text: message })
+      // A 200 means the request worked, not that the email arrived. Reporting
+      // a swallowed message in green is how the log mailer stayed invisible.
+      setMsg({ kind: delivered ? 'ok' : 'err', text: message })
     })
 
   return (

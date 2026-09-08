@@ -108,9 +108,12 @@ export default function ActivityFeed({
         {t('Activity', 'Δραστηριότητα')}
       </h1>
       <p className="muted">
+        {/* Deliberately does not promise that the notification emails go out:
+            whether they do is a deployment question, answered by the banner
+            above rather than by this paragraph. */}
         {t(
-          'Everything customers have done, newest first. The notification emails still go out — this is here so a missed email is not a missed order.',
-          'Όλα όσα έκαναν οι πελάτες, με τα νεότερα πρώτα. Τα email ειδοποίησης συνεχίζουν — αυτό υπάρχει ώστε ένα χαμένο email να μην είναι χαμένη παραγγελία.',
+          'Everything customers have done, newest first — so a missed email is never a missed order.',
+          'Όλα όσα έκαναν οι πελάτες, με τα νεότερα πρώτα — ώστε ένα χαμένο email να μην είναι ποτέ χαμένη παραγγελία.',
         )}
       </p>
 

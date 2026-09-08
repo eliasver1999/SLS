@@ -31,6 +31,7 @@ import {
 } from '../lib/api'
 import type { LS, Mode, Product, Spec } from '../data/products'
 import ActivityFeed from '../components/ActivityFeed'
+import SystemAlerts from '../components/SystemAlerts'
 import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
 import Inquiries from '../components/Inquiries'
@@ -261,6 +262,7 @@ export default function Admin() {
           </button>
         </nav>
 
+        <SystemAlerts />
         <ErrorNote message={loadError} />
         {section === 'activity' && (
           <ActivityFeed activity={activity} error={activityError} onOpen={openFromActivity} />

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\TemplatedMail;
 use App\Models\EmailTemplate;
 use App\Services\TransactionalMail;
+use App\Support\SystemChecks;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -184,7 +185,24 @@ class EmailTemplateController extends Controller
             return response()->json(['message' => 'Could not send the test email: '.$e->getMessage()], 502);
         }
 
-        return response()->json(['message' => "Test email sent to {$to}."]);
+        // Report what actually happened rather than that the call returned.
+        // A sink transport accepts the message and delivers nothing, and this
+        // endpoint is precisely where an admin checks whether email works —
+        // so it must not answer "sent" when nothing left the building.
+        $delivery = app(SystemChecks::class)->all();
+        $transport = collect($delivery)->firstWhere('key', 'mail.transport');
+
+        if (($transport['status'] ?? null) === 'fail') {
+            return response()->json([
+                'message' => "Nothing was delivered to {$to}: MAIL_MAILER is '"
+                    .config('mail.default')
+                    ."', so the message was written to storage/logs instead of being sent. "
+                    .$transport['fix'],
+                'delivered' => false,
+            ]);
+        }
+
+        return response()->json(['message' => "Test email sent to {$to}.", 'delivered' => true]);
     }
 
     /**

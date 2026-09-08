@@ -525,11 +525,13 @@ export async function sendTestEmail(
   event: string,
   draft?: Partial<EmailTemplateDraft> & { to?: string },
 ) {
-  const { data } = await api.post<{ message: string }>(
+  // `delivered` is false when the request succeeded but the configured
+  // transport swallows mail (MAIL_MAILER=log), so the caller can say so.
+  const { data } = await api.post<{ message: string; delivered: boolean }>(
     `/email-templates/${event}/test`,
     draft ?? {},
   )
-  return data.message
+  return data
 }
 
 // ── Admin activity feed ───────────────────────────────────────────
@@ -572,6 +574,25 @@ export async function fetchActivity() {
 /** Move this admin's read watermark to now. */
 export async function markActivitySeen() {
   const { data } = await api.post<{ unread_count: number; seen_at: string }>('/activity/seen')
+  return data
+}
+
+// ── Deployment health ─────────────────────────────────────────────
+export type SystemCheck = {
+  key: string
+  label: string
+  status: 'ok' | 'warn' | 'fail'
+  detail: string
+  /** What to change to make it pass. Empty when it already passes. */
+  fix: string
+}
+
+export async function fetchSystemChecks() {
+  const { data } = await api.get<{
+    data: SystemCheck[]
+    problems: SystemCheck[]
+    passing: boolean
+  }>('/system-checks')
   return data
 }
 
