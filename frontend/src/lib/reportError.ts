@@ -10,11 +10,16 @@ import api from './api'
  * only way that request survives the unload.
  */
 
-/** Errors already sent this page-load, so a loop does not become a flood. */
+/**
+ * Errors already sent this page-load.
+ *
+ * This is also what stops a report of a failed report recursing: the second
+ * attempt carries the same key as the first and is dropped. An earlier
+ * version used an "in flight" flag for that, which silently threw away any
+ * *other* error arriving in the same tick — and one crash usually brings a
+ * cascade with it, so the errors it discarded were the interesting ones.
+ */
 const seen = new Set<string>()
-
-/** Set while a report is in flight: a failure to report must never recurse. */
-let reporting = false
 
 const MAX_PER_PAGE = 10
 
@@ -29,10 +34,9 @@ export type ClientError = {
 export async function reportClientError(error: ClientError) {
   const key = `${error.type}|${error.message}|${error.file}|${error.line}`
 
-  if (reporting || seen.has(key) || seen.size >= MAX_PER_PAGE) return
+  if (seen.has(key) || seen.size >= MAX_PER_PAGE) return
 
   seen.add(key)
-  reporting = true
 
   try {
     const body = JSON.stringify({
@@ -51,8 +55,6 @@ export async function reportClientError(error: ClientError) {
     })
   } catch {
     // Nothing sensible to do: the reporting channel is the thing that failed.
-  } finally {
-    reporting = false
   }
 }
 
