@@ -14,6 +14,33 @@
     <link rel="preload" href="/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin />
     <title>SLS — Sound. Lights. Screens.</title>
+
+    <!-- Share card defaults. These are rewritten per route at build time for
+         the static pages (scripts/prerender.mjs), because social scrapers do
+         not run JavaScript and so never see what the app sets at runtime.
+         A product page falls back to these until it is pre-rendered too. -->
+    <meta property="og:site_name" content="SLS" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="SLS — Sound. Lights. Screens." />
+    <meta
+      property="og:description"
+      content="LED screens, stage lighting and pro audio for events in Greece — supplied, installed and operated by one accountable team."
+    />
+    <meta property="og:image" content="/assets/hero-wide.jpg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#05070c" />
+
+    <!-- Who the site belongs to, for search results and knowledge panels. -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "SLS — Sound. Lights. Screens.",
+        "description": "Supplier of LED screens, stage lighting and professional audio for events, music and brands.",
+        "areaServed": "GR",
+        "logo": "/assets/logo.png"
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

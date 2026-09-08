@@ -1,0 +1,20 @@
+# Public pages are open to crawlers. Everything that needs a session is not
+# — those routes also send a noindex header, so this is belt and braces.
+User-agent: *
+Allow: /
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /documents
+Disallow: /orders
+Disallow: /admin
+Disallow: /quote
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /order-received
+Disallow: /ui-kit
+Disallow: /sitemap
+
+# Filled in at build time with the site's own origin.
+Sitemap: SITEMAP_URL

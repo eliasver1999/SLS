@@ -8,6 +8,7 @@ import { createOrder, fetchProduct, type OrderItem } from '../lib/api'
 import { CircleAlert, Clock, Lock, Settings2 } from 'lucide-react'
 import { errorMessage } from '../lib/errors'
 import { formatCents } from '../lib/money'
+import { useProductSchema, useSeo } from '../lib/seo'
 
 export default function Product() {
   const { t, lang } = useLang()
@@ -30,6 +31,21 @@ export default function Product() {
   const [deliveryAddress, setDeliveryAddress] = useState('')
 
   const money = (cents: number) => formatCents(cents, lang)
+
+  // A product is the page people actually share, so it gets its own title,
+  // description and share image rather than the site-wide card. The blurb is
+  // written for humans first; it happens to be the right length for a search
+  // result too.
+  useSeo({
+    title: product?.name ?? t('Product', 'Προϊόν'),
+    description: product
+      ? `${product.blurb[lang]} ${t('Trade pricing for approved partners.', 'Τιμές χονδρικής για εγκεκριμένους συνεργάτες.')}`
+      : t('Equipment from the SLS catalogue.', 'Εξοπλισμός από τον κατάλογο SLS.'),
+    image: product?.image,
+    // A slug that matches nothing is a 404 in disguise.
+    noindex: !product,
+  })
+  useProductSchema(product)
 
   const eventDetails = () => ({
     event_type: eventType.trim() || undefined,

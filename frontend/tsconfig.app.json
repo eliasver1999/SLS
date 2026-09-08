@@ -10,6 +10,9 @@
 
     /* Bundler mode */
     "moduleResolution": "bundler",
+    /* routeSeo.json is shared with scripts/prerender.mjs, which reads it from
+       plain Node — JSON is the format both a bundler and a build script read. */
+    "resolveJsonModule": true,
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "moduleDetection": "force",

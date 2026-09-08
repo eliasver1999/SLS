@@ -1,0 +1,79 @@
+[
+  {
+    "path": "/",
+    "title": "",
+    "description": "LED screens, stage lighting and pro audio for events in Greece — supplied, installed and operated by one accountable team.",
+    "image": "/assets/hero-wide.jpg",
+    "priority": 1,
+    "changefreq": "weekly"
+  },
+  {
+    "path": "/solutions",
+    "title": "Solutions",
+    "description": "Indoor and outdoor LED walls, lighting rigs and sound systems for concerts, conferences, retail and brand activations.",
+    "image": "/assets/hero-stage.jpg",
+    "priority": 0.9,
+    "changefreq": "monthly"
+  },
+  {
+    "path": "/catalogue",
+    "title": "Catalogue",
+    "description": "Browse LED panels, lighting and audio by pixel pitch, placement and category. Trade pricing shown to approved partners.",
+    "image": "/assets/catalogue.jpg",
+    "priority": 0.9,
+    "changefreq": "weekly"
+  },
+  {
+    "path": "/projects",
+    "title": "Projects",
+    "description": "Festivals, corporate stages, retail installations and brand activations delivered by SLS across Greece.",
+    "image": "/assets/tagline.jpg",
+    "priority": 0.7,
+    "changefreq": "monthly"
+  },
+  {
+    "path": "/about",
+    "title": "About",
+    "description": "Who SLS are: a Greek supplier of screens, lighting and sound, accountable for the kit from specification to strike.",
+    "image": "/assets/meet.jpg",
+    "priority": 0.6,
+    "changefreq": "yearly"
+  },
+  {
+    "path": "/apply",
+    "title": "Become a partner",
+    "description": "Apply for a trade account to see net pricing, build quotes and order made-to-order LED, lighting and audio.",
+    "image": "/assets/one-partner.jpg",
+    "priority": 0.8,
+    "changefreq": "monthly"
+  },
+  {
+    "path": "/contact",
+    "title": "Contact",
+    "description": "Tell us the venue, the date and what it has to do — we will come back with a specification and a price.",
+    "image": "/assets/direct.jpg",
+    "priority": 0.8,
+    "changefreq": "yearly"
+  },
+  {
+    "path": "/privacy",
+    "title": "Privacy policy",
+    "description": "What personal data SLS holds, why, how long for, and how to ask for a copy or its deletion.",
+    "priority": 0.3,
+    "changefreq": "yearly"
+  },
+  {
+    "path": "/cookies",
+    "title": "Cookies and storage",
+    "description": "SLS sets no advertising or analytics cookies. What the site stores in your browser, and why it is necessary.",
+    "priority": 0.3,
+    "changefreq": "yearly"
+  },
+  {
+    "path": "/terms",
+    "title": "Terms of supply",
+    "description": "The terms on which SLS quotes, supplies, delivers and invoices equipment and services.",
+    "priority": 0.3,
+    "changefreq": "yearly"
+  }
+]
