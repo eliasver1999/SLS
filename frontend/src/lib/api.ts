@@ -532,4 +532,47 @@ export async function sendTestEmail(
   return data.message
 }
 
+// ── Admin activity feed ───────────────────────────────────────────
+export type ActivityKind =
+  | 'order.placed'
+  | 'quote.requested'
+  | 'order.cancelled'
+  | 'inquiry.received'
+  | 'member.registered'
+  | 'application.received'
+
+export type ActivityEvent = {
+  id: string
+  kind: ActivityKind
+  at: string
+  title: string
+  detail: string
+  /** Which admin section deals with this event. */
+  section: 'orders' | 'quotes' | 'inquiries' | 'members' | 'approvals'
+  order_id?: number
+  amount_cents?: number | null
+  currency?: string | null
+  /** Nobody has picked it up yet. */
+  needs_action: boolean
+  /** Arrived after this admin last opened the feed. */
+  unread: boolean
+}
+
+export type Activity = {
+  data: ActivityEvent[]
+  unread_count: number
+  seen_at: string | null
+}
+
+export async function fetchActivity() {
+  const { data } = await api.get<Activity>('/activity')
+  return data
+}
+
+/** Move this admin's read watermark to now. */
+export async function markActivitySeen() {
+  const { data } = await api.post<{ unread_count: number; seen_at: string }>('/activity/seen')
+  return data
+}
+
 export default api

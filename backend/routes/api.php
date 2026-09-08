@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailTemplateController;
 use App\Http\Controllers\InquiryController;
@@ -45,6 +46,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
 // ── Admin only ────────────────────────────────────────────────────
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+    // What the team has missed since they last looked.
+    Route::get('/activity', [ActivityController::class, 'index']);
+    Route::post('/activity/seen', [ActivityController::class, 'seen']);
+
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
     Route::delete('/products/{product}', [ProductController::class, 'destroy']);

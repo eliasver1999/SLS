@@ -1363,3 +1363,98 @@ body[data-auth='pending'] .guest-strict {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Admin activity feed ───────────────────────────────────────────
+   A diary of what customers have done. Rows are buttons, because every
+   one of them goes somewhere: an event you cannot act on is just noise. */
+.feed {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.feed-day {
+  font-family: var(--head);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-soft);
+  margin: 18px 0 6px;
+}
+.feed-day:first-child {
+  margin-top: 0;
+}
+.feed-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--text);
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 13px 16px;
+  cursor: pointer;
+}
+.feed-row:hover {
+  background: var(--row-hover);
+}
+/* Unread is marked with a rail rather than a different background: the row
+   stays legible, and the marks read as a column you can scan down. */
+.feed-row.unread {
+  border-left: 3px solid var(--sky);
+  padding-left: 13px;
+}
+.feed-ic {
+  display: inline-flex;
+  flex: none;
+}
+.feed-body {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  /* Without this the long title stretches the row instead of ellipsing. */
+  min-width: 0;
+  flex: 1;
+}
+.feed-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+.feed-row.unread .feed-title {
+  font-weight: 700;
+}
+.feed-meta {
+  font-size: 12.5px;
+  color: var(--text-soft);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.feed-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+}
+.feed-when {
+  font-size: 12px;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+/* The unread count on a nav item, distinct from the amber "pending" badges
+   beside it — this one means "you have not seen this", not "act on this". */
+.side nav a .status.count,
+.dash-tabs .status.count {
+  background: var(--sky);
+  color: #04121f;
+}
+@media (max-width: 700px) {
+  /* The timestamp and the pill together are wider than a phone allows, so
+     the pill wins and the row keeps its ellipsis. */
+  .feed-when {
+    display: none;
+  }
+}

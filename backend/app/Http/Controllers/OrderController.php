@@ -100,6 +100,7 @@ class OrderController extends Controller
                 'note' => null,
                 'at' => now()->toIso8601String(),
                 'by' => $user->name,
+                'by_role' => 'customer',
             ]],
         ]);
         $order->recalculateTotals();
@@ -159,6 +160,10 @@ class OrderController extends Controller
             'note' => 'Cancelled by customer.',
             'at' => now()->toIso8601String(),
             'by' => $user->name,
+            // Recorded so the admin activity feed can distinguish a customer
+            // walking away from the team's own status changes — a name alone
+            // cannot be trusted to say which side of the desk it came from.
+            'by_role' => 'customer',
         ];
         $order->status_history = $history;
         $order->save();
@@ -211,6 +216,7 @@ class OrderController extends Controller
                 'note' => $note ?: null,
                 'at' => now()->toIso8601String(),
                 'by' => $request->user()->name,
+                'by_role' => 'admin',
             ];
             $order->status_history = $history;
         }

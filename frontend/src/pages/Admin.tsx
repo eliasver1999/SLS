@@ -6,15 +6,19 @@ import { useApplyTheme, useTheme } from '../context/theme'
 import {
   createProduct,
   deleteProduct,
+  fetchActivity,
   fetchMembers,
   fetchOrder,
   fetchOrders,
   fetchPartnerApplications,
   fetchProducts,
+  markActivitySeen,
   updateMember,
   updateOrder,
   updatePartnerApplication,
   updateProduct,
+  type Activity,
+  type ActivityEvent,
   type ApplicationCounts,
   type Member,
   type MemberCounts,
@@ -26,6 +30,7 @@ import {
   type ProductInput,
 } from '../lib/api'
 import type { LS, Mode, Product, Spec } from '../data/products'
+import ActivityFeed from '../components/ActivityFeed'
 import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
 import Inquiries from '../components/Inquiries'
@@ -37,6 +42,7 @@ import { centsToInput, inputToCents } from '../lib/money'
 import { PRODUCT_IMAGES } from '../data/productImages'
 import {
   ArrowLeft,
+  Bell,
   CalendarDays,
   CircleAlert,
   ClipboardCheck,
@@ -57,14 +63,31 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 
-type Section = 'members' | 'approvals' | 'products' | 'orders' | 'quotes' | 'inquiries' | 'reports' | 'emails'
+type Section =
+  | 'activity'
+  | 'members'
+  | 'approvals'
+  | 'products'
+  | 'orders'
+  | 'quotes'
+  | 'inquiries'
+  | 'reports'
+  | 'emails'
+
+/** How often the unread count is refreshed while the tab is open. */
+const ACTIVITY_POLL_MS = 60_000
 
 export default function Admin() {
   const { t } = useLang()
   const { user } = useAuth()
   const { theme, toggle } = useTheme()
   useApplyTheme()
-  const [section, setSection] = useState<Section>('members')
+  // Activity opens first: the point of the feed is to be the thing you see
+  // before you go looking for anything.
+  const [section, setSection] = useState<Section>('activity')
+  // An order the feed sent us to, so clicking an event lands on that order
+  // rather than on whatever happens to be newest.
+  const [focusOrderId, setFocusOrderId] = useState<number | null>(null)
 
   const [members, setMembers] = useState<Member[]>([])
   const [memberCounts, setMemberCounts] = useState<MemberCounts>({ pending: 0, approved: 0, rejected: 0 })
@@ -74,6 +97,18 @@ export default function Admin() {
   const [products, setProducts] = useState<Product[]>([])
   const [productsInfo, setProductsInfo] = useState({ page: 1, lastPage: 1, total: 0 })
   const [loadError, setLoadError] = useState<string | null>(null)
+
+  const [activity, setActivity] = useState<Activity | null>(null)
+  const [activityError, setActivityError] = useState<string | null>(null)
+
+  const loadActivity = useCallback(async () => {
+    try {
+      setActivity(await fetchActivity())
+      setActivityError(null)
+    } catch (e) {
+      setActivityError(errorMessage(e, 'Could not load recent activity.'))
+    }
+  }, [])
 
   const loadMembers = useCallback(async (page = 1) => {
     try {
@@ -112,7 +147,43 @@ export default function Admin() {
     loadProducts()
   }, [loadMembers, loadApps, loadProducts])
 
-  const nav: { key: Section; Icon: LucideIcon; label: string; badge?: number }[] = [
+  // The badge has to keep climbing while the admin works in another section,
+  // otherwise it only ever tells them what was true when they signed in.
+  useEffect(() => {
+    loadActivity()
+    const id = setInterval(loadActivity, ACTIVITY_POLL_MS)
+    return () => clearInterval(id)
+  }, [loadActivity])
+
+  const unread = activity?.unread_count ?? 0
+
+  // Opening the feed clears the count, but the events keep the unread marks
+  // they were fetched with: the whole point is to see which ones are new.
+  useEffect(() => {
+    if (section !== 'activity' || unread === 0) return
+
+    markActivitySeen()
+      .then(({ seen_at }) =>
+        setActivity((prev) => (prev ? { ...prev, unread_count: 0, seen_at } : prev)),
+      )
+      .catch(() => {})
+  }, [section, unread])
+
+  // A team that leaves the admin open in a tab reads the count from the tab.
+  useEffect(() => {
+    document.title = unread > 0 ? `(${unread}) SLS Admin` : 'SLS Admin'
+    return () => {
+      document.title = 'SLS Admin'
+    }
+  }, [unread])
+
+  function openFromActivity(target: ActivityEvent['section'], orderId?: number) {
+    setFocusOrderId(orderId ?? null)
+    setSection(target)
+  }
+
+  const nav: { key: Section; Icon: LucideIcon; label: string; badge?: number; fresh?: boolean }[] = [
+    { key: 'activity', Icon: Bell, label: t('Activity', 'Δραστηριότητα'), badge: unread || undefined, fresh: true },
     { key: 'members', Icon: Users, label: t('Members', 'Μέλη'), badge: memberCounts.pending },
     { key: 'approvals', Icon: ClipboardCheck, label: t('Applications', 'Αιτήσεις'), badge: counts.pending },
     { key: 'products', Icon: Package, label: t('Products', 'Προϊόντα'), badge: productsInfo.total || products.length },
@@ -148,7 +219,10 @@ export default function Admin() {
               <n.Icon size={17} aria-hidden />
               {n.label}
               {n.badge != null && (
-                <span className="status wait" style={{ marginLeft: 'auto' }}>
+                <span
+                  className={`status ${n.fresh ? 'count' : 'wait'}`}
+                  style={{ marginLeft: 'auto' }}
+                >
                   {n.badge}
                 </span>
               )}
@@ -174,6 +248,9 @@ export default function Admin() {
             >
               <n.Icon size={15} aria-hidden />
               {n.label}
+              {/* Only the unread count: it is the one badge that says
+                  something arrived while you were not looking. */}
+              {n.fresh && n.badge != null && <span className="status count">{n.badge}</span>}
             </button>
           ))}
           {/* The sidebar toggle is hidden with the sidebar, so it needs to be
@@ -185,6 +262,9 @@ export default function Admin() {
         </nav>
 
         <ErrorNote message={loadError} />
+        {section === 'activity' && (
+          <ActivityFeed activity={activity} error={activityError} onOpen={openFromActivity} />
+        )}
         {section === 'members' && (
           <MembersSection
             members={members}
@@ -205,8 +285,8 @@ export default function Admin() {
             onLoadMore={() => loadProducts(productsInfo.page + 1)}
           />
         )}
-        {section === 'orders' && <OrdersSection type="order" />}
-        {section === 'quotes' && <OrdersSection type="quote" />}
+        {section === 'orders' && <OrdersSection type="order" focusId={focusOrderId} />}
+        {section === 'quotes' && <OrdersSection type="quote" focusId={focusOrderId} />}
         {section === 'inquiries' && <Inquiries />}
         {section === 'reports' && <Reports />}
         {section === 'emails' && <EmailTemplates />}
@@ -974,7 +1054,7 @@ const statusText = (s: OrderStatus, t: (en: string, el: string) => string) =>
     cancelled: t('Cancelled', 'Ακυρώθηκε'),
   })[s]
 
-function OrdersSection({ type }: { type: OrderType }) {
+function OrdersSection({ type, focusId }: { type: OrderType; focusId?: number | null }) {
   const { t } = useLang()
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
@@ -1003,18 +1083,28 @@ function OrdersSection({ type }: { type: OrderType }) {
           setOrders((prev) => (page === 1 ? res.items : [...prev, ...res.items]))
           setPageInfo({ page: res.page, lastPage: res.lastPage })
           setSelectedId((cur) =>
-            page === 1 ? (res.items[0]?.id ?? null) : cur,
+            page === 1 ? (focusId ?? res.items[0]?.id ?? null) : cur,
           )
         })
         .catch(() => {})
         .finally(() => setLoading(false))
     },
-    [type, query, statusFilter],
+    [type, query, statusFilter, focusId],
   )
 
   useEffect(() => {
     load(1)
   }, [load])
+
+  // An order reached from the activity feed may sit past the first page (or
+  // behind a filter), so fetch it directly rather than showing an empty pane.
+  useEffect(() => {
+    if (!focusId || loading || orders.some((o) => o.id === focusId)) return
+
+    fetchOrder(focusId)
+      .then((order) => setOrders((prev) => [order, ...prev]))
+      .catch(() => {})
+  }, [focusId, loading, orders])
 
   const selected = orders.find((o) => o.id === selectedId) ?? null
 
