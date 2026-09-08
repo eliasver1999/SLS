@@ -596,4 +596,43 @@ export async function fetchSystemChecks() {
   return data
 }
 
+// ── Error monitoring ──────────────────────────────────────────────
+/**
+ * A grouped error from the API's error_events table.
+ *
+ * Named ErrorReport rather than ErrorEvent because the DOM already has an
+ * ErrorEvent, and shadowing it in a browser codebase is a trap.
+ */
+export type ErrorReport = {
+  id: number
+  source: 'api' | 'client'
+  type: string
+  message: string
+  file: string | null
+  line: number | null
+  method: string | null
+  url: string | null
+  trace: string | null
+  context: Record<string, unknown> | null
+  occurrences: number
+  first_seen_at: string | null
+  last_seen_at: string | null
+  resolved_at: string | null
+  user: { name: string; email: string } | null
+}
+
+export type ErrorCounts = { open: number; resolved: number }
+
+export async function fetchErrorEvents(state: 'open' | 'resolved' | 'all' = 'open') {
+  const { data } = await api.get<{ data: ErrorReport[]; counts: ErrorCounts }>('/error-events', {
+    params: { state },
+  })
+  return data
+}
+
+export async function resolveErrorEvent(id: number, resolved: boolean) {
+  const { data } = await api.patch<{ data: ErrorReport }>(`/error-events/${id}`, { resolved })
+  return data.data
+}
+
 export default api

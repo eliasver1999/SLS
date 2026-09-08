@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Middleware\EnsureAdmin;
+use App\Http\Middleware\ForceJsonResponse;
+use App\Services\ErrorLog;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -16,15 +19,26 @@ return Application::configure(basePath: dirname(__DIR__))
         // Must run before the auth middleware, so an unauthenticated request
         // is already marked as wanting JSON by the time it is rejected.
         $middleware->api(prepend: [
-            \App\Http\Middleware\ForceJsonResponse::class,
+            ForceJsonResponse::class,
         ]);
 
         $middleware->alias([
-            'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'admin' => EnsureAdmin::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
             fn (Request $request) => $request->is('api/*'),
         );
+
+        // Record failures where they outlive a restart and someone will see
+        // them. Reporting continues to the log as well: this callback adds a
+        // destination rather than replacing one, so nothing is lost if the
+        // database is the thing that is broken.
+        $exceptions->report(function (Throwable $e) {
+            app(ErrorLog::class)->record(
+                $e,
+                app()->runningInConsole() ? null : request(),
+            );
+        });
     })->create();

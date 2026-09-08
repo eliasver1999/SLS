@@ -7,6 +7,7 @@ import {
   createProduct,
   deleteProduct,
   fetchActivity,
+  fetchErrorEvents,
   fetchMembers,
   fetchOrder,
   fetchOrders,
@@ -31,6 +32,7 @@ import {
 } from '../lib/api'
 import type { LS, Mode, Product, Spec } from '../data/products'
 import ActivityFeed from '../components/ActivityFeed'
+import ErrorEvents from '../components/ErrorEvents'
 import SystemAlerts from '../components/SystemAlerts'
 import OrderTimeline from '../components/OrderTimeline'
 import EmailTemplates from '../components/EmailTemplates'
@@ -44,6 +46,7 @@ import { PRODUCT_IMAGES } from '../data/productImages'
 import {
   ArrowLeft,
   Bell,
+  Bug,
   CalendarDays,
   CircleAlert,
   ClipboardCheck,
@@ -74,6 +77,7 @@ type Section =
   | 'inquiries'
   | 'reports'
   | 'emails'
+  | 'errors'
 
 /** How often the unread count is refreshed while the tab is open. */
 const ACTIVITY_POLL_MS = 60_000
@@ -101,6 +105,15 @@ export default function Admin() {
 
   const [activity, setActivity] = useState<Activity | null>(null)
   const [activityError, setActivityError] = useState<string | null>(null)
+  const [openErrors, setOpenErrors] = useState(0)
+
+  const loadErrorCount = useCallback(async () => {
+    try {
+      setOpenErrors((await fetchErrorEvents('open')).counts.open)
+    } catch {
+      // A diagnostic must never be the reason the admin panel looks broken.
+    }
+  }, [])
 
   const loadActivity = useCallback(async () => {
     try {
@@ -152,9 +165,13 @@ export default function Admin() {
   // otherwise it only ever tells them what was true when they signed in.
   useEffect(() => {
     loadActivity()
-    const id = setInterval(loadActivity, ACTIVITY_POLL_MS)
+    loadErrorCount()
+    const id = setInterval(() => {
+      loadActivity()
+      loadErrorCount()
+    }, ACTIVITY_POLL_MS)
     return () => clearInterval(id)
-  }, [loadActivity])
+  }, [loadActivity, loadErrorCount])
 
   const unread = activity?.unread_count ?? 0
 
@@ -193,6 +210,9 @@ export default function Admin() {
     { key: 'inquiries', Icon: MessageSquare, label: t('Enquiries', 'Αιτήματα') },
     { key: 'reports', Icon: TrendingUp, label: t('Reports', 'Αναφορές') },
     { key: 'emails', Icon: Mail, label: t('Emails', 'Emails') },
+    // Counted, not just listed: an unnoticed exception is the same problem
+    // as an unnoticed order.
+    { key: 'errors', Icon: Bug, label: t('Errors', 'Σφάλματα'), badge: openErrors || undefined },
   ]
 
   return (
@@ -292,6 +312,7 @@ export default function Admin() {
         {section === 'inquiries' && <Inquiries />}
         {section === 'reports' && <Reports />}
         {section === 'emails' && <EmailTemplates />}
+        {section === 'errors' && <ErrorEvents onChange={loadErrorCount} />}
         <Link className="btn btn-ghost btn-sm mt24" to="/">
           <ArrowLeft size={14} aria-hidden />
           {t('Back to site', 'Πίσω στον ιστότοπο')}

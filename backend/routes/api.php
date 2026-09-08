@@ -3,6 +3,7 @@
 use App\Http\Controllers\ActivityController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EmailTemplateController;
+use App\Http\Controllers\ErrorEventController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderDocumentController;
@@ -24,6 +25,10 @@ Route::post('/reset-password', [AuthController::class, 'resetPassword'])->middle
 Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/products', [ProductController::class, 'index']);
 Route::get('/products/{slug}', [ProductController::class, 'show']);
+
+// Errors reported by the browser. Public because a visitor who is not
+// signed in — or whose page just broke — still needs to be able to tell us.
+Route::post('/client-errors', [ErrorEventController::class, 'store'])->middleware('throttle:20,1');
 
 Route::post('/inquiries', [InquiryController::class, 'store'])->middleware('throttle:10,1');
 Route::post('/partner-applications', [PartnerApplicationController::class, 'store'])->middleware('throttle:5,1');
@@ -54,6 +59,10 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     // Whether this deployment can do what its screens imply — chiefly,
     // whether the transactional emails are being delivered at all.
     Route::get('/system-checks', [SystemCheckController::class, 'index']);
+
+    // What has actually broken, grouped.
+    Route::get('/error-events', [ErrorEventController::class, 'index']);
+    Route::patch('/error-events/{errorEvent}', [ErrorEventController::class, 'update']);
 
     Route::post('/products', [ProductController::class, 'store']);
     Route::put('/products/{product}', [ProductController::class, 'update']);
