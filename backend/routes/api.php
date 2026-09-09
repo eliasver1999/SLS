@@ -45,6 +45,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/orders/{order}', [OrderController::class, 'show']);
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel']);
+    // Accepting a quote turns it into a confirmed order in place, keeping the
+    // price that was quoted.
+    Route::post('/orders/{order}/accept', [OrderController::class, 'accept']);
     // Download is for the order's owner or an admin; the controller checks.
     Route::get('/documents', [OrderDocumentController::class, 'index']);
     Route::get('/orders/{order}/documents/{document}', [OrderDocumentController::class, 'show']);

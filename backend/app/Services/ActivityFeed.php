@@ -41,7 +41,7 @@ class ActivityFeed
     {
         $events = collect([
             ...$this->orderEvents($limit),
-            ...$this->cancellationEvents($limit),
+            ...$this->customerDecisionEvents($limit),
             ...$this->inquiryEvents($limit),
             ...$this->registrationEvents($limit),
             ...$this->applicationEvents($limit),
@@ -77,7 +77,7 @@ class ActivityFeed
             + $newer(Inquiry::query())->count()
             + $newer(User::query()->where('role', 'customer'))->count()
             + $newer(PartnerApplication::query())->count()
-            + count($this->cancellationEvents(self::LIMIT, $seenAt));
+            + count($this->customerDecisionEvents(self::LIMIT, $seenAt));
     }
 
     /**
@@ -112,37 +112,51 @@ class ActivityFeed
     }
 
     /**
-     * A customer walked away from a request we had not confirmed yet.
+     * The two decisions a customer makes on their own: walking away, and
+     * saying yes to a quote.
      *
-     * This one is not a row of its own — it lives inside the order's status
-     * history — so the recently-touched orders are scanned for it. Entries
+     * Neither is a row of its own — both live inside the order's status
+     * history — so the recently-touched orders are scanned for them. Entries
      * written before the history recorded an actor role are skipped rather
      * than guessed at from the name.
      *
      * @return list<array<string, mixed>>
      */
-    private function cancellationEvents(int $limit, ?Carbon $since = null): array
+    private function customerDecisionEvents(int $limit, ?Carbon $since = null): array
     {
+        $decisions = [
+            'cancelled' => ['kind' => 'order.cancelled', 'title' => 'Cancelled by customer'],
+            'confirmed' => ['kind' => 'quote.accepted', 'title' => 'Quote accepted'],
+        ];
+
         return Order::query()
-            ->where('status', 'cancelled')
+            ->whereIn('status', array_keys($decisions))
             ->latest('updated_at')
             ->limit($limit)
-            ->get(['id', 'reference', 'type', 'contact_name', 'company', 'status_history'])
-            ->flatMap(function (Order $order) {
+            ->get(['id', 'reference', 'type', 'contact_name', 'company', 'total_cents', 'currency', 'status_history'])
+            ->flatMap(function (Order $order) use ($decisions) {
                 return collect($order->status_history ?? [])
-                    ->filter(fn ($entry) => ($entry['status'] ?? null) === 'cancelled'
+                    ->filter(fn ($entry) => isset($decisions[$entry['status'] ?? ''])
                         && ($entry['by_role'] ?? null) === 'customer'
                         && ! empty($entry['at']))
-                    ->map(fn ($entry) => [
-                        'id' => "cancel-{$order->id}-{$entry['at']}",
-                        'kind' => 'order.cancelled',
-                        'at' => Carbon::parse($entry['at']),
-                        'title' => "Cancelled by customer — {$order->reference}",
-                        'detail' => trim($order->company ?: $order->contact_name ?: ''),
-                        'section' => $order->type === 'quote' ? 'quotes' : 'orders',
-                        'order_id' => $order->id,
-                        'needs_action' => false,
-                    ]);
+                    ->map(function ($entry) use ($order, $decisions) {
+                        $decision = $decisions[$entry['status']];
+
+                        return [
+                            'id' => "{$entry['status']}-{$order->id}-{$entry['at']}",
+                            'kind' => $decision['kind'],
+                            'at' => Carbon::parse($entry['at']),
+                            'title' => "{$decision['title']} — {$order->reference}",
+                            'detail' => trim($order->company ?: $order->contact_name ?: ''),
+                            'amount_cents' => $entry['status'] === 'confirmed' ? $order->total_cents : null,
+                            'currency' => $order->currency,
+                            'section' => $order->type === 'quote' ? 'quotes' : 'orders',
+                            'order_id' => $order->id,
+                            // An accepted quote is committed work that has to
+                            // be scheduled, so it wants someone's attention.
+                            'needs_action' => $entry['status'] === 'confirmed',
+                        ];
+                    });
             })
             ->when($since !== null, fn (Collection $events) => $events->filter(
                 fn (array $event) => $event['at']->greaterThan($since),

@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { RotateCcw } from 'lucide-react'
+import { CheckCircle2, RotateCcw } from 'lucide-react'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
 import { useCart } from '../context/cart'
 import OrderTimeline from '../components/OrderTimeline'
 import OrderDocuments from '../components/OrderDocuments'
-import { cancelOrder, fetchOrder, type Order } from '../lib/api'
+import { acceptQuote, cancelOrder, fetchOrder, type Order } from '../lib/api'
 import { statusLabel, STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 
@@ -20,6 +20,14 @@ export default function OrderDetail() {
   const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
   const [cancelling, setCancelling] = useState(false)
   const [cancelError, setCancelError] = useState<string | null>(null)
+  const [accepting, setAccepting] = useState(false)
+  const [acceptError, setAcceptError] = useState<string | null>(null)
+  // An order must say when and where; a quote need not, so a quote that
+  // never carried those details collects them at the moment of acceptance.
+  // Named for what they are — the page already has an eventDate() date
+  // formatter, and a collision here breaks the whole route.
+  const [acceptDate, setAcceptDate] = useState('')
+  const [acceptVenue, setAcceptVenue] = useState('')
 
   useEffect(() => {
     if (!id) return
@@ -62,6 +70,33 @@ export default function OrderDetail() {
       year: 'numeric',
     })
   const cancellable = order.status === 'pending' || order.status === 'quoted'
+  // A priced quote is the only thing there is to accept.
+  const acceptable = order.type === 'quote' && order.status === 'quoted'
+  const needsEventDetails = !order.event_date || !order.venue
+  // Repeating a job only makes sense once it is a job. Offering it on an
+  // open quote is what sent customers round the loop again — and the new
+  // request was repriced from the catalogue, losing the quoted rate.
+  const repeatable = order.type === 'order' || order.status === 'completed'
+
+  async function onAccept() {
+    if (!order) return
+    setAccepting(true)
+    setAcceptError(null)
+    try {
+      setOrder(
+        await acceptQuote(order.id, {
+          event_date: acceptDate || undefined,
+          venue: acceptVenue.trim() || undefined,
+        }),
+      )
+    } catch (e) {
+      setAcceptError(
+        errorMessage(e, t('Could not accept that quote.', 'Αδυναμία αποδοχής της προσφοράς.')),
+      )
+    } finally {
+      setAccepting(false)
+    }
+  }
 
   function reorder() {
     if (!order) return
@@ -216,13 +251,90 @@ export default function OrderDetail() {
                 'Δεν γίνεται πληρωμή online — η ομάδα μας επιβεβαιώνει και τιμολογεί με τραπεζικό έμβασμα (IBAN).',
               )}
             </p>
+            {/* Accepting turns this very quote into a confirmed order: the
+                same record, the same agreed price. It deliberately does not
+                send the customer back to the catalogue, because a new
+                request is repriced from the catalogue and the negotiated
+                rate would be lost without anyone noticing. */}
+            {acceptable && (
+              <div
+                className="notice mt24"
+                style={{
+                  borderColor: 'var(--ok)',
+                  background: 'var(--ok-bg)',
+                  alignItems: 'flex-start',
+                  display: 'block',
+                }}
+              >
+                <b style={{ fontSize: 14 }}>
+                  {t('Happy with this quote?', 'Σας καλύπτει η προσφορά;')}
+                </b>
+                <p style={{ fontSize: 13, marginTop: 6, lineHeight: 1.55 }}>
+                  {t(
+                    `Accepting confirms it as an order at ${order.total ?? ''} — the price above, not today's catalogue price.`,
+                    `Η αποδοχή την επιβεβαιώνει ως παραγγελία στα ${order.total ?? ''} — στην τιμή της προσφοράς.`,
+                  )}
+                </p>
+
+                {needsEventDetails && (
+                  <div style={{ display: 'grid', gap: 10, marginTop: 14 }}>
+                    <p className="muted" style={{ fontSize: 12.5 }}>
+                      {t(
+                        'We just need when and where, so we can schedule crew and delivery.',
+                        'Χρειαζόμαστε πότε και πού, για να προγραμματίσουμε συνεργείο και παράδοση.',
+                      )}
+                    </p>
+                    {!order.event_date && (
+                      <div className="field" style={{ marginBottom: 0 }}>
+                        <label>{t('Event date', 'Ημερομηνία')}</label>
+                        <input
+                          type="date"
+                          value={acceptDate}
+                          onChange={(e) => setAcceptDate(e.target.value)}
+                        />
+                      </div>
+                    )}
+                    {!order.venue && (
+                      <div className="field" style={{ marginBottom: 0 }}>
+                        <label>{t('Venue', 'Χώρος')}</label>
+                        <input
+                          value={acceptVenue}
+                          onChange={(e) => setAcceptVenue(e.target.value)}
+                          placeholder={t('Technopolis, Athens', 'Τεχνόπολις, Αθήνα')}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                <button
+                  className="btn btn-primary btn-sm mt16"
+                  onClick={onAccept}
+                  disabled={
+                    accepting ||
+                    (!order.event_date && !acceptDate) ||
+                    (!order.venue && acceptVenue.trim() === '')
+                  }
+                >
+                  <CheckCircle2 size={14} aria-hidden />
+                  {accepting
+                    ? t('Accepting…', 'Αποδοχή…')
+                    : t('Accept and confirm order', 'Αποδοχή και επιβεβαίωση')}
+                </button>
+
+                {acceptError && (
+                  <p style={{ color: 'var(--danger)', fontSize: 13, marginTop: 10 }}>{acceptError}</p>
+                )}
+              </div>
+            )}
+
             {/* The same rig goes out repeatedly, so repeating a past job
                 should not mean rebuilding it item by item. This refills the
                 basket rather than cloning the order server-side: the new
                 event needs its own date and venue, and the lines get
                 repriced from the current catalogue on submit rather than
                 carrying last year's prices forward. */}
-            {isApproved && order.items.length > 0 && (
+            {isApproved && repeatable && order.items.length > 0 && (
               <button className="btn btn-ghost btn-sm mt16" style={{ marginRight: 8 }} onClick={reorder}>
                 <RotateCcw size={13} aria-hidden />
                 {t('Order this again', 'Παραγγείλτε ξανά')}

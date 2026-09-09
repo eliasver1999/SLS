@@ -7,6 +7,7 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
 use App\Services\TransactionalMail;
+use App\Support\Money;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
@@ -134,6 +135,98 @@ class OrderController extends Controller
         if (! $user->isAdmin() && $order->user_id !== $user->id) {
             abort(403, 'This order is not yours.');
         }
+
+        return new OrderResource($order->load('documents'));
+    }
+
+    /**
+     * A customer accepts the quote they were sent, which turns it into a
+     * confirmed order there and then.
+     *
+     * Before this existed the only affirmative button on a quote was "Order
+     * this again", which refilled the basket and submitted a *new* request —
+     * and because new lines are always repriced from the catalogue, the rate
+     * the team had negotiated was silently discarded. A customer accepting a
+     * €68,200 quote placed an €85,560 order and nobody was told.
+     *
+     * So acceptance happens in place: the same record, the same priced lines,
+     * flipped from quote to order. Nothing is recalculated from the
+     * catalogue, because the whole point of a quote is that the price is
+     * already agreed.
+     */
+    public function accept(Request $request, Order $order)
+    {
+        $user = $request->user();
+
+        if ($order->user_id !== $user->id) {
+            abort(403, 'This quote is not yours.');
+        }
+        if ($order->type !== 'quote') {
+            abort(422, 'This is already an order.');
+        }
+        if ($order->status !== 'quoted') {
+            abort(422, 'This quote is not ready to accept yet — it has no price on it.');
+        }
+
+        // An order has to be built, delivered and crewed, so it must say when
+        // and where. A quote need not, so the missing details are collected
+        // at the moment of acceptance.
+        $data = $request->validate([
+            'event_date' => [$order->event_date ? 'nullable' : 'required', 'date', 'after_or_equal:today'],
+            'venue' => [$order->venue ? 'nullable' : 'required', 'string', 'max:180'],
+            'event_type' => ['nullable', 'string', 'max:120'],
+            'delivery_address' => ['nullable', 'string', 'max:500'],
+        ], [
+            'event_date.required' => 'Please give the event date so we can schedule crew and delivery.',
+            'venue.required' => 'Please give the venue so we can plan delivery and setup.',
+        ]);
+
+        foreach (['event_date', 'venue', 'event_type', 'delivery_address'] as $field) {
+            if (! empty($data[$field])) {
+                $order->{$field} = $data[$field];
+            }
+        }
+
+        $order->type = 'order';
+        // Confirmed, not pending: the price is agreed and the customer has
+        // said yes, so there is nothing left for the team to decide.
+        $order->status = 'confirmed';
+
+        // The reference deliberately does not change. It is already on the
+        // quote email, and may be on the customer's purchase order — a new
+        // identifier here would orphan every message either side has kept.
+        $history = $order->status_history ?? [];
+        $history[] = [
+            'status' => 'confirmed',
+            // Money::format, not $order->total — "total" is a formatted field
+            // the API resource adds, so reading it off the model produced
+            // "accepted by the customer at ." in the timeline.
+            'note' => 'Quote accepted by the customer at '.Money::format($order->total_cents, $order->currency).'.',
+            'at' => now()->toIso8601String(),
+            'by' => $user->name,
+            'by_role' => 'customer',
+        ];
+        $order->status_history = $history;
+
+        // Totals are re-derived from the stored lines, never from the
+        // catalogue: this keeps the negotiated price and re-snapshots nothing.
+        $order->recalculateTotals();
+        $order->save();
+
+        try {
+            $mail = app(TransactionalMail::class);
+            $vars = TransactionalMail::varsForOrder($order, ['previous_status' => 'quoted']);
+
+            if ($order->contact_email) {
+                $mail->send('order.status.confirmed', $order->contact_email, $vars, $order->items ?? []);
+            }
+            // Sales needs to know a job just became real work.
+            $mail->send('order.admin_notify', config('sls.sales_email'), $vars, $order->items ?? []);
+        } catch (\Throwable $e) {
+            Log::error('Quote acceptance email failed', ['reference' => $order->reference, 'error' => $e->getMessage()]);
+        }
+
+        Log::info('Quote accepted by customer', ['reference' => $order->reference, 'user_id' => $user->id]);
 
         return new OrderResource($order->load('documents'));
     }

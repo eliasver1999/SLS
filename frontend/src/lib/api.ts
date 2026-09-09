@@ -280,6 +280,26 @@ export async function fetchOrder(id: number | string) {
   return data.data
 }
 
+/**
+ * Accept a quote, which turns it into a confirmed order in place — keeping
+ * the price that was quoted rather than repricing from the catalogue.
+ *
+ * An order must say when and where, so a quote that never carried those
+ * details collects them here.
+ */
+export async function acceptQuote(
+  id: number | string,
+  details: {
+    event_date?: string
+    venue?: string
+    event_type?: string
+    delivery_address?: string
+  } = {},
+) {
+  const { data } = await api.post<{ data: Order }>(`/orders/${id}/accept`, details)
+  return data.data
+}
+
 export async function cancelOrder(id: number) {
   const { data } = await api.post<{ data: Order }>(`/orders/${id}/cancel`)
   return data.data
