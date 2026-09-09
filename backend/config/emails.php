@@ -24,7 +24,10 @@ $orderVars = ['reference', 'order_url', 'type', 'contact_name', 'company', 'vat_
     'subtotal', 'vat', 'total',
     'event_type', 'event_date', 'venue', 'delivery_address'];
 
-$statusVars = [...$orderVars, 'status', 'status_label', 'previous_status', 'note'];
+// The globals belong here too: every other event spreads them, and
+// without them the status emails cannot resolve {{ sales_email }} — which
+// customers received literally — nor fill the bank panel.
+$statusVars = [...$orderVars, 'status', 'status_label', 'previous_status', 'note', ...$globals];
 
 $statusDefaults = [
     'pending' => 'Your request is being reviewed by our team.',

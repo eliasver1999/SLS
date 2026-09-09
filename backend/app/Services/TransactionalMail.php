@@ -201,6 +201,17 @@ class TransactionalMail
             'status_label' => static::statusLabel($status),
             'previous_status' => 'pending',
             'note' => 'Crew booked for the load-in on Friday.',
+            // The event and contact details. Missing values do not fail
+            // quietly: an admin previewing a template sees the literal
+            // "{{ event_type }}" and reasonably concludes their copy is
+            // broken, so every declared placeholder needs a sample.
+            'vat_number' => 'EL123456789',
+            'event_type' => $isQuote ? 'Conference' : 'Product launch',
+            'event_date' => '20 Nov 2026',
+            'venue' => 'Technopolis, Athens',
+            'delivery_address' => 'Pireos 100, Athens 11854',
+            'phone' => '+30 210 000 0000',
+            'message' => 'We need a 6 x 3 m wall for a launch event in November.',
         ];
     }
 
