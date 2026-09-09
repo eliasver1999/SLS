@@ -2,6 +2,11 @@
     // Pipes would break out of a markdown table cell, so neutralise them in
     // any value that can contain customer free text.
     $cell = fn ($value) => str_replace(['|', "\r", "\n"], ['\|', '', ' '], (string) ($value ?? '—'));
+
+    // Every clickable thing in a customer email belongs on the storefront,
+    // never on the API — app_url used to be the API origin, so the approval
+    // email's call to action opened a JSON document.
+    $site = rtrim((string) ($vars['app_url'] ?? config('app.frontend_url')), '/');
 @endphp
 <x-mail::message>
 {{ $body }}
@@ -98,13 +103,13 @@ View your order
 @endif
 
 @if (in_array('signin_button', $blocks, true))
-<x-mail::button :url="$vars['app_url'] ?? config('app.url')">
+<x-mail::button :url="$site.'/login'">
 Sign in to SLS
 </x-mail::button>
 @endif
 
 @if (in_array('admin_button', $blocks, true))
-<x-mail::button :url="$vars['app_url'] ?? config('app.url')">
+<x-mail::button :url="$site.'/admin'">
 Open admin
 </x-mail::button>
 @endif

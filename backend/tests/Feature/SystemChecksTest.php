@@ -48,10 +48,51 @@ class SystemChecksTest extends TestCase
         config([
             'mail.default' => 'smtp',
             'mail.mailers.smtp.transport' => 'smtp',
+            // A real provider's host: without one, this would be testing the
+            // local-catcher branch instead.
+            'mail.mailers.smtp.host' => 'smtp.eu.mailgun.org',
             'mail.mailers.smtp.username' => 'postmaster@sls.gr',
         ]);
 
         $this->assertSame('ok', $this->statusOf('mail.transport'));
+    }
+
+    public function test_a_local_mail_catcher_is_not_reported_as_working_email(): void
+    {
+        // The development setup: real SMTP, but to a catcher that writes to
+        // disk. Reporting this as "email works" would be the original bug
+        // wearing a different hat.
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => '127.0.0.1',
+            'mail.mailers.smtp.port' => 1025,
+        ]);
+
+        $this->assertSame('warn', $this->statusOf('mail.transport'));
+
+        // And in production it is not a warning, it is an outage.
+        app()->detectEnvironment(fn () => 'production');
+        $this->assertSame('fail', $this->statusOf('mail.transport'));
+    }
+
+    public function test_a_test_send_through_a_catcher_says_where_it_went(): void
+    {
+        config([
+            'mail.default' => 'smtp',
+            'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => '127.0.0.1',
+            'mail.mailers.smtp.port' => 1025,
+        ]);
+        Mail::fake();
+        Sanctum::actingAs(User::factory()->create(['role' => 'admin']));
+
+        $response = $this->postJson('/api/email-templates/member.approved/test', [
+            'to' => 'admin@sls.gr',
+        ])->assertOk();
+
+        $this->assertTrue($response->json('delivered'));
+        $this->assertStringContainsString('local catcher', $response->json('message'));
     }
 
     public function test_smtp_without_credentials_is_flagged(): void
@@ -59,6 +100,7 @@ class SystemChecksTest extends TestCase
         config([
             'mail.default' => 'smtp',
             'mail.mailers.smtp.transport' => 'smtp',
+            'mail.mailers.smtp.host' => 'smtp.eu.mailgun.org',
             'mail.mailers.smtp.username' => null,
         ]);
 
@@ -148,6 +190,9 @@ class SystemChecksTest extends TestCase
         config([
             'mail.default' => 'smtp',
             'mail.mailers.smtp.transport' => 'smtp',
+            // A real provider's host: without one, this would be testing the
+            // local-catcher branch instead.
+            'mail.mailers.smtp.host' => 'smtp.eu.mailgun.org',
             'mail.mailers.smtp.username' => 'postmaster@sls.gr',
         ]);
         // Intercept the send itself so the assertion is about the reporting,
@@ -175,6 +220,9 @@ class SystemChecksTest extends TestCase
         config([
             'mail.default' => 'smtp',
             'mail.mailers.smtp.transport' => 'smtp',
+            // A real provider's host: without one, this would be testing the
+            // local-catcher branch instead.
+            'mail.mailers.smtp.host' => 'smtp.eu.mailgun.org',
             'mail.mailers.smtp.username' => 'postmaster@sls.gr',
             'mail.from.address' => 'no-reply@sls.gr',
             'app.url' => 'https://api.sls.gr',

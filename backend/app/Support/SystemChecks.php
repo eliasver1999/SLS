@@ -81,6 +81,23 @@ class SystemChecks
             );
         }
 
+        $host = (string) config("mail.mailers.{$mailer}.host");
+
+        // A local catcher takes the real SMTP path and writes the message to
+        // disk. That is the right way to develop against email, and it must
+        // never read as "email works" — shipping this config would be the
+        // original bug wearing a different hat.
+        if ($transport === 'smtp' && in_array($host, self::PLACEHOLDER_HOSTS, true)) {
+            return $this->check(
+                'mail.transport',
+                'Email delivery',
+                app()->isProduction() ? 'fail' : 'warn',
+                "Mail is going to a local catcher at {$host}:".config("mail.mailers.{$mailer}.port")
+                    .'. Messages are written to storage/app/mail and no recipient receives anything.',
+                'Correct for development. In production, set MAIL_HOST to your provider.',
+            );
+        }
+
         if ($transport === 'smtp' && ! config("mail.mailers.{$mailer}.username")) {
             return $this->check(
                 'mail.transport',

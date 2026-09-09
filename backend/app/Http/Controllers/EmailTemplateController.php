@@ -202,6 +202,16 @@ class EmailTemplateController extends Controller
             ]);
         }
 
+        // A working-but-not-real transport (a local catcher) counts as
+        // delivered — the message did leave the application — but saying only
+        // "sent" would let someone conclude production email works.
+        if (($transport['status'] ?? null) === 'warn') {
+            return response()->json([
+                'message' => "Sent to {$to}. ".$transport['detail'],
+                'delivered' => true,
+            ]);
+        }
+
         return response()->json(['message' => "Test email sent to {$to}.", 'delivered' => true]);
     }
 

@@ -3,10 +3,10 @@
 namespace App\Services;
 
 use App\Mail\TemplatedMail;
-use App\Support\Money;
 use App\Models\EmailTemplate;
 use App\Models\Order;
 use App\Models\User;
+use App\Support\Money;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
@@ -123,7 +123,8 @@ class TransactionalMail
             'deposit_percent' => $deposit,
             'balance_percent' => 100 - $deposit,
             'vat_percent' => (int) config('sls.vat_percent'),
-            'app_url' => config('app.url'),
+            // The storefront, not the API: this is a link a customer clicks.
+            'app_url' => rtrim((string) config('app.frontend_url'), '/'),
         ];
     }
 
