@@ -49,6 +49,7 @@ import {
   Bug,
   CalendarDays,
   CircleAlert,
+  CircleCheck,
   ClipboardCheck,
   FileText,
   Mail,
@@ -1350,7 +1351,12 @@ function AdminOrderDetail({
     return { subtotal: money(subtotalCents), vat: money(vatCents), total: money(subtotalCents + vatCents) }
   })()
 
-  async function save() {
+  /**
+   * Save the edits. Pass a status to override the dropdown — the Accept
+   * button uses that to confirm and send the pricing edits in one request,
+   * so the customer gets one email rather than two.
+   */
+  async function save(overrideStatus?: OrderStatus) {
     setSaving(true)
     setSaved(false)
     setError(null)
@@ -1367,7 +1373,7 @@ function AdminOrderDetail({
           unit_price_cents: it.unit_price_cents ?? 0,
         }))
       await onUpdate({
-        status,
+        status: overrideStatus ?? status,
         note: note.trim() || undefined,
         items: itemsChanged && cleanItems.length ? cleanItems : undefined,
       })
@@ -1521,7 +1527,26 @@ function AdminOrderDetail({
         />
       </div>
 
-      <button className="btn btn-primary btn-block mt16" onClick={save} disabled={saving || !changed}>
+      {/* Accepting is the common case, so it is one button rather than a
+          trip through the status dropdown: the customer has already agreed
+          to this price by placing the order. Discount it above first if you
+          are going to — a lower total needs no further agreement from them. */}
+      {order.status === 'pending' && (
+        <button
+          className="btn btn-primary btn-block mt16"
+          onClick={() => save('confirmed')}
+          disabled={saving}
+        >
+          <CircleCheck size={15} aria-hidden />
+          {saving ? t('Accepting…', 'Αποδοχή…') : t('Accept order', 'Αποδοχή παραγγελίας')}
+        </button>
+      )}
+
+      <button
+        className={`btn btn-block mt16 ${order.status === 'pending' ? 'btn-ghost' : 'btn-primary'}`}
+        onClick={() => save()}
+        disabled={saving || !changed}
+      >
         {saving ? t('Saving…', 'Αποθήκευση…') : t('Update & notify customer', 'Ενημέρωση & email πελάτη')}
       </button>
       {saved && !error && (

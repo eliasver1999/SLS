@@ -160,16 +160,22 @@ class OrderAuthorizationTest extends TestCase
         $this->assertDatabaseCount('orders', 0);
     }
 
-    public function test_a_quote_does_not_need_event_details_yet(): void
+    public function test_there_is_no_quote_route_that_skips_the_event_details(): void
     {
         $this->product();
         Sanctum::actingAs(User::factory()->create(['status' => 'approved']));
 
-        // A quote is exploratory — the customer may not have a venue booked.
+        // This used to be allowed: a "quote" was exploratory and needed no
+        // venue. That route is gone — the storefront has one door, everything
+        // through it is an order, and an order is work that has to be crewed
+        // and delivered. Asking for a price without a date is what the
+        // contact form is for.
         $this->postJson('/api/orders', [
             'type' => 'quote',
             'items' => [['slug' => 'aurora-p26', 'qty' => 2]],
-        ])->assertCreated();
+        ])->assertStatus(422)->assertJsonValidationErrors(['event_date', 'venue']);
+
+        $this->assertDatabaseCount('orders', 0);
     }
 
     public function test_an_order_rejects_an_event_date_in_the_past(): void

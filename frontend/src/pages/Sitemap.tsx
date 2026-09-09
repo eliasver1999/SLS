@@ -120,7 +120,7 @@ export default function Sitemap() {
                   <span className="arw">↓</span>
                   <div className="node">{t('See lead time + B2B price', 'Χρόνος + B2B τιμή')}</div>
                   <span className="arw">↓</span>
-                  <div className="node">{t('Add to quote / cart', 'Προσθήκη σε προσφορά')}</div>
+                  <div className="node">{t('Add to order', 'Προσθήκη στην παραγγελία')}</div>
                   <span className="arw">↓</span>
                   <div className="node blue">
                     {t('Request quote OR pre-order + deposit', 'Αίτημα προσφοράς Ή προπαραγγελία')}

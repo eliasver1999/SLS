@@ -13,7 +13,7 @@ class Order extends Model
         'contact_name', 'contact_email', 'company', 'vat_number', 'items', 'notes',
         'status_history',
         'event_type', 'event_date', 'venue', 'delivery_address',
-        'currency', 'subtotal_cents', 'vat_percent', 'vat_cents', 'total_cents',
+        'currency', 'subtotal_cents', 'vat_percent', 'vat_cents', 'total_cents', 'agreed_total_cents',
     ];
 
     protected $casts = [
@@ -24,6 +24,7 @@ class Order extends Model
         'vat_percent' => 'integer',
         'vat_cents' => 'integer',
         'total_cents' => 'integer',
+        'agreed_total_cents' => 'integer',
     ];
 
     protected $attributes = [

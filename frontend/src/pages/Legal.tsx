@@ -159,7 +159,7 @@ function storage(t: (en: string, el: string) => string): Doc {
             'Επιλογή θέματος — φωτεινό ή σκούρο.',
           ),
           t(
-            'Your quote basket — the items you have added, so they survive a refresh.',
+            'Your basket — the items you have added, so they survive a refresh.',
             'Το καλάθι προσφοράς — τα είδη που προσθέσατε.',
           ),
         ],

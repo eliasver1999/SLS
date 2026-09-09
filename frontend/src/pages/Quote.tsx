@@ -4,7 +4,7 @@ import { CircleAlert, Lock, Trash2 } from 'lucide-react'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
 import { useCart } from '../context/cart'
-import { createOrder, type OrderType } from '../lib/api'
+import { createOrder } from '../lib/api'
 import { errorMessage } from '../lib/errors'
 import { formatCents } from '../lib/money'
 
@@ -23,7 +23,7 @@ export default function Quote() {
   const cart = useCart()
   const navigate = useNavigate()
 
-  const [busy, setBusy] = useState<OrderType | null>(null)
+  const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notes, setNotes] = useState('')
   const [eventType, setEventType] = useState('')
@@ -34,16 +34,15 @@ export default function Quote() {
   const money = (cents: number | null | undefined) => formatCents(cents, lang)
   const priced = cart.subtotalCents > 0
 
-  async function submit(type: OrderType) {
+  async function submit() {
     if (!isApproved) {
       navigate('/login')
       return
     }
-    setBusy(type)
+    setBusy(true)
     setError(null)
     try {
       const order = await createOrder({
-        type,
         items: cart.items.map((it) => ({
           slug: it.slug,
           name: it.name,
@@ -58,7 +57,7 @@ export default function Quote() {
         delivery_address: deliveryAddress.trim() || undefined,
       })
       cart.clear()
-      navigate('/order-received', { state: { reference: order.reference, type } })
+      navigate('/order-received', { state: { reference: order.reference, type: 'order' } })
     } catch (e) {
       setError(
         errorMessage(
@@ -69,7 +68,7 @@ export default function Quote() {
           ),
         ),
       )
-      setBusy(null)
+      setBusy(false)
     }
   }
 
@@ -78,14 +77,14 @@ export default function Quote() {
       <div className="page-head">
         <div className="container">
           <div className="crumb">
-            Home / {t('Your quote', 'Η προσφορά σας')}
+            Home / {t('Your order', 'Η παραγγελία σας')}
           </div>
-          <div className="eyebrow">{t('Request', 'Αίτημα')}</div>
-          <h1 className="h2 mt8">{t('Your quote', 'Η προσφορά σας')}</h1>
+          <div className="eyebrow">{t('Order', 'Παραγγελία')}</div>
+          <h1 className="h2 mt8">{t('Your order', 'Η παραγγελία σας')}</h1>
           <p className="muted mt8">
             {t(
-              'Build a request across screens, lighting and sound — our team prices it and follows up by email.',
-              'Δημιουργήστε αίτημα για οθόνες, φωτισμό και ήχο — η ομάδα μας το κοστολογεί και απαντά με email.',
+              'Screens, lighting and sound in one order. Our team confirms availability and may discount it before invoicing.',
+              'Οθόνες, φωτισμός και ήχος σε μία παραγγελία. Η ομάδα μας επιβεβαιώνει τη διαθεσιμότητα και μπορεί να εφαρμόσει έκπτωση.',
             )}
           </p>
         </div>
@@ -95,7 +94,7 @@ export default function Quote() {
         <div className="container">
           {cart.count === 0 ? (
             <div className="panel center" style={{ padding: 40 }}>
-              <h3 style={{ fontSize: 18 }}>{t('Your quote is empty', 'Η προσφορά σας είναι κενή')}</h3>
+              <h3 style={{ fontSize: 18 }}>{t('Your order is empty', 'Η παραγγελία σας είναι κενή')}</h3>
               <p className="muted mt8">
                 {t(
                   'Add items from the catalogue to start a request.',
@@ -178,7 +177,7 @@ export default function Quote() {
                     {t('Add more items', 'Προσθήκη ειδών')}
                   </Link>
                   <button className="btn btn-ghost btn-sm" onClick={cart.clear}>
-                    {t('Clear quote', 'Καθαρισμός')}
+                    {t('Clear order', 'Καθαρισμός')}
                   </button>
                 </div>
               </div>
@@ -260,28 +259,22 @@ export default function Quote() {
 
                   {isApproved ? (
                     <>
+                      {/* One button. There used to be two — "Request a
+                          quote" and "Submit as an order" — which asked the
+                          customer to choose between two routes into the same
+                          process: both arrived as a request the team priced
+                          and confirmed. */}
                       <button
                         className="btn btn-primary btn-block mt24"
-                        disabled={busy !== null}
-                        onClick={() => submit('quote')}
+                        disabled={busy}
+                        onClick={submit}
                       >
-                        {busy === 'quote'
-                          ? t('Sending…', 'Αποστολή…')
-                          : t('Request a quote', 'Ζητήστε προσφορά')}
-                      </button>
-                      <button
-                        className="btn btn-ghost btn-block mt8"
-                        disabled={busy !== null}
-                        onClick={() => submit('order')}
-                      >
-                        {busy === 'order'
-                          ? t('Sending…', 'Αποστολή…')
-                          : t('Submit as an order', 'Υποβολή ως παραγγελία')}
+                        {busy ? t('Sending…', 'Αποστολή…') : t('Place order', 'Καταχώρηση παραγγελίας')}
                       </button>
                       <p className="muted mt8" style={{ fontSize: 12 }}>
                         {t(
-                          'An order needs the date and venue; a quote does not.',
-                          'Η παραγγελία χρειάζεται ημερομηνία και χώρο· η προσφορά όχι.',
+                          'No payment is taken now. Our team confirms availability and may apply a discount before invoicing — you will never be charged more than the total above without agreeing to it first.',
+                          'Δεν γίνεται πληρωμή τώρα. Η ομάδα μας επιβεβαιώνει τη διαθεσιμότητα και μπορεί να εφαρμόσει έκπτωση — δεν θα χρεωθείτε ποτέ περισσότερα από το παραπάνω σύνολο χωρίς τη συγκατάθεσή σας.',
                         )}
                       </p>
                     </>

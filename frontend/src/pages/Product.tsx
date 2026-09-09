@@ -114,7 +114,7 @@ export default function Product() {
     setBusy(true)
     setError(null)
     try {
-      const order = await createOrder({ type: 'order', items: [item], ...eventDetails() })
+      const order = await createOrder({ items: [item], ...eventDetails() })
       navigate('/order-received', { state: { reference: order.reference, type: 'order' } })
     } catch (e) {
       setError(
@@ -282,7 +282,7 @@ export default function Product() {
                 </div>
                 <p className="muted mt8" style={{ fontSize: 12.5 }}>
                   {t(
-                    'The date and venue let us schedule crew and delivery — required for an order, optional for a quote.',
+                    'The date and venue let us schedule crew and delivery.',
                     'Η ημερομηνία και ο χώρος μας επιτρέπουν να προγραμματίσουμε συνεργείο και παράδοση.',
                   )}
                 </p>
@@ -298,7 +298,7 @@ export default function Product() {
                     </button>
                   )}
                   <button className="btn btn-ghost" onClick={() => addToQuote(quoteItem())}>
-                    {t('Add to quote', 'Προσθήκη σε προσφορά')}
+                    {t('Add to order', 'Προσθήκη στην παραγγελία')}
                   </button>
                 </div>
                 {error && (
@@ -359,7 +359,7 @@ export default function Product() {
             {cart.count === 0 && (
               <p className="muted" style={{ fontSize: 14 }}>
                 {t(
-                  'Your quote is empty. Use “Add to quote” on any product to build a request.',
+                  'Your order is empty. Use “Add to order” on any product to start one.',
                   'Η προσφορά σας είναι κενή. Χρησιμοποιήστε «Προσθήκη σε προσφορά».',
                 )}
               </p>

@@ -2,6 +2,7 @@ import { Fragment } from 'react'
 import {
   Ban,
   Bell,
+  CircleCheck,
   ClipboardCheck,
   FileText,
   MessageSquare,
@@ -48,6 +49,11 @@ export default function ActivityFeed({
       Icon: FileText,
       colour: 'var(--sky)',
       label: t('Quote', 'Προσφορά'),
+    },
+    'quote.accepted': {
+      Icon: CircleCheck,
+      colour: 'var(--ok)',
+      label: t('Accepted', 'Αποδοχή'),
     },
     'order.cancelled': { Icon: Ban, colour: 'var(--danger)', label: t('Cancelled', 'Ακύρωση') },
     'inquiry.received': {
@@ -153,7 +159,14 @@ export default function ActivityFeed({
 
       <div className="feed mt24">
         {events.map((event, i) => {
-          const kind = KIND[event.kind]
+          // Falls back rather than indexing blind: the server can add an
+          // event kind at any time, and a missing entry here used to throw
+          // and take the entire admin panel down with it.
+          const kind = KIND[event.kind] ?? {
+            Icon: Bell,
+            colour: 'var(--text-soft)',
+            label: event.kind,
+          }
           const heading = dayLabel(event.at)
           const newDay = i === 0 || dayLabel(events[i - 1].at) !== heading
 

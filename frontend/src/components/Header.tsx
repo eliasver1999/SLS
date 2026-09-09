@@ -63,9 +63,9 @@ export default function Header() {
         <div className="spacer" />
         <div className="actions">
           {cart.count > 0 && (
-            <Link className="btn btn-ghost btn-sm quote-link" to="/quote" title={lang === 'el' ? 'Η προσφορά σας' : 'Your quote'}>
+            <Link className="btn btn-ghost btn-sm quote-link" to="/quote" title={lang === 'el' ? 'Η παραγγελία σας' : 'Your order'}>
               <FileText size={15} aria-hidden />
-              <span className="quote-link-label">{lang === 'el' ? 'Προσφορά' : 'Quote'}</span>
+              <span className="quote-link-label">{lang === 'el' ? 'Παραγγελία' : 'Order'}</span>
               <span className="status blue">{cart.count}</span>
             </Link>
           )}
@@ -108,7 +108,7 @@ export default function Header() {
       <div className={`mobile-nav${open ? ' open' : ''}`}>
         {cart.count > 0 && (
           <Link className="active" to="/quote" onClick={() => setOpen(false)}>
-            {lang === 'el' ? 'Η προσφορά σας' : 'Your quote'} ({cart.count})
+            {lang === 'el' ? 'Η παραγγελία σας' : 'Your order'} ({cart.count})
           </Link>
         )}
         {NAV.map((n) => (

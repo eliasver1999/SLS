@@ -256,8 +256,12 @@ export type Order = EventDetails & {
   created_at: string
 }
 
+/**
+ * Place an order. There is no type to choose: the storefront has one door,
+ * and the team prices and confirms what comes through it.
+ */
 export async function createOrder(
-  payload: { type: OrderType; items: OrderItem[]; notes?: string } & EventDetails,
+  payload: { items: OrderItem[]; notes?: string } & EventDetails,
 ) {
   const { data } = await api.post<{ data: Order }>('/orders', payload)
   return data.data
@@ -558,6 +562,7 @@ export async function sendTestEmail(
 export type ActivityKind =
   | 'order.placed'
   | 'quote.requested'
+  | 'quote.accepted'
   | 'order.cancelled'
   | 'inquiry.received'
   | 'member.registered'

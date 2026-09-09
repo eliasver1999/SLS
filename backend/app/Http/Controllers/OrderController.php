@@ -83,7 +83,8 @@ class OrderController extends Controller
 
         $order = Order::create([
             'reference' => uniqid('tmp-'),
-            'type' => $data['type'],
+            // One door: every submission is an order at the prices shown.
+            'type' => 'order',
             'status' => 'pending',
             'user_id' => $user->id,
             'contact_name' => $user->name,
@@ -105,6 +106,9 @@ class OrderController extends Controller
             ]],
         ]);
         $order->recalculateTotals();
+        // The figure the customer actually saw. Everything after this point
+        // is measured against it.
+        $order->agreed_total_cents = $order->total_cents;
         $order->reference = (self::PREFIX[$order->type] ?? 'SLS-X-').(2000 + $order->id);
         $order->save();
 
@@ -161,11 +165,8 @@ class OrderController extends Controller
         if ($order->user_id !== $user->id) {
             abort(403, 'This quote is not yours.');
         }
-        if ($order->type !== 'quote') {
-            abort(422, 'This is already an order.');
-        }
         if ($order->status !== 'quoted') {
-            abort(422, 'This quote is not ready to accept yet — it has no price on it.');
+            abort(422, 'There is nothing waiting for your approval on this order.');
         }
 
         // An order has to be built, delivered and crewed, so it must say when
@@ -188,9 +189,12 @@ class OrderController extends Controller
         }
 
         $order->type = 'order';
-        // Confirmed, not pending: the price is agreed and the customer has
-        // said yes, so there is nothing left for the team to decide.
+        // Confirmed: the customer has agreed to the revised figure, so there
+        // is nothing left for either side to decide.
         $order->status = 'confirmed';
+        // This is now the figure they agreed to, so a later change is
+        // measured against it rather than against the original.
+        $order->agreed_total_cents = $order->total_cents;
 
         // The reference deliberately does not change. It is already on the
         // quote email, and may be on the customer's purchase order — a new
@@ -201,7 +205,7 @@ class OrderController extends Controller
             // Money::format, not $order->total — "total" is a formatted field
             // the API resource adds, so reading it off the model produced
             // "accepted by the customer at ." in the timeline.
-            'note' => 'Quote accepted by the customer at '.Money::format($order->total_cents, $order->currency).'.',
+            'note' => 'Revised price accepted by the customer at '.Money::format($order->total_cents, $order->currency).'.',
             'at' => now()->toIso8601String(),
             'by' => $user->name,
             'by_role' => 'customer',
@@ -300,6 +304,20 @@ class OrderController extends Controller
         }
         $order->status = $newStatus;
         $order->recalculateTotals();
+
+        // A discount needs no further agreement — nobody disputes paying less
+        // — so the team can lower a price and confirm in one step. A rise is
+        // the opposite: confirming it would commit the customer to a figure
+        // they have never seen. That has to go back to them, so the status
+        // becomes "quoted" and waits for their acceptance instead.
+        $costsMoreThanAgreed = $order->agreed_total_cents !== null
+            && $order->total_cents > $order->agreed_total_cents;
+
+        if ($costsMoreThanAgreed && in_array($newStatus, ['confirmed', 'in_production', 'completed'], true)) {
+            $newStatus = 'quoted';
+            $order->status = 'quoted';
+            $statusChanged = $newStatus !== $previousStatus;
+        }
 
         // Record an audit-trail entry when the status changes or a note is added.
         if ($statusChanged || ! empty($note)) {

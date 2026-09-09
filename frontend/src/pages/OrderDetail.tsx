@@ -70,8 +70,10 @@ export default function OrderDetail() {
       year: 'numeric',
     })
   const cancellable = order.status === 'pending' || order.status === 'quoted'
-  // A priced quote is the only thing there is to accept.
-  const acceptable = order.type === 'quote' && order.status === 'quoted'
+  // "Quoted" now means one specific thing: the team needs more than the
+  // customer originally agreed to, so the order is waiting on them. A
+  // discount never lands here — nobody has to approve paying less.
+  const acceptable = order.status === 'quoted'
   const needsEventDetails = !order.event_date || !order.venue
   // Repeating a job only makes sense once it is a job. Offering it on an
   // open quote is what sent customers round the loop again — and the new
@@ -267,12 +269,12 @@ export default function OrderDetail() {
                 }}
               >
                 <b style={{ fontSize: 14 }}>
-                  {t('Happy with this quote?', 'Σας καλύπτει η προσφορά;')}
+                  {t('This order needs your approval', 'Η παραγγελία χρειάζεται την έγκρισή σας')}
                 </b>
                 <p style={{ fontSize: 13, marginTop: 6, lineHeight: 1.55 }}>
                   {t(
-                    `Accepting confirms it as an order at ${order.total ?? ''} — the price above, not today's catalogue price.`,
-                    `Η αποδοχή την επιβεβαιώνει ως παραγγελία στα ${order.total ?? ''} — στην τιμή της προσφοράς.`,
+                    `The revised total is ${order.total ?? ''}. We will not proceed until you agree to it — see the note from our team above.`,
+                    `Το αναθεωρημένο σύνολο είναι ${order.total ?? ''}. Δεν προχωράμε πριν το εγκρίνετε — δείτε τη σημείωση της ομάδας μας.`,
                   )}
                 </p>
 
@@ -318,8 +320,8 @@ export default function OrderDetail() {
                 >
                   <CheckCircle2 size={14} aria-hidden />
                   {accepting
-                    ? t('Accepting…', 'Αποδοχή…')
-                    : t('Accept and confirm order', 'Αποδοχή και επιβεβαίωση')}
+                    ? t('Approving…', 'Έγκριση…')
+                    : t('Approve the new total', 'Έγκριση νέου συνόλου')}
                 </button>
 
                 {acceptError && (
