@@ -88,10 +88,14 @@
 
 @if (in_array('bank_panel', $blocks, true))
 <x-mail::panel>
-**Bank transfer (IBAN)**
-Account: {{ $vars['account_name'] ?? '' }}
-Bank: {{ $vars['bank_name'] ?? '' }}
-IBAN: **{{ $vars['iban'] ?? '' }}**
+{{-- Explicit breaks: markdown folds single newlines into spaces, which ran
+     the account, bank, IBAN and reference together as one paragraph. This is
+     the panel someone copies a bank account out of, so each field gets its
+     own line. --}}
+**Bank transfer (IBAN)**<br>
+Account: {{ $vars['account_name'] ?? '' }}<br>
+Bank: {{ $vars['bank_name'] ?? '' }}<br>
+IBAN: **{{ $vars['iban'] ?? '' }}**<br>
 Payment reference: **{{ $vars['reference'] ?? '' }}**
 </x-mail::panel>
 @endif

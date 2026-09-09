@@ -21,7 +21,7 @@
 $globals = ['sales_email', 'iban', 'bank_name', 'account_name', 'deposit_percent', 'balance_percent', 'vat_percent', 'app_url'];
 
 $orderVars = ['reference', 'order_url', 'type', 'contact_name', 'company', 'vat_number', 'contact_email', 'notes',
-    'subtotal', 'vat', 'total',
+    'subtotal', 'vat', 'total', 'deposit', 'balance',
     'event_type', 'event_date', 'venue', 'delivery_address'];
 
 // The globals belong here too: every other event spreads them, and
@@ -29,13 +29,41 @@ $orderVars = ['reference', 'order_url', 'type', 'contact_name', 'company', 'vat_
 // customers received literally — nor fill the bank panel.
 $statusVars = [...$orderVars, 'status', 'status_label', 'previous_status', 'note', ...$globals];
 
+// The two emails that ask for money say the amount, not the percentage: a
+// customer told to "transfer 50%" has to do the arithmetic, and will
+// sometimes do it differently from us. The bank details travel with the
+// request for the same reason — nobody should have to find a previous email
+// to pay this one.
 $statusDefaults = [
     'pending' => 'Your request is being reviewed by our team.',
-    'quoted' => 'We’ve prepared your quote — our team will email the details and next steps.',
-    'confirmed' => 'Your request is confirmed. Your Scope of Work and invoice appear on your order page as we issue them.',
+    'quoted' => 'The price has changed since you placed this order, so it is waiting for your approval — open it below to see the revised total.',
+    'confirmed' => 'Your order is accepted and we are booking it in.'
+        .'
+
+'
+        .'To start production, please transfer the **{{ deposit_percent }}% deposit of {{ deposit }}** to the account below, quoting **{{ reference }}** as the payment reference. The remaining **{{ balance }}** is due once the job is complete.'
+        .'
+
+'
+        .'Your Scope of Work and invoice appear on your order page as we issue them.',
     'in_production' => 'Good news — your order is now in production. We’ll let you know when it’s ready to dispatch.',
-    'completed' => 'This request is complete — thank you for working with SLS. Your paperwork stays available on your order page.',
+    'completed' => 'This request is complete — thank you for working with SLS.'
+        .'
+
+'
+        .'The remaining **{{ balance }}** is now due. Please transfer it to the account below, quoting **{{ reference }}** as the payment reference. If you have already paid it, ignore this and thank you.'
+        .'
+
+'
+        .'Your paperwork stays available on your order page.',
     'cancelled' => 'This request has been cancelled. If that’s unexpected, just reply and we’ll sort it out.',
+];
+
+// Which of them need the bank details attached.
+$statusBlocks = [
+    'cancelled' => ['note_panel'],
+    'confirmed' => ['note_panel', 'total_line', 'bank_panel', 'order_button'],
+    'completed' => ['note_panel', 'total_line', 'bank_panel', 'order_button'],
 ];
 
 $statusLabels = [
@@ -59,9 +87,7 @@ foreach ($statusDefaults as $status => $sentence) {
         'blocks' => ['note_panel', 'total_line', 'bank_panel', 'event_details_table', 'order_button'],
         'default_subject' => 'SLS — {{ reference }} is now “{{ status_label }}”',
         'default_body' => "# Update on {{ reference }}\n\nHi {{ contact_name }}, the status of your {{ type }} is now **{{ status_label }}**.\n\n{$sentence}\n\nQuestions? Contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
-        'default_blocks' => $status === 'cancelled'
-            ? ['note_panel']
-            : ['note_panel', 'total_line', 'order_button'],
+        'default_blocks' => $statusBlocks[$status] ?? ['note_panel', 'total_line', 'order_button'],
     ];
 }
 
@@ -118,8 +144,11 @@ return [
             'placeholders' => [...$orderVars, ...$globals],
             'blocks' => ['event_details_table', 'items_table', 'bank_panel'],
             'default_subject' => 'SLS — order request received ({{ reference }})',
-            'default_body' => "# Thanks, {{ contact_name }} 👋\n\nWe’ve received your **order request** ({{ reference }}) for **{{ company }}**.\nNo payment is taken on the website — everything is handled by our team, as set out below.\n\n## How payment works\n1. We email you a **Scope of Work (SOW)** confirming the details.\n2. A **{{ deposit_percent }}% deposit** confirms the order and starts production — pay by bank transfer (IBAN) to the account below.\n3. The remaining **{{ balance_percent }}%** is due **before dispatch**.\n\nAll prices are **ex VAT**; **{{ vat_percent }}% VAT** is added on the invoice.\n\nPlease **do not transfer any deposit yet** — wait for our SOW and invoice so the amount and reference are confirmed.\n\nA member of the SLS team will be in touch shortly. Questions? Just reply to this email or contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
-            'default_blocks' => ['event_details_table', 'items_table', 'bank_panel'],
+            'default_body' => "# Thanks, {{ contact_name }} 👋\n\nWe’ve received your **order** ({{ reference }}) for **{{ company }}**.\nNo payment is taken on the website — everything is handled by our team, as set out below.\n\n## What happens next\n1. We confirm availability and accept your order. If we can discount it, we will.\n2. We email you the **{{ deposit_percent }}% deposit** request with our bank details and the exact amount.\n3. The remaining **{{ balance_percent }}%** is due once the job is complete.\n\nAll prices are **ex VAT**; **{{ vat_percent }}% VAT** is added on the invoice.\n\n**Nothing to pay yet** — wait for our acceptance email, which carries the amount and the payment reference.\n\nA member of the SLS team will be in touch shortly. Questions? Just reply to this email or contact {{ sales_email }}.\n\nThanks,\nSound. Lights. Screens.",
+            // No bank_panel: showing the account number beside "nothing to
+            // pay yet" invites an early transfer with no reference on it. The
+            // IBAN travels with the two emails that actually ask for money.
+            'default_blocks' => ['event_details_table', 'items_table'],
         ],
 
         'order.received.quote' => [

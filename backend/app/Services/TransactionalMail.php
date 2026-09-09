@@ -131,6 +131,18 @@ class TransactionalMail
     /**
      * @return array<string, mixed>
      */
+    /**
+     * The deposit, in cents.
+     *
+     * The balance is always derived as total minus this, never as a second
+     * percentage: two roundings of the same total do not reliably add back
+     * up to it, and a customer who pays both halves must end up owing zero.
+     */
+    public static function depositCents(Order $order): int
+    {
+        return (int) round(((int) $order->total_cents) * (int) config('sls.deposit_percent') / 100);
+    }
+
     public static function varsForOrder(Order $order, array $extra = []): array
     {
         return array_merge([
@@ -144,6 +156,14 @@ class TransactionalMail
             'subtotal' => Money::format($order->subtotal_cents, $order->currency),
             'vat' => Money::format($order->vat_cents, $order->currency),
             'total' => Money::format($order->total_cents, $order->currency),
+            // The two payments, as amounts rather than percentages — a
+            // customer asked to "transfer 50%" has to do the arithmetic, and
+            // will sometimes do it differently from us.
+            'deposit' => Money::format(static::depositCents($order), $order->currency),
+            'balance' => Money::format(
+                (int) $order->total_cents - static::depositCents($order),
+                $order->currency,
+            ),
             'notes' => $order->notes,
             'status' => $order->status,
             'status_label' => static::statusLabel($order->status),
@@ -205,6 +225,8 @@ class TransactionalMail
             // quietly: an admin previewing a template sees the literal
             // "{{ event_type }}" and reasonably concludes their copy is
             // broken, so every declared placeholder needs a sample.
+            'deposit' => Money::format(620000),
+            'balance' => Money::format(620000),
             'vat_number' => 'EL123456789',
             'event_type' => $isQuote ? 'Conference' : 'Product launch',
             'event_date' => '20 Nov 2026',
