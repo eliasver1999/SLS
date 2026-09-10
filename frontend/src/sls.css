@@ -1618,3 +1618,49 @@ body[data-auth='pending'] .guest-strict {
     display: block;
   }
 }
+
+/* ── Touch targets ─────────────────────────────────────────────────
+   Measured on a 375px viewport: the language toggle sat at 34px, the
+   footer links at 32px, against the ~44px a fingertip reliably hits.
+   Missing one of these is not a cosmetic problem — it is a tap that
+   silently does nothing, and the second attempt is a guess. */
+@media (max-width: 700px) {
+  .lang button {
+    padding: 11px 14px;
+  }
+  /* Full-width already, so this is purely about the vertical reach. */
+  .footer a {
+    padding: 10px 0;
+  }
+  /* Language and theme chips in the admin tab strip. */
+  .dash-tabs button {
+    min-height: 44px;
+  }
+  /* Padding on the link, not height on the logo: the wordmark stays the
+     size it was designed at, the tappable area grows around it. */
+  .header .brand {
+    padding: 5px 0;
+  }
+
+  /* Type that carries information should not be the smallest thing on the
+     page. The unit a price is quoted in ("/ panel · ex VAT") was 11px under
+     a 28px figure, and the card labels are uppercase with letter-spacing,
+     which reads smaller again. The calendar's day initials stay as they
+     are — seven of them have to fit across the width. */
+  .price small {
+    font-size: 12px;
+  }
+  .card .tag {
+    font-size: 12px;
+  }
+  .tbl td::before {
+    font-size: 11.5px;
+  }
+
+  /* Twelve template names stacked in a list: at 37px each, the neighbour
+     is as easy to hit as the one you meant. The padding is inline on the
+     button, so the override has to win. */
+  .email-editor .panel button {
+    min-height: 44px;
+  }
+}
