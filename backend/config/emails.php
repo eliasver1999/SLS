@@ -98,6 +98,7 @@ return [
     'blocks' => [
         'items_table' => 'Order items table',
         'bank_panel' => 'Bank transfer / IBAN panel',
+        'set_password_button' => 'Set your password button',
         'note_panel' => 'Note from the team (when an admin adds one)',
         'total_line' => 'Order total (ex VAT)',
         'signin_button' => '“Sign in to SLS” button',
@@ -136,6 +137,53 @@ return [
         ],
 
         // ── After an order is placed ───────────────────────────────
+        // Approving a partner application used to change a status column and
+        // nothing else: the applicant was never told, and had no account to
+        // sign in to. These are the two emails that close that loop.
+        'application.approved' => [
+            'label' => 'Application approved',
+            'group' => 'Joining',
+            'description' => 'Sent when an admin approves a partner application. Carries the link that sets their password.',
+            'audience' => 'applicant',
+            'placeholders' => ['name', 'company', 'email', 'set_password_url', ...$globals],
+            'blocks' => ['set_password_button'],
+            'default_subject' => 'SLS — your partner account is ready',
+            'default_body' => '# Welcome aboard, {{ name }}
+
+Your application for **{{ company }}** has been approved and your SLS account is ready.
+
+Set a password using the button below and you will have full **B2B access**: net pricing, ordering and your own order history.
+
+The link is good for 60 minutes. If it expires, use “Forgot your password?” on the sign-in page and we will send another.
+
+Questions? Just reply to this email or contact {{ sales_email }}.
+
+Thanks,
+Sound. Lights. Screens.',
+            'default_blocks' => ['set_password_button'],
+        ],
+
+        'application.rejected' => [
+            'label' => 'Application declined',
+            'group' => 'Joining',
+            'description' => 'Sent when an admin declines a partner application.',
+            'audience' => 'applicant',
+            'placeholders' => ['name', 'company', 'email', ...$globals],
+            'blocks' => [],
+            'default_subject' => 'SLS — about your partner application',
+            'default_body' => '# Thanks for your interest, {{ name }}
+
+We are not able to open a trade account for **{{ company }}** at the moment.
+
+This is not always final — if your circumstances change, or you think we have this wrong, reply to this email and we will take another look.
+
+You are welcome to keep using the site and to contact us about individual projects at {{ sales_email }}.
+
+Thanks,
+Sound. Lights. Screens.',
+            'default_blocks' => [],
+        ],
+
         'order.received.order' => [
             'label' => 'Order received',
             'group' => 'New order',

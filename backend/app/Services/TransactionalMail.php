@@ -232,6 +232,8 @@ class TransactionalMail
             // quietly: an admin previewing a template sees the literal
             // "{{ event_type }}" and reasonably concludes their copy is
             // broken, so every declared placeholder needs a sample.
+            'set_password_url' => rtrim((string) config('app.frontend_url'), '/')
+                .'/reset-password?token=sample-token&email=maria%40novaevents.gr',
             'deposit' => Money::format(620000),
             'balance' => Money::format(620000),
             'vat_number' => 'EL123456789',

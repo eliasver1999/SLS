@@ -106,6 +106,12 @@ View your order
 </x-mail::button>
 @endif
 
+@if (in_array('set_password_button', $blocks, true) && ! empty($vars['set_password_url']))
+<x-mail::button :url="$vars['set_password_url']">
+Set your password
+</x-mail::button>
+@endif
+
 @if (in_array('signin_button', $blocks, true))
 <x-mail::button :url="$site.'/login'">
 Sign in to SLS
