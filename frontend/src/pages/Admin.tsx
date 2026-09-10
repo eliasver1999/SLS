@@ -399,12 +399,12 @@ function MembersSection({
             )}
             {members.map((m) => (
               <tr key={m.id}>
-                <td>
+                <td data-label={t('Name', 'Όνομα')}>
                   <b>{m.name}</b>
                 </td>
-                <td className="muted">{m.company ?? '—'}</td>
-                <td className="muted">{m.email}</td>
-                <td>{statusPill(m.status)}</td>
+                <td data-label={t('Company', 'Εταιρεία')} className="muted">{m.company ?? '—'}</td>
+                <td data-label="Email" className="muted">{m.email}</td>
+                <td data-label={t('Status', 'Κατάσταση')}>{statusPill(m.status)}</td>
                 <td style={{ whiteSpace: 'nowrap' }}>
                   {m.status !== 'approved' && (
                     <span className="btn btn-primary btn-sm" onClick={() => decide(m, 'approved')}>
@@ -505,11 +505,11 @@ function ApprovalsSection({
                   onClick={() => setSelected(a)}
                   style={{ cursor: 'pointer', background: selected?.id === a.id ? 'rgba(31,139,255,.06)' : undefined }}
                 >
-                  <td>
+                  <td data-label={t('Company', 'Εταιρεία')}>
                     <b>{a.company}</b>
                   </td>
-                  <td>{a.vat}</td>
-                  <td>
+                  <td data-label={t('VAT', 'ΑΦΜ')}>{a.vat}</td>
+                  <td data-label={t('Contact / role', 'Επαφή / ρόλος')}>
                     {a.contact_name} · <span className="muted">{a.role}</span>
                   </td>
                   <td style={{ whiteSpace: 'nowrap' }}>
@@ -649,7 +649,7 @@ function ProductsSection({
             </tr>
             {products.map((p) => (
               <tr key={p.slug}>
-                <td>
+                <td data-label={t('Name', 'Όνομα')}>
                   <b>{p.name}</b>{' '}
                   {p.featured && (
                     <span className="status blue">
@@ -657,9 +657,9 @@ function ProductsSection({
                     </span>
                   )}
                 </td>
-                <td className="muted">{p.category}</td>
-                <td className="muted">{p.buy ? t('Buy', 'Αγορά') : t('Quote', 'Προσφορά')}</td>
-                <td>{p.buy?.price ?? '—'}</td>
+                <td data-label={t('Category', 'Κατηγορία')} className="muted">{p.category}</td>
+                <td data-label={t('Modes', 'Λειτουργίες')} className="muted">{p.buy ? t('Buy', 'Αγορά') : t('Quote', 'Προσφορά')}</td>
+                <td data-label={t('Price', 'Τιμή')}>{p.buy?.price ?? '—'}</td>
                 <td style={{ whiteSpace: 'nowrap' }}>
                   <span className="btn btn-ghost btn-sm" onClick={() => edit(p)}>
                     {t('Edit', 'Επεξεργασία')}
@@ -1252,13 +1252,13 @@ function OrdersSection({ type, focusId }: { type: OrderType; focusId?: number | 
                   onClick={() => setSelectedId(o.id)}
                   style={{ cursor: 'pointer', background: selectedId === o.id ? 'rgba(31,139,255,.06)' : undefined }}
                 >
-                  <td>{o.reference.replace('SLS-', '')}</td>
-                  <td>{o.company ?? o.contact_name}</td>
-                  <td className="muted">
+                  <td data-label="#">{o.reference.replace('SLS-', '')}</td>
+                  <td data-label={t('Company', 'Εταιρεία')}>{o.company ?? o.contact_name}</td>
+                  <td data-label={t('Items', 'Είδη')} className="muted">
                     {o.items.map((i) => `${i.name}${i.qty ? ` ×${i.qty}` : ''}`).join(', ')}
                   </td>
-                  <td>{o.total_cents > 0 ? o.total : <span className="muted">{t('To be quoted', 'Προς προσφορά')}</span>}</td>
-                  <td>
+                  <td data-label={t('Total', 'Σύνολο')}>{o.total_cents > 0 ? o.total : <span className="muted">{t('To be quoted', 'Προς προσφορά')}</span>}</td>
+                  <td data-label={t('Status', 'Κατάσταση')}>
                     <span className={`status ${STATUS_PILL[o.status]}`}>{statusText(o.status, t)}</span>
                   </td>
                 </tr>

@@ -150,7 +150,7 @@ export default function ErrorEvents({ onChange }: { onChange?: () => void }) {
                     style={{ cursor: 'pointer' }}
                     onClick={() => setOpen(open === event.id ? null : event.id)}
                   >
-                    <td>
+                    <td data-label={t('Error', 'Σφάλμα')}>
                       {event.source === 'client' ? (
                         <Globe
                           size={14}
@@ -169,7 +169,7 @@ export default function ErrorEvents({ onChange }: { onChange?: () => void }) {
                         {event.message}
                       </div>
                     </td>
-                    <td style={{ fontSize: 12.5 }}>
+                    <td data-label={t('Where', 'Πού')} style={{ fontSize: 12.5 }}>
                       {event.url ? where(event) : '—'}
                       {event.file && (
                         <div className="muted" style={{ fontSize: 11.5 }}>
@@ -178,12 +178,12 @@ export default function ErrorEvents({ onChange }: { onChange?: () => void }) {
                         </div>
                       )}
                     </td>
-                    <td>
+                    <td data-label={t('Count', 'Πλήθος')}>
                       <span className={`status ${event.occurrences > 5 ? 'rej' : 'wait'}`}>
                         {event.occurrences}
                       </span>
                     </td>
-                    <td style={{ fontSize: 12.5 }}>{when(event.last_seen_at)}</td>
+                    <td data-label={t('Last seen', 'Τελευταία')} style={{ fontSize: 12.5 }}>{when(event.last_seen_at)}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>
                       <button
                         className="btn btn-ghost btn-sm"

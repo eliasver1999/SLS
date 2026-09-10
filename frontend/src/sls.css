@@ -1544,3 +1544,77 @@ body[data-auth='pending'] .guest-strict {
     padding-bottom: 12px;
   }
 }
+
+/* ── Tables become cards on a phone ────────────────────────────────
+   A five-column table on a 375px screen is a table you drag sideways to
+   read, one column at a time, losing the row you were on. Below 700px each
+   row becomes a card and each cell a labelled line — the label comes from
+   the column heading, carried on the cell as data-label, because the
+   heading row itself is no longer on screen to explain anything.
+
+   Cells with no data-label (actions, expanded detail rows) render as a
+   plain full-width line. */
+@media (max-width: 700px) {
+  .table-scroll {
+    overflow-x: visible;
+  }
+  .table-scroll > .tbl {
+    min-width: 0;
+  }
+
+  .tbl,
+  .tbl tbody {
+    display: block;
+    border: 0;
+    background: none;
+    border-radius: 0;
+    overflow: visible;
+  }
+  /* The heading row: its text has moved onto the cells. */
+  .tbl tr:has(th) {
+    display: none;
+  }
+  .tbl tr {
+    display: block;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .tbl td {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 11px 14px;
+    /* Beats the inline text-align:right several cells carry; the flex row
+       puts the value on the right anyway. */
+    text-align: left !important;
+    border-bottom: 1px solid var(--line);
+  }
+  .tbl tr td:last-child {
+    border-bottom: 0;
+  }
+  .tbl td::before {
+    content: attr(data-label);
+    flex: none;
+    color: var(--text-soft);
+    font-family: var(--head);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    /* Nudged to sit level with the first line of a multi-line value. */
+    padding-top: 1px;
+  }
+  .tbl td:not([data-label])::before {
+    display: none;
+  }
+  /* Actions and expanded detail: no label, full width. */
+  .tbl td:not([data-label]) {
+    display: block;
+  }
+  .tbl td[colspan] {
+    display: block;
+  }
+}

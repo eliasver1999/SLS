@@ -119,19 +119,19 @@ export default function Reports() {
                 )}
                 {report.by_status.map((row) => (
                   <tr key={row.status}>
-                    <td>{statusLabel(row.status, t)}</td>
-                    <td>{row.count}</td>
-                    <td style={{ textAlign: 'right' }}>{row.value}</td>
+                    <td data-label={t('Status', 'Κατάσταση')}>{statusLabel(row.status, t)}</td>
+                    <td data-label={t('Requests', 'Αιτήματα')}>{row.count}</td>
+                    <td data-label={t('Value (ex VAT)', 'Αξία (χ/ΦΠΑ)')} style={{ textAlign: 'right' }}>{row.value}</td>
                   </tr>
                 ))}
                 {report.by_type.map((row) => (
                   <tr key={row.type}>
-                    <td className="muted">
+                    <td data-label={t('Status', 'Κατάσταση')} className="muted">
                       <TrendingUp size={13} aria-hidden style={{ verticalAlign: '-2px', marginRight: 6 }} />
                       {row.type === 'quote' ? t('All quotes', 'Όλες οι προσφορές') : t('All orders', 'Όλες οι παραγγελίες')}
                     </td>
-                    <td className="muted">{row.count}</td>
-                    <td className="muted" style={{ textAlign: 'right' }}>
+                    <td data-label={t('Requests', 'Αιτήματα')} className="muted">{row.count}</td>
+                    <td data-label={t('Value (ex VAT)', 'Αξία (χ/ΦΠΑ)')} className="muted" style={{ textAlign: 'right' }}>
                       {row.value}
                     </td>
                   </tr>

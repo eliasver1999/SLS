@@ -261,11 +261,11 @@ export default function Dashboard() {
                   onClick={() => navigate(`/orders/${o.id}`)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td>{o.reference.replace('SLS-', '')}</td>
-                  <td>{itemSummary(o)}</td>
-                  <td>{typeLabel(o)}</td>
-                  <td>{o.total_cents > 0 ? o.total : t('To be quoted', 'Προς προσφορά')}</td>
-                  <td>
+                  <td data-label="#">{o.reference.replace('SLS-', '')}</td>
+                  <td data-label={t('Item', 'Είδος')}>{itemSummary(o)}</td>
+                  <td data-label={t('Type', 'Τύπος')}>{typeLabel(o)}</td>
+                  <td data-label={t('Total', 'Σύνολο')}>{o.total_cents > 0 ? o.total : t('To be quoted', 'Προς προσφορά')}</td>
+                  <td data-label={t('Status', 'Κατάσταση')}>
                     <span className={`status ${STATUS_STYLE[o.status]}`}>{statusLabel(o.status)}</span>
                   </td>
                   <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>

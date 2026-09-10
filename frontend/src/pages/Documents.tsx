@@ -132,7 +132,7 @@ export default function Documents() {
                   </tr>
                   {documents.map((doc) => (
                     <tr key={doc.id}>
-                      <td>
+                      <td data-label={t('Document', 'Έγγραφο')}>
                         <FileText
                           size={14}
                           aria-hidden
@@ -143,7 +143,7 @@ export default function Documents() {
                           {label(doc.kind)} · {size(doc.size)}
                         </div>
                       </td>
-                      <td>
+                      <td data-label={t('Order', 'Παραγγελία')}>
                         <Link to={`/orders/${doc.order.id}`} style={{ color: 'var(--sky)' }}>
                           {doc.order.reference}
                         </Link>
@@ -151,7 +151,7 @@ export default function Documents() {
                           {statusLabel(doc.order.status, t)}
                         </div>
                       </td>
-                      <td>{when(doc.created_at)}</td>
+                      <td data-label={t('Issued', 'Εκδόθηκε')}>{when(doc.created_at)}</td>
                       <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>
                         <button className="btn btn-ghost btn-sm" onClick={() => download(doc)}>
                           {t('Download', 'Λήψη')}

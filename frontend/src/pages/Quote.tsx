@@ -120,7 +120,7 @@ export default function Quote() {
                       </tr>
                       {cart.items.map((it, i) => (
                         <tr key={`${it.slug}-${i}`}>
-                          <td>
+                          <td data-label={t('Item', 'Είδος')}>
                             <b>{it.name}</b>
                             {it.configuration && (
                               <div className="muted" style={{ fontSize: 12 }}>
@@ -137,7 +137,7 @@ export default function Quote() {
                               </div>
                             )}
                           </td>
-                          <td>
+                          <td data-label={t('Qty', 'Ποσότητα')}>
                             <input
                               value={it.qty ?? 1}
                               inputMode="numeric"
@@ -154,7 +154,7 @@ export default function Quote() {
                               }}
                             />
                           </td>
-                          <td style={{ textAlign: 'right' }}>
+                          <td data-label={t('Line total', 'Σύνολο')} style={{ textAlign: 'right' }}>
                             {it.unit_price_cents ? money(it.unit_price_cents * (it.qty ?? 1)) : '—'}
                           </td>
                           <td style={{ textAlign: 'right' }}>

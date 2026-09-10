@@ -128,14 +128,14 @@ export default function Inquiries() {
                   onClick={() => setOpen(open === inq.id ? null : inq.id)}
                   style={{ cursor: 'pointer' }}
                 >
-                  <td>{date(inq.created_at)}</td>
-                  <td>
+                  <td data-label={t('Received', 'Ελήφθη')}>{date(inq.created_at)}</td>
+                  <td data-label={t('From', 'Από')}>
                     <b>{inq.name}</b>
                     <div className="muted" style={{ fontSize: 12 }}>
                       {inq.email}
                     </div>
                   </td>
-                  <td>
+                  <td data-label={t('Event', 'Εκδήλωση')}>
                     {inq.event_type}
                     {inq.event_date && (
                       <div className="muted" style={{ fontSize: 12 }}>
@@ -143,7 +143,7 @@ export default function Inquiries() {
                       </div>
                     )}
                   </td>
-                  <td>
+                  <td data-label={t('Status', 'Κατάσταση')}>
                     <span className={`status ${inq.status === 'new' ? 'wait' : 'ok'}`}>
                       {inq.status === 'new' ? t('New', 'Νέο') : t('Handled', 'Διεκπεραιωμένο')}
                     </span>
