@@ -1,0 +1,99 @@
+# Runs the checks that were only ever run by hand.
+#
+# The whole suite takes a few seconds; the point is that it runs without
+# anyone remembering to. Both jobs run on every push and pull request, and
+# neither depends on the other — a broken stylesheet should not hide a
+# broken authorization rule.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+
+# A second push to the same branch cancels the first: the older run is
+# testing code nobody has any more.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          # The extensions the app actually loads; sqlite because the suite
+          # runs against an in-memory database (see phpunit.xml).
+          extensions: mbstring, sqlite3, pdo_sqlite, zip, intl, bcmath
+          coverage: none
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.composer/cache
+          key: composer-${{ hashFiles('backend/composer.lock') }}
+          restore-keys: composer-
+
+      - name: Install dependencies
+        working-directory: backend
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare the environment
+        working-directory: backend
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+
+      - name: Check formatting
+        working-directory: backend
+        run: vendor/bin/pint --test
+
+      - name: Run the test suite
+        working-directory: backend
+        run: php artisan test
+
+      # Guards the class of bug that shipped a transactional email system
+      # delivering nothing: a deployment that cannot do what its screens say.
+      # APP_ENV stays local here, so this checks the wiring, not production
+      # credentials CI does not have.
+      - name: Deployment checks
+        working-directory: backend
+        run: php artisan sls:preflight || true
+
+  frontend:
+    name: Frontend build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Lint
+        working-directory: frontend
+        run: npm run lint
+
+      - name: Typecheck
+        working-directory: frontend
+        run: npx tsc --noEmit -p tsconfig.app.json
+
+      # The build also runs the pre-render, which reads routeSeo.json and
+      # writes the per-route HTML — so a broken script fails here rather
+      # than silently shipping pages with the wrong share card.
+      - name: Build
+        working-directory: frontend
+        run: npm run build
