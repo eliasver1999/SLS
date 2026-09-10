@@ -188,7 +188,14 @@ class TransactionalMail
 
     public static function statusLabel(?string $status): string
     {
-        return ucwords(str_replace('_', ' ', (string) $status));
+        // "Quoted" is a leftover from when a customer chose between a quote
+        // and an order. It now means one thing only: the total went up and
+        // the order is waiting on the customer to approve it. Calling that
+        // "Quoted" tells them nothing about needing to act.
+        return match ($status) {
+            'quoted' => 'Awaiting your approval',
+            default => ucwords(str_replace('_', ' ', (string) $status)),
+        };
     }
 
     /**

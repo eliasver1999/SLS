@@ -68,7 +68,7 @@ $statusBlocks = [
 
 $statusLabels = [
     'pending' => 'Pending',
-    'quoted' => 'Quoted',
+    'quoted' => 'Awaiting your approval',
     'confirmed' => 'Confirmed',
     'in_production' => 'In production',
     'completed' => 'Completed',

@@ -1071,7 +1071,7 @@ const ORDER_STATUSES: OrderStatus[] = [
 const statusText = (s: OrderStatus, t: (en: string, el: string) => string) =>
   ({
     pending: t('Pending', 'Σε αναμονή'),
-    quoted: t('Quoted', 'Προσφορά'),
+    quoted: t('Awaiting approval', 'Αναμονή έγκρισης'),
     confirmed: t('Confirmed', 'Επιβεβ.'),
     in_production: t('In production', 'Σε παραγωγή'),
     completed: t('Completed', 'Ολοκληρ.'),
