@@ -54,7 +54,7 @@ export default function Login() {
       </div>
 
       <section className="section-sm">
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30, alignItems: 'start' }}>
+        <div className="container split split-even">
           <form className="form" onSubmit={onSubmit} noValidate>
             <div className="field">
               <label>{t('Email', 'Email')}</label>

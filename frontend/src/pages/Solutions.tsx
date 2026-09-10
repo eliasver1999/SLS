@@ -38,10 +38,7 @@ export default function Solutions() {
       <section className="section">
         <div className="container grid" style={{ gap: 26 }}>
           {/* Screens */}
-          <div
-            className="card"
-            style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', alignItems: 'stretch' }}
-          >
+          <div className="card split split-stretch">
             <div className="thumb" style={{ aspectRatio: 'auto' }}>
               <img src="/assets/led-wall.jpg" style={{ height: '100%' }} alt="" />
             </div>
@@ -78,8 +75,7 @@ export default function Solutions() {
 
           {/* Lighting */}
           <div
-            className="card"
-            style={{ display: 'grid', gridTemplateColumns: '1fr 1.1fr', alignItems: 'stretch' }}
+            className="card split split-stretch-alt"
           >
             <div className="body" style={{ padding: 34 }}>
               <div
@@ -117,8 +113,7 @@ export default function Solutions() {
 
           {/* Sound */}
           <div
-            className="card"
-            style={{ display: 'grid', gridTemplateColumns: '1.1fr 1fr', alignItems: 'stretch' }}
+            className="card split split-stretch"
           >
             <div className="thumb" style={{ aspectRatio: 'auto' }}>
               <img src="/assets/sound.jpg" style={{ height: '100%' }} alt="" />

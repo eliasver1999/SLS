@@ -86,10 +86,7 @@ export default function Apply() {
 
       <section className="section-sm">
         {!pending ? (
-          <div
-            className="container"
-            style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 30, alignItems: 'start' }}
-          >
+          <div className="container split">
             <form className="form" onSubmit={onSubmit}>
               <div className="row2">
                 <div className="field">

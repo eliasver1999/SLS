@@ -481,7 +481,7 @@ function ApprovalsSection({
 
       <ErrorNote message={error} />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
+      <div className="split split-wide split-tight mt24">
         <div className="table-scroll">
           <table className="tbl">
             <tbody>
@@ -1218,7 +1218,7 @@ function OrdersSection({ type, focusId }: { type: OrderType; focusId?: number | 
         )}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 22, marginTop: 24, alignItems: 'start' }}>
+      <div className="split split-tight mt24">
         <div>
         <div className="table-scroll">
           <table className="tbl">

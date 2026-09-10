@@ -148,7 +148,7 @@ export default function OrderDetail() {
       </div>
 
       <section className="section-sm">
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'start' }}>
+        <div className="container split split-even split-tight">
           {/* Items + summary */}
           <div className="panel">
             {(order.event_date || order.venue || order.event_type) && (

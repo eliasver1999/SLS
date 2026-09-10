@@ -78,7 +78,7 @@ export default function Contact() {
       </div>
 
       <section className="section-sm">
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 30, alignItems: 'start' }}>
+        <div className="container split">
           {status === 'done' ? (
             <div className="form center">
               <div

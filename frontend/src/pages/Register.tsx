@@ -66,7 +66,7 @@ export default function Register() {
       </div>
 
       <section className="section-sm">
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 30, alignItems: 'start' }}>
+        <div className="container split split-even">
           <form className="form" onSubmit={onSubmit} noValidate>
             <div className="field">
               <label>{t('Full name', 'Ονοματεπώνυμο')}</label>
