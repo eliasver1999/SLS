@@ -6,6 +6,7 @@ use App\Http\Requests\StoreOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Models\Product;
+use App\Services\InvoiceIssuer;
 use App\Services\TransactionalMail;
 use App\Support\Money;
 use Illuminate\Http\Request;
@@ -230,6 +231,18 @@ class OrderController extends Controller
             Log::error('Quote acceptance email failed', ['reference' => $order->reference, 'error' => $e->getMessage()]);
         }
 
+        // Accepting here confirms the order, so it bills the deposit for the
+        // same reason the admin path does.
+        try {
+            app(InvoiceIssuer::class)->issue($order, 'deposit');
+            $order->load('documents');
+        } catch (\Throwable $e) {
+            Log::error('Invoice generation failed', [
+                'reference' => $order->reference,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
         Log::info('Quote accepted by customer', ['reference' => $order->reference, 'user_id' => $user->id]);
 
         return new OrderResource($order->load(['documents', 'payments']));
@@ -333,6 +346,31 @@ class OrderController extends Controller
         }
 
         $order->save();
+
+        // The emails promise an invoice "as we issue them", so issue it.
+        // Accepting bills the deposit; completing bills whatever is left.
+        // Idempotent, so re-saving a status cannot mint a second number.
+        if ($statusChanged) {
+            $kind = match ($order->status) {
+                'confirmed' => 'deposit',
+                'completed' => 'balance',
+                default => null,
+            };
+
+            if ($kind) {
+                try {
+                    app(InvoiceIssuer::class)->issue($order, $kind, $request->user());
+                    $order->load('documents');
+                } catch (\Throwable $e) {
+                    // A failed render must not block the status change or
+                    // the customer's email; the team can re-issue.
+                    Log::error('Invoice generation failed', [
+                        'reference' => $order->reference,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
 
         // Notify the customer when something customer-relevant changed.
         if (($statusChanged || ! empty($note)) && $order->contact_email) {
