@@ -232,6 +232,25 @@ export type EventDetails = {
   delivery_address?: string | null
 }
 
+/**
+ * What the customer owes and where to send it. Derived server-side from the
+ * same figures the emails use, so a page and an email can never quote
+ * different amounts.
+ */
+export type OrderPayment = {
+  deposit_percent: number
+  deposit_cents: number
+  balance_cents: number
+  deposit: string | null
+  balance: string | null
+  /** Which instalment is due now, or null before the order is accepted. */
+  due: 'deposit' | 'balance' | null
+  reference: string
+  iban: string | null
+  bank_name: string | null
+  account_name: string | null
+}
+
 export type Order = EventDetails & {
   id: number
   reference: string
@@ -251,6 +270,7 @@ export type Order = EventDetails & {
   vat: string | null
   total: string | null
   notes: string | null
+  payment: OrderPayment
   status_history: StatusEvent[]
   documents?: OrderDocument[]
   created_at: string

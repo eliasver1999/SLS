@@ -1664,3 +1664,38 @@ body[data-auth='pending'] .guest-strict {
     min-height: 44px;
   }
 }
+
+/* Payment details as label/value pairs: the reference and IBAN are things
+   people copy, so they get their own line and a tabular figure face rather
+   than being buried in a sentence. */
+.pay-lines {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 18px;
+  font-size: 13px;
+  margin: 0;
+  /* A rule above it: these are transfer details, not more prose. */
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+}
+.pay-lines dt {
+  color: var(--text-soft);
+  font-size: 12px;
+}
+.pay-lines dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 700px) {
+  /* Stacked, so a long IBAN is not squeezed into half the width. */
+  .pay-lines {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+  .pay-lines dd {
+    text-align: left;
+    margin-bottom: 10px;
+  }
+}

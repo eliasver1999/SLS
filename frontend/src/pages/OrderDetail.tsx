@@ -6,6 +6,7 @@ import { useAuth } from '../context/auth'
 import { useCart } from '../context/cart'
 import OrderTimeline from '../components/OrderTimeline'
 import OrderDocuments from '../components/OrderDocuments'
+import PaymentDue from '../components/PaymentDue'
 import { acceptQuote, cancelOrder, fetchOrder, type Order } from '../lib/api'
 import { statusLabel, STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
@@ -75,10 +76,11 @@ export default function OrderDetail() {
   // discount never lands here — nobody has to approve paying less.
   const acceptable = order.status === 'quoted'
   const needsEventDetails = !order.event_date || !order.venue
-  // Repeating a job only makes sense once it is a job. Offering it on an
-  // open quote is what sent customers round the loop again — and the new
-  // request was repriced from the catalogue, losing the quoted rate.
-  const repeatable = order.type === 'order' || order.status === 'completed'
+  // Repeating a job only makes sense once the job is over. This used to
+  // read `type === 'order' || completed`, which was a real condition while
+  // a request could be a quote — every order is type "order" now, so it was
+  // always true, and a live job was inviting a duplicate of itself.
+  const repeatable = order.status === 'completed' || order.status === 'cancelled'
 
   async function onAccept() {
     if (!order) return
@@ -247,12 +249,25 @@ export default function OrderDetail() {
                 {order.notes}
               </p>
             )}
-            <p className="muted mt16" style={{ fontSize: 12.5 }}>
-              {t(
-                'No payment is taken online — our team confirms details and invoices by bank transfer (IBAN).',
-                'Δεν γίνεται πληρωμή online — η ομάδα μας επιβεβαιώνει και τιμολογεί με τραπεζικό έμβασμα (IBAN).',
-              )}
-            </p>
+            {/* Before anything is due this explains why there is no
+                "pay now" button. Once the team has accepted, it would be
+                actively wrong — the deposit is due — so the panel below
+                takes over. */}
+            {!order.payment.due && (
+              <p className="muted mt16" style={{ fontSize: 12.5 }}>
+                {t(
+                  'No payment is taken online — our team confirms details and invoices by bank transfer (IBAN).',
+                  'Δεν γίνεται πληρωμή online — η ομάδα μας επιβεβαιώνει και τιμολογεί με τραπεζικό έμβασμα (IBAN).',
+                )}
+              </p>
+            )}
+
+            {/* The confirmation email asks for a deposit and the completion
+                email asks for the balance. Until now the order page said
+                nothing about either, so the email was the only place the
+                amount and the payment reference existed — and an email is
+                exactly the thing people cannot find again. */}
+            {order.payment.due && <PaymentDue payment={order.payment} />}
             {/* Accepting turns this very quote into a confirmed order: the
                 same record, the same agreed price. It deliberately does not
                 send the customer back to the catalogue, because a new
