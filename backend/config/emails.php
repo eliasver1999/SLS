@@ -22,6 +22,9 @@ $globals = ['sales_email', 'iban', 'bank_name', 'account_name', 'deposit_percent
 
 $orderVars = ['reference', 'order_url', 'type', 'contact_name', 'company', 'vat_number', 'contact_email', 'notes',
     'subtotal', 'vat', 'total', 'deposit', 'balance',
+    // What has arrived and what is still owed, so an email can ask for the
+    // real figure instead of assuming the deposit was paid.
+    'paid', 'outstanding',
     'event_type', 'event_date', 'venue', 'delivery_address'];
 
 // The globals belong here too: every other event spreads them, and
@@ -47,11 +50,14 @@ $statusDefaults = [
 '
         .'Your Scope of Work and invoice appear on your order page as we issue them.',
     'in_production' => 'Good news — your order is now in production. We’ll let you know when it’s ready to dispatch.',
+    // Asks for what is actually left rather than assuming the deposit
+    // was paid: "outstanding" is the total minus everything recorded as
+    // received, so a customer who has paid in full is told zero.
     'completed' => 'This request is complete — thank you for working with SLS.'
         .'
 
 '
-        .'The remaining **{{ balance }}** is now due. Please transfer it to the account below, quoting **{{ reference }}** as the payment reference. If you have already paid it, ignore this and thank you.'
+        .'Outstanding on this order: **{{ outstanding }}**. Anything still owed can be transferred to the account below, quoting **{{ reference }}** as the payment reference.'
         .'
 
 '

@@ -39,6 +39,7 @@ import EmailTemplates from '../components/EmailTemplates'
 import Inquiries from '../components/Inquiries'
 import Reports from '../components/Reports'
 import OrderDocuments from '../components/OrderDocuments'
+import OrderPayments from '../components/OrderPayments'
 import { STATUS_PILL } from '../lib/orderStatus'
 import { errorMessage } from '../lib/errors'
 import { centsToInput, inputToCents } from '../lib/money'
@@ -1134,6 +1135,10 @@ function OrdersSection({ type, focusId }: { type: OrderType; focusId?: number | 
 
   // Attaching or removing a document changes the order, so refetch the one
   // in view rather than guessing at the new document list.
+  function replaceOrder(fresh: Order) {
+    setOrders((prev) => prev.map((x) => (x.id === fresh.id ? fresh : x)))
+  }
+
   async function refreshSelected() {
     if (!selected) return
     const fresh = await fetchOrder(selected.id)
@@ -1282,6 +1287,7 @@ function OrdersSection({ type, focusId }: { type: OrderType; focusId?: number | 
               order={selected}
               onUpdate={applyUpdate}
               onDocumentsChanged={refreshSelected}
+              onOrderChanged={replaceOrder}
             />
           ) : (
             <p className="muted" style={{ fontSize: 14 }}>
@@ -1298,6 +1304,7 @@ function AdminOrderDetail({
   order,
   onUpdate,
   onDocumentsChanged,
+  onOrderChanged,
 }: {
   order: Order
   onUpdate: (patch: {
@@ -1307,6 +1314,9 @@ function AdminOrderDetail({
     items?: OrderItem[]
   }) => Promise<void>
   onDocumentsChanged: () => void
+  /** The API returns the updated order, so the list takes it directly
+      rather than firing a second request to fetch what it was just sent. */
+  onOrderChanged: (order: Order) => void
 }) {
   const { t } = useLang()
   const [status, setStatus] = useState<OrderStatus>(order.status)
@@ -1555,6 +1565,11 @@ function AdminOrderDetail({
         </p>
       )}
       <ErrorNote message={error} />
+
+      {/* Payments sit above the paperwork: "has this been paid?" is asked
+          far more often than "where is the SoW?". */}
+      <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
+      <OrderPayments order={order} onChange={onOrderChanged} />
 
       <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '20px 0' }} />
       <OrderDocuments

@@ -253,7 +253,7 @@ export default function OrderDetail() {
                 "pay now" button. Once the team has accepted, it would be
                 actively wrong — the deposit is due — so the panel below
                 takes over. */}
-            {!order.payment.due && (
+            {!order.payment.due && !order.payment.settled && order.payment.paid_cents === 0 && (
               <p className="muted mt16" style={{ fontSize: 12.5 }}>
                 {t(
                   'No payment is taken online — our team confirms details and invoices by bank transfer (IBAN).',
@@ -267,7 +267,9 @@ export default function OrderDetail() {
                 nothing about either, so the email was the only place the
                 amount and the payment reference existed — and an email is
                 exactly the thing people cannot find again. */}
-            {order.payment.due && <PaymentDue payment={order.payment} />}
+            {(order.payment.due || order.payment.settled || order.payment.paid_cents > 0) && (
+              <PaymentDue payment={order.payment} />
+            )}
             {/* Accepting turns this very quote into a confirmed order: the
                 same record, the same agreed price. It deliberately does not
                 send the customer back to the catalogue, because a new

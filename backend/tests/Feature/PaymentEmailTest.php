@@ -83,18 +83,46 @@ class PaymentEmailTest extends TestCase
         $this->assertStringContainsString('SLS-O-2001', $html);
     }
 
-    public function test_completing_an_order_asks_for_the_balance(): void
+    public function test_completing_an_order_asks_for_what_is_actually_outstanding(): void
     {
+        // Nothing recorded as received, so the whole total is still owed —
+        // this used to ask only for the second instalment, which quietly
+        // wrote off a deposit that may never have arrived.
         $order = $this->order();
         $html = $this->render('order.status.completed', $order);
 
-        $balance = Money::format(
-            $order->total_cents - TransactionalMail::depositCents($order),
-            $order->currency,
-        );
-
-        $this->assertStringContainsString(e($balance), $html);
+        $this->assertStringContainsString(e(Money::format($order->total_cents, $order->currency)), $html);
         $this->assertStringContainsString(config('sls.iban'), $html);
+    }
+
+    public function test_completing_a_part_paid_order_asks_only_for_the_rest(): void
+    {
+        $order = $this->order();
+        $deposit = TransactionalMail::depositCents($order);
+        $order->payments()->create([
+            'amount_cents' => $deposit,
+            'received_on' => now()->subDay()->toDateString(),
+        ]);
+
+        $html = $this->render('order.status.completed', $order->fresh()->load('payments'));
+
+        $outstanding = Money::format($order->total_cents - $deposit, $order->currency);
+        $this->assertStringContainsString(e($outstanding), $html);
+    }
+
+    public function test_completing_a_fully_paid_order_asks_for_nothing(): void
+    {
+        // The email still goes — it is the completion notice — but it must
+        // not demand money from someone who has paid.
+        $order = $this->order();
+        $order->payments()->create([
+            'amount_cents' => $order->total_cents,
+            'received_on' => now()->subDay()->toDateString(),
+        ]);
+
+        $html = $this->render('order.status.completed', $order->fresh()->load('payments'));
+
+        $this->assertStringContainsString(e(Money::format(0, $order->currency)), $html);
     }
 
     public function test_the_earlier_emails_do_not_ask_for_money(): void

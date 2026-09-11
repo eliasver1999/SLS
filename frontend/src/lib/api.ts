@@ -237,18 +237,40 @@ export type EventDetails = {
  * same figures the emails use, so a page and an email can never quote
  * different amounts.
  */
+export type PaymentReceipt = {
+  id: number
+  amount: string | null
+  amount_cents: number
+  received_on: string | null
+  method: string
+  reference: string | null
+}
+
 export type OrderPayment = {
   deposit_percent: number
   deposit_cents: number
   balance_cents: number
   deposit: string | null
   balance: string | null
-  /** Which instalment is due now, or null before the order is accepted. */
+
+  /** What the team has recorded as received, and what is left. */
+  paid_cents: number
+  outstanding_cents: number
+  paid: string | null
+  outstanding: string | null
+  settled: boolean
+
+  /** Which instalment is due now — null when nothing is, including once paid. */
   due: 'deposit' | 'balance' | null
+  /** How much of that instalment is left, not the nominal amount. */
+  due_cents: number
+  due_amount: string | null
+
   reference: string
   iban: string | null
   bank_name: string | null
   account_name: string | null
+  received: PaymentReceipt[]
 }
 
 export type Order = EventDetails & {
@@ -321,6 +343,21 @@ export async function acceptQuote(
   } = {},
 ) {
   const { data } = await api.post<{ data: Order }>(`/orders/${id}/accept`, details)
+  return data.data
+}
+
+/** Record money received against an order. Admin only. */
+export async function recordPayment(
+  orderId: number,
+  input: { amount_cents: number; received_on: string; method?: string; reference?: string; note?: string },
+) {
+  const { data } = await api.post<{ data: Order }>(`/orders/${orderId}/payments`, input)
+  return data.data
+}
+
+/** Remove a payment recorded in error. There is no edit: delete and re-enter. */
+export async function deletePayment(orderId: number, paymentId: number) {
+  const { data } = await api.delete<{ data: Order }>(`/orders/${orderId}/payments/${paymentId}`)
   return data.data
 }
 

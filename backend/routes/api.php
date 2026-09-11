@@ -7,6 +7,7 @@ use App\Http\Controllers\ErrorEventController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\OrderDocumentController;
+use App\Http\Controllers\OrderPaymentController;
 use App\Http\Controllers\PartnerApplicationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ReportController;
@@ -82,6 +83,11 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::patch('/partner-applications/{partnerApplication}', [PartnerApplicationController::class, 'update']);
 
     Route::patch('/orders/{order}', [OrderController::class, 'update']);
+    // Money received, written down by the team from their bank. The site
+    // takes no payments; these rows are what stop it guessing.
+    Route::post('/orders/{order}/payments', [OrderPaymentController::class, 'store']);
+    Route::delete('/orders/{order}/payments/{payment}', [OrderPaymentController::class, 'destroy']);
+
     Route::post('/orders/{order}/documents', [OrderDocumentController::class, 'store']);
     Route::delete('/orders/{order}/documents/{document}', [OrderDocumentController::class, 'destroy']);
 

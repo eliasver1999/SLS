@@ -41,6 +41,33 @@ class Order extends Model
         return $this->hasMany(OrderDocument::class)->latest();
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(OrderPayment::class)->orderBy('received_on');
+    }
+
+    /**
+     * What has actually arrived against this order.
+     *
+     * Uses the loaded relation when there is one, so rendering a list of
+     * orders does not fire a query per row.
+     */
+    public function paidCents(): int
+    {
+        return (int) ($this->relationLoaded('payments')
+            ? $this->payments->sum('amount_cents')
+            : $this->payments()->sum('amount_cents'));
+    }
+
+    /**
+     * Still owed. Never negative: an overpayment is a credit to sort out
+     * with the customer, not a negative demand on their order page.
+     */
+    public function outstandingCents(): int
+    {
+        return max(0, (int) $this->total_cents - $this->paidCents());
+    }
+
     /**
      * Recompute the money from the line items — the only place totals are
      * derived, so a total can never disagree with the lines it came from.

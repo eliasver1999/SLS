@@ -22,7 +22,7 @@ class OrderController extends Controller
     public function index(Request $request)
     {
         $user = $request->user();
-        $query = Order::query()->with('documents')->latest();
+        $query = Order::query()->with(['documents', 'payments'])->latest();
 
         if (! $user->isAdmin()) {
             $query->where('user_id', $user->id);
@@ -140,7 +140,7 @@ class OrderController extends Controller
             abort(403, 'This order is not yours.');
         }
 
-        return new OrderResource($order->load('documents'));
+        return new OrderResource($order->load(['documents', 'payments']));
     }
 
     /**
@@ -232,7 +232,7 @@ class OrderController extends Controller
 
         Log::info('Quote accepted by customer', ['reference' => $order->reference, 'user_id' => $user->id]);
 
-        return new OrderResource($order->load('documents'));
+        return new OrderResource($order->load(['documents', 'payments']));
     }
 
     /**
@@ -267,7 +267,7 @@ class OrderController extends Controller
 
         Log::info('Order cancelled by customer', ['reference' => $order->reference, 'user_id' => $user->id]);
 
-        return new OrderResource($order->load('documents'));
+        return new OrderResource($order->load(['documents', 'payments']));
     }
 
     /**
@@ -351,6 +351,6 @@ class OrderController extends Controller
             }
         }
 
-        return new OrderResource($order->load('documents'));
+        return new OrderResource($order->load(['documents', 'payments']));
     }
 }

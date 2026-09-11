@@ -164,6 +164,12 @@ class TransactionalMail
                 (int) $order->total_cents - static::depositCents($order),
                 $order->currency,
             ),
+            // What is actually still owed, after anything the team has
+            // recorded as received. Without this the completion email asked
+            // every customer for the balance, including the ones who had
+            // already paid it.
+            'paid' => Money::format($order->paidCents(), $order->currency),
+            'outstanding' => Money::format($order->outstandingCents(), $order->currency),
             'notes' => $order->notes,
             'status' => $order->status,
             'status_label' => static::statusLabel($order->status),
@@ -232,6 +238,8 @@ class TransactionalMail
             // quietly: an admin previewing a template sees the literal
             // "{{ event_type }}" and reasonably concludes their copy is
             // broken, so every declared placeholder needs a sample.
+            'paid' => Money::format(0),
+            'outstanding' => Money::format(620000),
             'set_password_url' => rtrim((string) config('app.frontend_url'), '/')
                 .'/reset-password?token=sample-token&email=maria%40novaevents.gr',
             'deposit' => Money::format(620000),
