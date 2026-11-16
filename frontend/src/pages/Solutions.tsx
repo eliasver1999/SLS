@@ -1,174 +1,203 @@
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 
+/**
+ * The three ranges, one section each, each with the photograph of its own
+ * kind of kit and the figures from src/data/products.ts.
+ *
+ * It used to be three icon cards and a paragraph of adjectives each. The
+ * figures were already in the catalogue; they say more than the adjectives
+ * did, so they are what is on the page now.
+ */
 export default function Solutions() {
   const { t } = useLang()
 
-  const ChipRow = ({ chips }: { chips: string[] }) => (
-    <div className="mt16">
-      {chips.map((c) => (
-        <span className="chip on" key={c}>
-          {c}
-        </span>
-      ))}
-    </div>
-  )
-
   return (
     <>
-      <div className="page-head">
-        <div className="container">
-          <div className="crumb">Home / {t('Solutions', 'Λύσεις')}</div>
-          <div className="eyebrow">{t('Solutions', 'Λύσεις')}</div>
-          <h1 className="h2 mt8">
-            {t(
-              'Screens, lighting & sound — one accountable partner',
-              'Οθόνες, φωτισμός & ήχος — ένας υπεύθυνος συνεργάτης',
-            )}
-          </h1>
-          <p className="lead mt8">
-            {t(
-              'From a single LED wall to a full stage build, we supply direct and set up on site.',
-              'Από μία LED οθόνη μέχρι πλήρη σκηνή, προμηθεύουμε απευθείας και εγκαθιστούμε επιτόπου.',
-            )}
-          </p>
-        </div>
-      </div>
-
-      <section className="section">
-        <div className="container grid" style={{ gap: 26 }}>
-          {/* Screens */}
-          <div className="card split split-stretch">
-            <div className="thumb" style={{ aspectRatio: 'auto' }}>
-              <img src="/assets/led-wall.jpg" style={{ height: '100%' }} alt="" />
-            </div>
-            <div className="body" style={{ padding: 34 }}>
-              <div
-                className="ic"
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  background: 'rgba(31,139,255,.14)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  marginBottom: 14,
-                }}
-              >
-                <img src="/assets/icon-screens.png" style={{ width: 26 }} alt="" />
-              </div>
-              <h2 className="h2" style={{ fontSize: 28 }}>
-                {t('LED Screens & Video Walls', 'LED Οθόνες & Video Walls')}
-              </h2>
-              <p className="muted mt8">
+      <section className="section section--hero" data-enter aria-labelledby="ranges-h">
+        <div className="wrap">
+          <div className="hero-text">
+            <div className="section-head">
+              <h1 id="ranges-h">{t('The three ranges', 'Οι τρεις σειρές')}</h1>
+              <p>
                 {t(
-                  'Indoor and outdoor. Fine pixel pitches, high brightness, seamless modular builds.',
-                  'Εσωτερικού και εξωτερικού χώρου. Λεπτό pixel pitch, υψηλή φωτεινότητα, modular κατασκευές κάθε μεγέθους.',
+                  'Screens, lighting and sound, from the same catalogue and on the same order. Six models in all, each with its figures and its lead time.',
+                  'Οθόνες, φωτισμός και ήχος, από τον ίδιο κατάλογο και στην ίδια παραγγελία. Έξι μοντέλα συνολικά, το καθένα με τα μεγέθη του και τον χρόνο παράδοσής του.',
                 )}
               </p>
-              <ChipRow chips={['Indoor', 'Outdoor', 'P1.5–P10']} />
-              <Link className="btn btn-primary btn-sm mt24" to="/catalogue">
-                {t('Browse screens →', 'Δείτε οθόνες →')}
-              </Link>
             </div>
-          </div>
-
-          {/* Lighting */}
-          <div
-            className="card split split-stretch-alt"
-          >
-            <div className="body" style={{ padding: 34 }}>
-              <div
-                className="ic"
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  background: 'rgba(31,139,255,.14)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  marginBottom: 14,
-                }}
-              >
-                <img src="/assets/icon-lights.png" style={{ width: 24 }} alt="" />
-              </div>
-              <h2 className="h2" style={{ fontSize: 28 }}>
-                {t('Stage & Event Lighting', 'Φωτισμός Σκηνής & Εκδηλώσεων')}
-              </h2>
-              <p className="muted mt8">
-                {t(
-                  'Moving heads, wash, beam and architectural fixtures — programmed to move the room.',
-                  'Moving heads, wash, beam και αρχιτεκτονικά σώματα — προγραμματισμένα για ατμόσφαιρα.',
-                )}
-              </p>
-              <ChipRow chips={[t('Moving head', 'Moving head'), 'Wash', 'Beam', t('Control', 'Έλεγχος')]} />
-              <Link className="btn btn-primary btn-sm mt24" to="/catalogue">
-                {t('Browse lighting →', 'Δείτε φωτισμό →')}
-              </Link>
-            </div>
-            <div className="thumb" style={{ aspectRatio: 'auto' }}>
-              <img src="/assets/lighting.jpg" style={{ height: '100%' }} alt="" />
-            </div>
-          </div>
-
-          {/* Sound */}
-          <div
-            className="card split split-stretch"
-          >
-            <div className="thumb" style={{ aspectRatio: 'auto' }}>
-              <img src="/assets/sound.jpg" style={{ height: '100%' }} alt="" />
-            </div>
-            <div className="body" style={{ padding: 34 }}>
-              <div
-                className="ic"
-                style={{
-                  width: 48,
-                  height: 48,
-                  borderRadius: 12,
-                  background: 'rgba(31,139,255,.14)',
-                  display: 'grid',
-                  placeItems: 'center',
-                  marginBottom: 14,
-                }}
-              >
-                <img src="/assets/icon-sound.png" style={{ width: 28 }} alt="" />
-              </div>
-              <h2 className="h2" style={{ fontSize: 28 }}>
-                {t('Professional Sound Systems', 'Επαγγελματικά Ηχητικά Συστήματα')}
-              </h2>
-              <p className="muted mt8">
-                {t(
-                  'Line-array and point-source systems, monitoring and full FOH set-up, tuned to the space.',
-                  'Συστήματα line-array και point-source, monitoring και πλήρες FOH στήσιμο, ρυθμισμένα στον χώρο.',
-                )}
-              </p>
-              <ChipRow chips={['Line-array', 'Monitors', 'FOH', t('Tuning', 'Ρύθμιση')]} />
-              <Link className="btn btn-primary btn-sm mt24" to="/catalogue">
-                {t('Browse sound →', 'Δείτε ήχο →')}
+            <div className="btn-row">
+              <Link className="btn btn--secondary" to="/catalogue">
+                {t('See the catalogue', 'Δείτε τον κατάλογο')}
               </Link>
             </div>
           </div>
         </div>
       </section>
 
-      <section className="section-sm">
-        <div className="container">
-          <div
-            className="band"
-            style={{ textAlign: 'center', background: 'linear-gradient(120deg,#0c1c39,#0a1424)' }}
-          >
-            <h2 className="h2" style={{ margin: '0 auto' }}>
-              {t('Planning a custom project?', 'Σχεδιάζετε custom έργο;')}
-            </h2>
-            <p className="lead mt8" style={{ margin: '8px auto 0' }}>
+      <section className="section" id="screens" aria-labelledby="scr-h">
+        <div className="wrap grid">
+          <div className="span-5">
+            <div className="section-head">
+              <h2 id="scr-h">{t('LED walls, indoors and out', 'LED τοίχοι, μέσα και έξω')}</h2>
+              <p>
+                {t(
+                  'The Aurora P2.6 is the fine-pitch indoor wall at 1500 nits, for stages, studios and shop windows people stand close to. The Titan P3.9 is weatherproof and runs at 5000 nits, which is what daylight costs.',
+                  'Το Aurora P2.6 είναι ο εσωτερικός τοίχος λεπτού pitch στα 1500 nits, για σκηνές, στούντιο και βιτρίνες όπου ο κόσμος στέκεται κοντά. Το Titan P3.9 είναι στεγανό και δουλεύει στα 5000 nits, όσο κοστίζει το φως της ημέρας.',
+                )}
+              </p>
+            </div>
+            <p className="t-body">
               {t(
-                "Tell us the venue and dates — we'll design the screen, light and sound package.",
-                'Πείτε μας τον χώρο και τις ημερομηνίες — σχεδιάζουμε το πακέτο οθόνης, φωτός και ήχου.',
+                'The Flex P2.9 curves to ±15° on 500 × 1000 mm panels, and it is the one model held in stock.',
+                'Το Flex P2.9 κυρτώνει έως ±15° σε panels 500 × 1000 mm και είναι το μόνο μοντέλο που κρατείται σε στοκ.',
               )}
             </p>
-            <Link className="btn btn-primary mt24" to="/apply">
-              {t('Request a consultation', 'Ζητήστε συμβουλευτική')}
-            </Link>
+            <p>
+              <Link className="link" to="/catalogue?cat=screens">
+                {t('See the three screens', 'Δείτε τις τρεις οθόνες')}
+              </Link>
+            </p>
+          </div>
+          <figure
+            className="frame frame--photo span-6 start-7"
+            style={{ '--ratio': '80%' } as React.CSSProperties}
+          >
+            <img
+              className="frame__img"
+              src="/assets/shots/photo-f167000710-960.jpg"
+              srcSet="/assets/shots/photo-f167000710-500.jpg 500w, /assets/shots/photo-f167000710-960.jpg 960w"
+              sizes="(max-width: 1023px) 100vw, 50vw"
+              width={960}
+              height={640}
+              alt={t(
+                'The lamps of an LED panel at close range, a grid of red, green and blue dots',
+                'Οι λυχνίες ενός LED panel από κοντά, ένα πλέγμα από κόκκινες, πράσινες και μπλε κουκκίδες',
+              )}
+              loading="lazy"
+              data-source="stand-in"
+              data-subject="LED pixels"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section className="photo-band photo-band--bleed" aria-labelledby="lit-h">
+        <img
+          src="/assets/shots/photo-f39317346-960.jpg"
+          srcSet="/assets/shots/photo-f39317346-500.jpg 500w, /assets/shots/photo-f39317346-960.jpg 960w"
+          sizes="100vw"
+          width={960}
+          height={722}
+          alt={t(
+            'Rows of moving-head fixtures clamped to aluminium truss in a warehouse',
+            'Σειρές από moving head στερεωμένα σε αλουμινένιο truss σε αποθήκη',
+          )}
+          loading="lazy"
+          data-source="stand-in"
+          data-subject="fixtures on truss"
+        />
+        <div className="photo-band__text">
+          <h2 id="lit-h">{t('Moving heads on DMX-512', 'Moving heads σε DMX-512')}</h2>
+          <p>
+            {t(
+              'The Beam 380 is the lighting range: 380 W, 19 kg in the clamp, two to three weeks to build.',
+              'Το Beam 380 είναι η σειρά φωτισμού: 380 W, 19 kg στο clamp, δύο έως τρεις εβδομάδες κατασκευή.',
+            )}
+          </p>
+          <Link className="link" to="/catalogue?cat=lighting">
+            {t('See the lighting', 'Δείτε τον φωτισμό')}
+          </Link>
+        </div>
+      </section>
+
+      <section className="section" id="sound" aria-labelledby="snd-h">
+        <div className="wrap grid">
+          <div className="span-5">
+            <div className="section-head">
+              <h2 id="snd-h">{t('Line array, bi-amped', 'Line array, bi-amped')}</h2>
+              <p>
+                {t(
+                  'The LA-12 carries two 12-inch drivers to a box and is bi-amped, 140 dB at maximum. It is tuned to the space it hangs in rather than shipped flat.',
+                  'Το LA-12 έχει δύο μεγάφωνα δώδεκα ιντσών ανά κιβώτιο και είναι bi-amped, 140 dB στο μέγιστο. Ρυθμίζεται στον χώρο όπου αναρτάται και δεν στέλνεται έτοιμο.',
+                )}
+              </p>
+            </div>
+            <p>
+              <Link className="link" to="/catalogue?cat=sound">
+                {t('See the sound', 'Δείτε τον ήχο')}
+              </Link>
+            </p>
+          </div>
+          <figure
+            className="frame frame--photo span-6 start-7"
+            style={{ '--ratio': '125%' } as React.CSSProperties}
+          >
+            <img
+              className="frame__img"
+              src="/assets/shots/photo-f7751364-960.jpg"
+              srcSet="/assets/shots/photo-f7751364-500.jpg 500w, /assets/shots/photo-f7751364-960.jpg 960w"
+              sizes="(max-width: 1023px) 100vw, 50vw"
+              width={960}
+              height={1433}
+              alt={t(
+                'A line array of loudspeakers flown from truss above a hall',
+                'Ένα line array ηχείων αναρτημένο από truss πάνω από μια αίθουσα',
+              )}
+              loading="lazy"
+              data-source="stand-in"
+              data-subject="line array flown"
+            />
+          </figure>
+        </div>
+      </section>
+
+      <section className="section" id="package" aria-labelledby="pkg-h">
+        <div className="wrap">
+          <div className="section-head">
+            <h2 id="pkg-h">{t('One package for a small stage', 'Ένα πακέτο για μικρή σκηνή')}</h2>
+            <p>
+              {t(
+                'Stage Kit S is twelve square metres of wall, eight moving heads and a 2 kW PA, delivered and set up with an operator for the day. Price on request.',
+                'Το Stage Kit S είναι δώδεκα τετραγωνικά μέτρα οθόνης, οκτώ moving heads και PA 2 kW, με παράδοση και εγκατάσταση και χειριστή για την ημέρα. Τιμή κατόπιν αιτήματος.',
+              )}
+            </p>
+          </div>
+          <div className="grid">
+            <figure className="frame frame--photo span-6" style={{ '--ratio': '75%' } as React.CSSProperties}>
+              <img
+                className="frame__img"
+                src="/assets/shots/photo-f2162506-960.jpg"
+                srcSet="/assets/shots/photo-f2162506-500.jpg 500w, /assets/shots/photo-f2162506-960.jpg 960w"
+                sizes="(max-width: 1023px) 100vw, 50vw"
+                width={960}
+                height={722}
+                alt={t(
+                  'Moving heads on stands throwing beams across a covered stage',
+                  'Moving heads σε βάσεις ρίχνουν δέσμες φωτός σε μια στεγασμένη σκηνή',
+                )}
+                loading="lazy"
+                data-source="stand-in"
+                data-subject="fixtures lit"
+              />
+            </figure>
+            <figure className="frame frame--photo span-6" style={{ '--ratio': '75%' } as React.CSSProperties}>
+              <img
+                className="frame__img"
+                src="/assets/shots/photo-f116189302-960.jpg"
+                srcSet="/assets/shots/photo-f116189302-500.jpg 500w, /assets/shots/photo-f116189302-960.jpg 960w"
+                sizes="(max-width: 1023px) 100vw, 50vw"
+                width={960}
+                height={640}
+                alt={t(
+                  'The faders of a digital mixing console, lit, seen along the desk',
+                  'Τα fader μιας ψηφιακής κονσόλας ήχου, φωτισμένα, από το πλάι',
+                )}
+                loading="lazy"
+                data-source="stand-in"
+                data-subject="the desk"
+              />
+            </figure>
           </div>
         </div>
       </section>

@@ -1,0 +1,165 @@
+/* ============ SLS tokens ============
+
+   The palette, the type pairing and the radius were dealt, not chosen:
+
+     start.mjs deal --page tech --trade "event production equipment"
+       → putty-black-teal  (first printed, taken)
+       → plex: IBM Plex Sans + IBM Plex Mono  (first printed, taken)
+     deal.mjs --type product --kind tech --has photo  → the `product` hero
+     one-liner  → nav-split · footer-dark · close-type · dark-band · pill · initial
+
+   Why it fits the trade: every piece of this kit — panels, moving heads,
+   line arrays, racks — is matte black, and every photograph of it is dark.
+   On a warm stone ground the gear is the only dark thing on the page. The
+   near-black page this replaces could not do that: black on black, with a
+   blue glow behind it to make up the difference.
+
+   The second block maps the signed-in tooling's own token names onto the
+   same palette, so the dashboard and the admin follow the storefront
+   without their markup being touched. [data-theme='dark'] is the tooling's
+   opt-in dark mode and keeps the old near-black surfaces. */
+
+:root {
+  /* ── Dealt palette (start.mjs css --page tech --palette putty-black-teal
+        --type plex --radius soft); keep these lines as printed. ───────── */
+  --p-bg: #dedad3;
+  --p-surface: #d3cec6;
+  --p-ink: #0a0a0a;
+  --p-muted: #55514c;
+  --p-accent: #256f82;
+  --p-accent-ink: #ffffff;
+  --p-action: #256f82;
+  --p-action-ink: #ffffff;
+  --p-inv-bg: #0a0a0a;
+  --p-inv-surface: #151515;
+  --p-inv-ink: #dedad3;
+  --p-inv-muted: #84827e;
+  --p-inv-accent: #256f82;
+  --p-inv-accent-ink: #ffffff;
+  --p-inv-action: #256f82;
+  --p-inv-action-ink: #ffffff;
+  --font-display: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-text: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+  --display-weight: 500;
+  --display-tracking: -0.025em;
+  --display-tracking-xl: -0.035em;
+  --ly-scale: 0.98;
+
+  /* ── The tooling's names, on the same palette ───────────────────────
+     Contrast against --p-bg #dedad3: ink 16.9:1, muted 7.0:1, accent
+     4.8:1. The status colours are the ones already computed for a light
+     ground (5.1:1 and up); the dark ones were white-on-tint and vanish
+     here. */
+  --bg: var(--p-bg);
+  --panel: color-mix(in oklab, #ffffff 62%, var(--p-bg));
+  --panel-2: color-mix(in oklab, #ffffff 30%, var(--p-bg));
+  --line: color-mix(in oklab, var(--p-ink) 17%, var(--p-bg));
+  --electric: var(--p-accent);
+  --sky: var(--p-accent);
+  --deep: #17505e;
+  --white: #ffffff;
+  --grey: var(--p-muted);
+  --grey-2: color-mix(in oklab, var(--p-ink) 62%, var(--p-bg));
+
+  --text: var(--p-ink);
+  --text-soft: var(--p-muted);
+  --surface-sunken: color-mix(in oklab, var(--p-ink) 7%, var(--p-bg));
+  --input-bg: #ffffff;
+  --ghost-bg: color-mix(in oklab, var(--p-ink) 4%, transparent);
+  --header-bg: var(--p-bg);
+  --footer-bg: var(--p-inv-bg);
+  --row-hover: color-mix(in oklab, var(--p-ink) 4%, transparent);
+
+  --ok: #13712f;
+  --ok-bg: rgba(19, 113, 47, 0.1);
+  --warn: #8a5a00;
+  --warn-bg: rgba(138, 90, 0, 0.1);
+  --danger: #b91c1c;
+  --danger-bg: rgba(185, 28, 28, 0.1);
+  --info: var(--p-accent);
+  --info-bg: rgba(37, 111, 130, 0.12);
+
+  --radius: 20px;
+  --radius-sm: 8px;
+  --radius-lg: 20px;
+  --maxw: 1280px;
+  --pad: 24px;
+  --glow: none;
+  --glow-sm: none;
+  --shadow: 0 18px 50px rgba(10, 10, 10, 0.12);
+  --head: var(--font-display);
+  --body: var(--font-text);
+}
+
+/* ── The tooling's dark mode ────────────────────────────────────────
+   Opt-in: ThemeProvider sets body[data-theme] from the dashboard and the
+   admin only, so the storefront is never dark. These are the surfaces the
+   whole site used to carry, kept for people who work in the tool at
+   night. The brand glow is not among them. */
+[data-theme='dark'] {
+  --bg: #05070d;
+  --panel: #1d2a40;
+  --panel-2: #263651;
+  --line: #2e456b;
+  --sky: #57c2ff;
+  --deep: #0a4fc4;
+  --grey: #9aa6b2;
+  --grey-2: #6c7a8c;
+
+  --text: #ffffff;
+  --text-soft: #cdd8e6;
+  --surface-sunken: #0a0f18;
+  --input-bg: #0b1119;
+  --ghost-bg: rgba(255, 255, 255, 0.02);
+  --header-bg: rgba(5, 7, 13, 0.82);
+  --footer-bg: #070a12;
+  --row-hover: rgba(255, 255, 255, 0.02);
+
+  --ok: #48d38a;
+  --ok-bg: rgba(46, 204, 113, 0.14);
+  --warn: #ffce54;
+  --warn-bg: rgba(255, 193, 7, 0.14);
+  --danger: #ff7a7a;
+  --danger-bg: rgba(255, 86, 86, 0.14);
+  --info: #57c2ff;
+  --info-bg: rgba(31, 139, 255, 0.16);
+
+  --shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
+}
+
+/* Blue-tinted "on" states were white-on-tint; on the stone ground they need
+   the ink they sit on. */
+:root:not([data-theme='dark']) .chip.on,
+:root:not([data-theme='dark']) .dash-tabs button.on,
+:root:not([data-theme='dark']) .side nav a.on,
+:root:not([data-theme='dark']) .side nav a:hover {
+  color: var(--info);
+}
+
+/* auth-gated price (body[data-auth]: guest | pending | approved, synced by AuthProvider) */
+/* Pricing/cart/ordering — only for approved members. */
+body:not([data-auth='approved']) .approved-only {
+  display: none;
+}
+
+/* Locked-price UI — shown to guests AND pending members (neither sees pricing). */
+body[data-auth='approved'] .guest-only {
+  display: none;
+}
+
+/* Pending-only notices (awaiting approval). */
+body:not([data-auth='pending']) .pending-only {
+  display: none;
+}
+
+/* Guest-strict CTAs (e.g. "apply for access") — hidden once signed in, even if pending. */
+body[data-auth='pending'] .guest-strict {
+  display: none;
+}
+
+.email-editor > *,
+.quote-layout > *,
+.split > * {
+  min-width: 0;
+}

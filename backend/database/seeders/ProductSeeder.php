@@ -39,10 +39,10 @@ class ProductSeeder extends Seeder
                 'category' => 'screens',
                 'placement_key' => 'indoor',
                 'pitch_mm' => 2.6,
-                'image' => '/assets/led-wall.jpg',
+                'image' => '/assets/shots/photo-f167000710-960.jpg',
                 'featured' => true,
                 'tag' => $this->ls('Indoor', 'Εσωτ.'),
-                'thumbs' => ['/assets/led-wall.jpg', '/assets/catalogue.jpg', '/assets/tagline.jpg', '/assets/meet.jpg'],
+                'thumbs' => ['/assets/shots/photo-f167000710-960.jpg', '/assets/shots/photo-f181466405-960.jpg'],
                 'blurb' => $this->ls(
                     'Fine-pitch indoor video wall for stages, studios and premium retail — made to order to your exact size.',
                     'Εσωτερική video wall λεπτού pitch για σκηνές, studios και premium retail — κατά παραγγελία στο ακριβές μέγεθός σας.'
@@ -62,7 +62,7 @@ class ProductSeeder extends Seeder
                 ],
                 'modes' => ['buy'],
                 'buy_price_cents' => 690000,
-                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες')],
+                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order, 3 to 4 weeks', 'Κατά παραγγελία, 3 έως 4 εβδομάδες')],
             ],
             [
                 'slug' => 'titan-p39',
@@ -70,10 +70,10 @@ class ProductSeeder extends Seeder
                 'category' => 'screens',
                 'placement_key' => 'outdoor',
                 'pitch_mm' => 3.9,
-                'image' => '/assets/tagline.jpg',
+                'image' => '/assets/shots/photo-f167000710-960.jpg',
                 'featured' => true,
                 'tag' => $this->ls('Outdoor', 'Εξωτ.'),
-                'thumbs' => ['/assets/tagline.jpg', '/assets/led-wall.jpg', '/assets/catalogue.jpg'],
+                'thumbs' => ['/assets/shots/photo-f167000710-960.jpg', '/assets/shots/photo-f39317346-960.jpg'],
                 'blurb' => $this->ls(
                     'High-brightness outdoor LED wall for festivals, stadiums and open-air stages — weatherproof and built to spec.',
                     'Εξωτερική LED οθόνη υψηλής φωτεινότητας για φεστιβάλ, στάδια και υπαίθριες σκηνές — αδιάβροχη και κατά παραγγελία.'
@@ -93,7 +93,7 @@ class ProductSeeder extends Seeder
                 ],
                 'modes' => ['buy'],
                 'buy_price_cents' => 840000,
-                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες')],
+                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order, 4 to 5 weeks', 'Κατά παραγγελία, 4 έως 5 εβδομάδες')],
             ],
             [
                 'slug' => 'flex-p29',
@@ -101,10 +101,10 @@ class ProductSeeder extends Seeder
                 'category' => 'screens',
                 'placement_key' => 'indoor',
                 'pitch_mm' => 2.9,
-                'image' => '/assets/catalogue.jpg',
+                'image' => '/assets/shots/photo-f167000710-960.jpg',
                 'featured' => false,
                 'tag' => $this->ls('Indoor', 'Εσωτ.'),
-                'thumbs' => ['/assets/catalogue.jpg', '/assets/led-wall.jpg'],
+                'thumbs' => ['/assets/shots/photo-f167000710-960.jpg', '/assets/shots/photo-f181466405-960.jpg'],
                 'blurb' => $this->ls(
                     'Curvable panel for creative stage builds — fast to rig and in stock for quick turnarounds.',
                     'Καμπυλούμενο panel για δημιουργικές σκηνές — γρήγορο rigging και άμεσα διαθέσιμο.'
@@ -123,17 +123,17 @@ class ProductSeeder extends Seeder
                 ],
                 'modes' => ['buy'],
                 'buy_price_cents' => 540000,
-                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('In stock · ships in 1 week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα')],
+                'buy' => ['unit' => $this->ls('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('In stock, ships in a week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα')],
             ],
             [
                 'slug' => 'beam-380',
                 'name' => 'Beam 380',
                 'category' => 'lighting',
                 'placement_key' => 'lighting',
-                'image' => '/assets/lighting.jpg',
+                'image' => '/assets/shots/photo-f39317346-960.jpg',
                 'featured' => true,
                 'tag' => $this->ls('Lighting', 'Φωτισμός'),
-                'thumbs' => ['/assets/lighting.jpg', '/assets/one-partner.jpg'],
+                'thumbs' => ['/assets/shots/photo-f39317346-960.jpg', '/assets/shots/photo-f2162506-960.jpg'],
                 'blurb' => $this->ls(
                     'Moving-head beam fixture for concerts and events — punchy output, fast movement and full DMX control.',
                     'Moving-head beam για συναυλίες και εκδηλώσεις — δυνατή έξοδος, γρήγορη κίνηση και πλήρης DMX έλεγχος.'
@@ -152,17 +152,17 @@ class ProductSeeder extends Seeder
                 ],
                 'modes' => ['buy'],
                 'buy_price_cents' => 190000,
-                'buy' => ['unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
+                'buy' => ['unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order, 2 to 3 weeks', 'Κατά παραγγελία, 2 έως 3 εβδομάδες')],
             ],
             [
                 'slug' => 'la-12-array',
                 'name' => 'LA-12 Array',
                 'category' => 'sound',
                 'placement_key' => 'sound',
-                'image' => '/assets/sound.jpg',
+                'image' => '/assets/shots/photo-f7751364-960.jpg',
                 'featured' => true,
                 'tag' => $this->ls('Sound', 'Ήχος'),
-                'thumbs' => ['/assets/sound.jpg', '/assets/meet.jpg'],
+                'thumbs' => ['/assets/shots/photo-f7751364-960.jpg', '/assets/shots/photo-f116189302-960.jpg'],
                 'blurb' => $this->ls(
                     'Line-array system for live events and venues — even coverage and high SPL, tuned to the space.',
                     'Σύστημα line-array για live events και χώρους — ομοιόμορφη κάλυψη και υψηλό SPL, ρυθμισμένο στον χώρο.'
@@ -181,17 +181,17 @@ class ProductSeeder extends Seeder
                 ],
                 'modes' => ['buy'],
                 'buy_price_cents' => 320000,
-                'buy' => ['unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες')],
+                'buy' => ['unit' => $this->ls('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'), 'leadTime' => $this->ls('Made to order, 2 to 3 weeks', 'Κατά παραγγελία, 2 έως 3 εβδομάδες')],
             ],
             [
                 'slug' => 'stage-kit-s',
                 'name' => 'Stage Kit S',
                 'category' => 'package',
                 'placement_key' => 'package',
-                'image' => '/assets/one-partner.jpg',
+                'image' => '/assets/shots/photo-f2162506-960.jpg',
                 'featured' => false,
                 'tag' => $this->ls('Package', 'Πακέτο'),
-                'thumbs' => ['/assets/one-partner.jpg', '/assets/hero-stage.jpg'],
+                'thumbs' => ['/assets/shots/photo-f2162506-960.jpg', '/assets/shots/photo-f116189302-960.jpg', '/assets/shots/photo-f39317346-960.jpg'],
                 'blurb' => $this->ls(
                     'A complete small-stage package — screen, lighting and sound supplied and set up as one accountable job.',
                     'Ολοκληρωμένο πακέτο μικρής σκηνής — οθόνη, φωτισμός και ήχος με ενιαία παράδοση και εγκατάσταση.'

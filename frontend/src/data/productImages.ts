@@ -1,6 +1,12 @@
 /**
  * Photography available to product records.
  *
+ * These are stand-ins, not SLS's own goods: licensed Wikimedia Commons
+ * photographs of the same kinds of equipment, credited in the footer and
+ * listed in PLAN-taste.md / REPORT-taste.md with the shot that replaces
+ * each. The files they replaced were AI-made stage renders, which is why
+ * every product used to look like the same blue concert.
+ *
  * These files live in `public/assets`, which Vite serves verbatim rather than
  * processing, so they cannot be enumerated with import.meta.glob and the
  * backend cannot see them either — the API and the images are deployed to
@@ -13,15 +19,10 @@
  * chrome, not product photography.
  */
 export const PRODUCT_IMAGES = [
-  '/assets/led-wall.jpg',
-  '/assets/lighting.jpg',
-  '/assets/sound.jpg',
-  '/assets/catalogue.jpg',
-  '/assets/tagline.jpg',
-  '/assets/one-partner.jpg',
-  '/assets/direct.jpg',
-  '/assets/made-order.jpg',
-  '/assets/meet.jpg',
-  '/assets/hero-stage.jpg',
-  '/assets/hero-wide.jpg',
+  '/assets/shots/photo-f167000710-960.jpg',
+  '/assets/shots/photo-f39317346-960.jpg',
+  '/assets/shots/photo-f7751364-960.jpg',
+  '/assets/shots/photo-f2162506-960.jpg',
+  '/assets/shots/photo-f116189302-960.jpg',
+  '/assets/shots/photo-f181466405-960.jpg',
 ] as const

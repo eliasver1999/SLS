@@ -39,13 +39,8 @@ export const PRODUCTS: Product[] = [
     category: 'screens',
     placementKey: 'indoor',
     tag: L('Indoor', 'Εσωτ.'),
-    image: '/assets/led-wall.jpg',
-    thumbs: [
-      '/assets/led-wall.jpg',
-      '/assets/catalogue.jpg',
-      '/assets/tagline.jpg',
-      '/assets/meet.jpg',
-    ],
+    image: '/assets/shots/photo-f167000710-960.jpg',
+    thumbs: ['/assets/shots/photo-f167000710-960.jpg', '/assets/shots/photo-f181466405-960.jpg'],
     blurb: L(
       'Fine-pitch indoor video wall for stages, studios and premium retail — made to order to your exact size.',
       'Εσωτερική video wall λεπτού pitch για σκηνές, studios και premium retail — κατά παραγγελία στο ακριβές μέγεθός σας.',
@@ -66,7 +61,7 @@ export const PRODUCTS: Product[] = [
     modes: ['buy'],
     buy: {
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
-      leadTime: L('Made to order · lead time 3–4 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 3–4 εβδομάδες'),
+      leadTime: L('Made to order, 3 to 4 weeks', 'Κατά παραγγελία, 3 έως 4 εβδομάδες'),
     },
   },
   {
@@ -75,8 +70,8 @@ export const PRODUCTS: Product[] = [
     category: 'screens',
     placementKey: 'outdoor',
     tag: L('Outdoor', 'Εξωτ.'),
-    image: '/assets/tagline.jpg',
-    thumbs: ['/assets/tagline.jpg', '/assets/led-wall.jpg', '/assets/catalogue.jpg'],
+    image: '/assets/shots/photo-f167000710-960.jpg',
+    thumbs: ['/assets/shots/photo-f167000710-960.jpg', '/assets/shots/photo-f39317346-960.jpg'],
     blurb: L(
       'High-brightness outdoor LED wall for festivals, stadiums and open-air stages — weatherproof and built to spec.',
       'Εξωτερική LED οθόνη υψηλής φωτεινότητας για φεστιβάλ, στάδια και υπαίθριες σκηνές — αδιάβροχη και κατά παραγγελία.',
@@ -97,7 +92,7 @@ export const PRODUCTS: Product[] = [
     modes: ['buy'],
     buy: {
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
-      leadTime: L('Made to order · lead time 4–5 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 4–5 εβδομάδες'),
+      leadTime: L('Made to order, 4 to 5 weeks', 'Κατά παραγγελία, 4 έως 5 εβδομάδες'),
     },
   },
   {
@@ -106,8 +101,8 @@ export const PRODUCTS: Product[] = [
     category: 'screens',
     placementKey: 'indoor',
     tag: L('Indoor', 'Εσωτ.'),
-    image: '/assets/catalogue.jpg',
-    thumbs: ['/assets/catalogue.jpg', '/assets/led-wall.jpg'],
+    image: '/assets/shots/photo-f167000710-960.jpg',
+    thumbs: ['/assets/shots/photo-f167000710-960.jpg', '/assets/shots/photo-f181466405-960.jpg'],
     blurb: L(
       'Curvable panel for creative stage builds — fast to rig and in stock for quick turnarounds.',
       'Καμπυλούμενο panel για δημιουργικές σκηνές — γρήγορο rigging και άμεσα διαθέσιμο.',
@@ -127,7 +122,7 @@ export const PRODUCTS: Product[] = [
     modes: ['buy'],
     buy: {
       unit: L('/ panel · ex VAT', '/ panel · χωρίς ΦΠΑ'),
-      leadTime: L('In stock · ships in 1 week', 'Διαθέσιμο · αποστολή σε 1 εβδομάδα'),
+      leadTime: L('In stock, ships in a week', 'Σε στοκ, αποστολή σε μία εβδομάδα'),
     },
   },
   {
@@ -136,8 +131,8 @@ export const PRODUCTS: Product[] = [
     category: 'lighting',
     placementKey: 'lighting',
     tag: L('Lighting', 'Φωτισμός'),
-    image: '/assets/lighting.jpg',
-    thumbs: ['/assets/lighting.jpg', '/assets/one-partner.jpg'],
+    image: '/assets/shots/photo-f39317346-960.jpg',
+    thumbs: ['/assets/shots/photo-f39317346-960.jpg', '/assets/shots/photo-f2162506-960.jpg'],
     blurb: L(
       'Moving-head beam fixture for concerts and events — punchy output, fast movement and full DMX control.',
       'Moving-head beam για συναυλίες και εκδηλώσεις — δυνατή έξοδος, γρήγορη κίνηση και πλήρης DMX έλεγχος.',
@@ -157,7 +152,7 @@ export const PRODUCTS: Product[] = [
     modes: ['buy'],
     buy: {
       unit: L('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'),
-      leadTime: L('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες'),
+      leadTime: L('Made to order, 2 to 3 weeks', 'Κατά παραγγελία, 2 έως 3 εβδομάδες'),
     },
   },
   {
@@ -166,8 +161,8 @@ export const PRODUCTS: Product[] = [
     category: 'sound',
     placementKey: 'sound',
     tag: L('Sound', 'Ήχος'),
-    image: '/assets/sound.jpg',
-    thumbs: ['/assets/sound.jpg', '/assets/meet.jpg'],
+    image: '/assets/shots/photo-f7751364-960.jpg',
+    thumbs: ['/assets/shots/photo-f7751364-960.jpg', '/assets/shots/photo-f116189302-960.jpg'],
     blurb: L(
       'Line-array system for live events and venues — even coverage and high SPL, tuned to the space.',
       'Σύστημα line-array για live events και χώρους — ομοιόμορφη κάλυψη και υψηλό SPL, ρυθμισμένο στον χώρο.',
@@ -187,7 +182,7 @@ export const PRODUCTS: Product[] = [
     modes: ['buy'],
     buy: {
       unit: L('/ unit · ex VAT', '/ μονάδα · χωρίς ΦΠΑ'),
-      leadTime: L('Made to order · lead time 2–3 weeks', 'Κατά παραγγελία · χρόνος παράδοσης 2–3 εβδομάδες'),
+      leadTime: L('Made to order, 2 to 3 weeks', 'Κατά παραγγελία, 2 έως 3 εβδομάδες'),
     },
   },
   {
@@ -196,8 +191,8 @@ export const PRODUCTS: Product[] = [
     category: 'package',
     placementKey: 'package',
     tag: L('Package', 'Πακέτο'),
-    image: '/assets/one-partner.jpg',
-    thumbs: ['/assets/one-partner.jpg', '/assets/hero-stage.jpg'],
+    image: '/assets/shots/photo-f2162506-960.jpg',
+    thumbs: ['/assets/shots/photo-f2162506-960.jpg', '/assets/shots/photo-f116189302-960.jpg', '/assets/shots/photo-f39317346-960.jpg'],
     blurb: L(
       'A complete small-stage package — screen, lighting and sound supplied and set up as one accountable job.',
       'Ολοκληρωμένο πακέτο μικρής σκηνής — οθόνη, φωτισμός και ήχος με ενιαία παράδοση και εγκατάσταση.',

@@ -2,56 +2,56 @@
   {
     "path": "/",
     "title": "",
-    "description": "LED screens, stage lighting and pro audio for events in Greece — supplied, installed and operated by one accountable team.",
-    "image": "/assets/hero-wide.jpg",
+    "description": "SLS builds LED walls, lighting rigs and PA systems to order for event companies and venues in Greece. Made to order in two to five weeks.",
+    "image": "/assets/shots/photo-f39317346-960.jpg",
     "priority": 1,
     "changefreq": "weekly"
   },
   {
     "path": "/solutions",
-    "title": "Solutions",
-    "description": "Indoor and outdoor LED walls, lighting rigs and sound systems for concerts, conferences, retail and brand activations.",
-    "image": "/assets/hero-stage.jpg",
+    "title": "The three ranges",
+    "description": "LED walls indoors and out, moving-head lighting on DMX-512, line-array sound. Six models, each with its figures and its lead time.",
+    "image": "/assets/shots/photo-f7751364-960.jpg",
     "priority": 0.9,
     "changefreq": "monthly"
   },
   {
     "path": "/catalogue",
     "title": "Catalogue",
-    "description": "Browse LED panels, lighting and audio by pixel pitch, placement and category. Trade pricing shown to approved partners.",
-    "image": "/assets/catalogue.jpg",
+    "description": "Six models with their pitch, brightness, output and lead time. Prices open once a trade account is approved.",
+    "image": "/assets/shots/photo-f167000710-960.jpg",
     "priority": 0.9,
     "changefreq": "weekly"
   },
   {
-    "path": "/projects",
-    "title": "Projects",
-    "description": "Festivals, corporate stages, retail installations and brand activations delivered by SLS across Greece.",
-    "image": "/assets/tagline.jpg",
+    "path": "/ordering",
+    "title": "How an order runs",
+    "description": "Apply, order, then pay half when SLS accepts and the balance when the job is finished. Two to five weeks to build.",
+    "image": "/assets/shots/photo-f181466405-960.jpg",
     "priority": 0.7,
     "changefreq": "monthly"
   },
   {
     "path": "/about",
-    "title": "About",
-    "description": "Who SLS are: a Greek supplier of screens, lighting and sound, accountable for the kit from specification to strike.",
-    "image": "/assets/meet.jpg",
+    "title": "About SLS",
+    "description": "What SLS sells, who it sells to and how an order is priced. A Greek supplier of screens, lighting and sound for events.",
+    "image": "/assets/shots/photo-f39317346-960.jpg",
     "priority": 0.6,
     "changefreq": "yearly"
   },
   {
     "path": "/apply",
-    "title": "Become a partner",
-    "description": "Apply for a trade account to see net pricing, build quotes and order made-to-order LED, lighting and audio.",
-    "image": "/assets/one-partner.jpg",
+    "title": "Apply for trade pricing",
+    "description": "Apply with your company name and VAT number. Once the account is approved, every price in the catalogue is visible.",
+    "image": "/assets/shots/photo-f116189302-960.jpg",
     "priority": 0.8,
     "changefreq": "monthly"
   },
   {
     "path": "/contact",
     "title": "Contact",
-    "description": "Tell us the venue, the date and what it has to do — we will come back with a specification and a price.",
-    "image": "/assets/direct.jpg",
+    "description": "The venue, the date and what the job has to do. Send those three and SLS comes back with a specification and a price.",
+    "image": "/assets/shots/photo-f2162506-960.jpg",
     "priority": 0.8,
     "changefreq": "yearly"
   },
@@ -72,7 +72,7 @@
   {
     "path": "/terms",
     "title": "Terms of supply",
-    "description": "The terms on which SLS quotes, supplies, delivers and invoices equipment and services.",
+    "description": "The terms on which SLS prices, supplies, delivers and invoices equipment and services.",
     "priority": 0.3,
     "changefreq": "yearly"
   }

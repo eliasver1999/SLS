@@ -1,0 +1,313 @@
+/* ============ Page CSS ============
+
+   What the kit does not carry, and nothing else. Everything here exists
+   because this is a bilingual shop inside a single-page app rather than the
+   static page the kit assumes:
+
+     .lang-switch   a site control, not a nav word
+     .statement     the size of the one statement the word-highlight moment runs on
+     .rows--catalogue  a third column (the figures line) under a .rows row
+     .price-lock    the catalogue's locked price
+
+   Sizes come from the system's tokens; no number is invented here. */
+
+/* React mounts into a div. The kit's page is header.nav, a main of sections
+   and footer.closing as children of <body>, and both its CSS (`main > section`,
+   `body > nav.actionbar`) and its checker read it that way — so the mount
+   point is taken out of the box tree rather than left as a wrapper nobody
+   asked for. */
+#root {
+  display: contents;
+}
+
+/* The language pair in the nav bar: two words on one hairline, at the size
+   of a nav word so it reads as a control and not as a fifth link. */
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  overflow: clip;
+}
+.lang-switch button {
+  height: 100%;
+  padding: 0 var(--s-2);
+  border: 0;
+  background: none;
+  font: 500 var(--t-label) / 1 var(--font-text);
+  color: var(--muted);
+  cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.lang-switch button + button {
+  border-left: 1px solid var(--line);
+}
+.lang-switch button.is-on {
+  color: var(--ink);
+  background: color-mix(in oklab, var(--ink) 7%, transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .lang-switch button:hover {
+    color: var(--ink);
+  }
+}
+
+/* The one statement the page stands on, set a step over the h2 scale so it
+   reads as the page's voice rather than as a heading, and narrow enough to
+   fill its screen rather than run across it in three lines.
+
+   The id is load-bearing: word-highlight links its own moment.css at run
+   time, after this file, and that sets .mo-wh__text's size and measure. */
+#prices .mo-wh__text {
+  font-size: clamp(32px, 0.9rem + 3.2vw, 64px);
+  letter-spacing: var(--display-tracking-xl);
+  max-width: 19ch;
+}
+/* The statement is the only thing on its screen, so it sits on the screen's
+   middle rather than under the top padding like a section's heading. */
+#prices > .wrap {
+  display: grid;
+  align-content: center;
+}
+
+/* The three facts under the product statement: each on the grid's own
+   columns (the system's .stats sets its own columns, which fight .grid), a
+   rule above, the figure then its label. */
+.facts > div {
+  display: grid;
+  gap: var(--s-2);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--line);
+}
+
+/* .rows gives a name on the left and a value on the right. On a 1265px line
+   that leaves the middle of every row empty, and six of them stack into one
+   600x612 hole in the section. The catalogue reads across instead: the
+   model, what it is, then its price — a line you can scan down three
+   columns of, which is what a buyer is doing here. One column on a phone. */
+.rows--catalogue > li {
+  grid-template-columns: 260px minmax(0, 1fr) auto;
+  align-items: baseline;
+  padding-block: var(--s-5);
+}
+.rows--catalogue > li:first-child {
+  padding-top: 0;
+}
+.rows--catalogue .rows__name {
+  grid-column: 1;
+  font-size: var(--t-lead);
+}
+.rows--catalogue > li > p {
+  grid-column: 2;
+  grid-row: 1;
+  margin: 0;
+  max-width: 64ch;
+}
+.rows--catalogue .rows__value {
+  grid-column: 3;
+  grid-row: 1;
+}
+@media (max-width: 639px) {
+  .rows--catalogue > li {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .rows--catalogue > li > p {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+}
+/* The model name is the row's link, so it carries the row's tap target: a
+   23px line of text is half what a thumb needs, and the next row's name sits
+   straight under it. */
+.rows--catalogue .rows__name a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+@media (hover: hover) and (pointer: fine) {
+  .rows--catalogue .rows__name a:hover {
+    text-decoration-color: currentColor;
+  }
+}
+
+/* The photograph ratios of the two sections whose pictures have to fit a
+   fixed-height section live here rather than inline, because they change
+   with the width and an inline --ratio beats every media query.
+
+   The one split's photograph is as tall as the section's content box allows
+   at 1440x900 (621px wide, 708px of room): at the portrait 125% it stood
+   68px past the section's bottom padding, into the next ground. */
+#screens .frame--photo {
+  --ratio: 30%;
+}
+#rig .frame--photo {
+  --ratio: 110%;
+}
+#package .frame--photo {
+  --ratio: 70%;
+}
+
+/* The phone.
+   - The LED-pixel band runs the width of the page, so at 1440 it is a 30%
+     strip; at 390 that is a 117px sliver. It takes a 4:3 crop here.
+   - The product hero's stage carries a 338px floor (40svh), and with the
+     headline, the lead and two stacked buttons above it that pushes the
+     hero 92px past the fold. The floor comes down and the stage flexes to
+     whatever the head leaves, so the hero ends exactly at the fold.
+   - Four sections hold more than a phone screen once everything is one
+     column. --hm is the kit's phone screen count: they take two each,
+     rather than a screen showing the end of one section and the start of
+     the next. */
+@media (max-width: 639px) {
+  #screens .frame--photo {
+    --ratio: 32%;
+  }
+  main > .hero--product {
+    height: 100svh;
+    min-height: 0;
+  }
+  .hero--product .hero__in {
+    height: 100%;
+  }
+  .hero--product .hero__stage {
+    flex: 1 1 auto;
+    aspect-ratio: auto;
+    min-height: 200px;
+  }
+  /* stacked, the pictures take a shallower crop so their sections still hold
+     one phone screen each rather than two half-empty ones */
+  #package .frame--photo {
+    --ratio: 52%;
+  }
+  #rig .frame--photo {
+    --ratio: 80%;
+  }
+  #catalogue,
+  footer.closing {
+    --hm: 2;
+  }
+  /* Six rows take more than a phone screen but less than two. Rather than
+     leaving the second screen half empty, the rows take the room: a 56px
+     band each, which is also an easier list to read down with a thumb. */
+  .rows--catalogue > li {
+    padding-block: 56px;
+  }
+  .rows--catalogue > li:first-child {
+    padding-top: 0;
+  }
+  /* The statement is the only thing on its screen; on a phone it is set
+     large enough to be that screen rather than a paragraph floating in it. */
+  #prices .mo-wh__text {
+    font-size: 40px;
+    max-width: none;
+  }
+  /* The hero's photograph runs to the fold, so the gap from it to the next
+     section is that section's top padding alone — half of every other gap
+     on the page. The screens section starts lower instead; it has the room,
+     and the rhythm down the page comes out even. */
+  /* Stacked, five questions and their head run past one phone screen; the
+     rows close up rather than the section taking a second screen for the
+     last answer. */
+  #questions .faq > .faq__item {
+    padding-block: var(--s-2);
+  }
+}
+
+/* The tablet (640 to 1023) stacks every split, so a section planned as one
+   screen at 1440 — its text beside a tall photograph — runs to about 1.2
+   screens there, and the screen below it shows two sections at once. The
+   photographs take the room instead of the section taking another screen:
+   the line array is cropped to the height the text leaves, and the stage
+   package's pair stays two-up rather than stacking. */
+@media (min-width: 640px) and (max-width: 1023px) {
+  #rig .frame--photo {
+    --ratio: 0%;
+    height: 460px;
+  }
+  /* stacked, the pair runs the width: one portrait each, so the two of them
+     fill the section rather than leaving half a screen of air under them */
+  #package .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  #package .grid > figure {
+    grid-column: auto;
+    --ratio: 170%;
+  }
+  /* One button style, one height: below the desktop the nav's action shrinks
+     to 44px, and the close's slab would be the same colour and shape at
+     64px. The slab comes back at 1024. */
+  .closing__cta .btn--xl {
+    height: 48px;
+    font-size: 18px;
+    letter-spacing: 0;
+  }
+}
+
+/* The catalogue's filters: the system's .pill as a button, in rows that wrap.
+   A chip that is on takes the ink it filters by, not a brand colour. */
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  margin-block: var(--s-3) var(--s-5);
+}
+.chip-row .pill {
+  cursor: pointer;
+  transition:
+    background-color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease);
+}
+.chip-row .pill.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+@media (hover: hover) and (pointer: fine) {
+  .chip-row .pill:not(.is-on):hover {
+    border-color: var(--line-strong);
+  }
+}
+
+/* The one consent checkbox on the application: the box beside the sentence,
+   both on the label, so the whole line is the target. */
+.agree {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-3);
+  align-items: start;
+  font-weight: 400;
+  cursor: pointer;
+}
+.agree input {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  accent-color: var(--action);
+}
+
+/* footer-dark sets the company block's name at 48px, and the initial mark is
+   sized from it (1em of 0.6em). Left at the nav's 22px the tile came out
+   13px square and the letter drawn in it was taller than its own box. */
+.closing__links .nav__logo {
+  font-size: 48px;
+}
+.closing__links .nav__logo .mark--initial {
+  line-height: 1;
+}
+
+/* A locked price is a fact about the account, not a disabled control: it
+   takes the muted ink and the mono face the figures use, so the column still
+   reads down. */
+.rows__value .muted,
+.tile__price .muted {
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+}

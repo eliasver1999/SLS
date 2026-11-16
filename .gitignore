@@ -18,3 +18,8 @@ node_modules/
 *.log
 .DS_Store
 Thumbs.db
+
+# taste-skill working state: Chrome profiles, gate rounds, crops and the
+# live-search results. The waivers are kept, because they record decisions.
+/frontend/.taste-skill/*
+!/frontend/.taste-skill/waivers.json

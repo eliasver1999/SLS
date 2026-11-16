@@ -1,19 +1,48 @@
 <!doctype html>
-<html lang="en">
+<!-- The storefront's system is the taste-skill kit in /kit, dealt as recorded
+     in PLAN-taste.md: hero `product`, palette putty-black-teal, type plex,
+     radius soft, nav-split, footer-dark, close-type, rhythm dark-band,
+     buttons pill, mark initial; moments word-highlight and liquid-hover. -->
+<html lang="en" data-type="product" data-radius="soft" data-buttons="pill">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="page-type" content="product" />
+    <meta name="site-kind" content="tech" />
     <meta
       name="description"
-      content="SLS — Sound. Lights. Screens. Premium LED screens, stage lighting and pro audio for events, music and brands."
+      content="SLS builds LED walls, lighting rigs and PA systems to order for event companies and venues in Greece. Panels in three to four weeks."
     />
-    <!-- Typefaces are self-hosted (see src/fonts.css); this page makes no
+    <title>SLS — LED screens, lighting and sound, built to order</title>
+
+    <!-- Typefaces are self-hosted (src/fonts.css); this page makes no
          third-party request. Preload the two faces above the fold so the
          first paint is not a system-font flash. -->
-    <link rel="preload" href="/fonts/poppins-700-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="/fonts/inter-400-latin.woff2" as="font" type="font/woff2" crossorigin />
-    <title>SLS — Sound. Lights. Screens.</title>
+    <link rel="preload" href="/fonts/ibm-plex-sans-500-latin.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/ibm-plex-sans-400-latin.woff2" as="font" type="font/woff2" crossorigin />
+
+    <link rel="stylesheet" href="/kit/system.css" />
+    <link rel="stylesheet" href="/kit/ui/cards.css" />
+    <link rel="stylesheet" href="/kit/motion/motion.css" />
+    <link rel="stylesheet" href="/kit/backgrounds/backgrounds.css" />
+    <link rel="stylesheet" href="/kit/layout/layout.css" />
+    <link rel="stylesheet" href="/kit/icons/icon.css" />
+    <!-- After the kit: layout.css resets --ly-scale. -->
+    <link rel="stylesheet" href="/kit/sls-tokens.css" />
+
+    <script>
+      // The hero's entrance (motion.md) and the moment loader's safety mark,
+      // both before the first paint. Layout re-arms m-enter on every route
+      // change, because in a router the next hero mounts long after this ran.
+      document.documentElement.classList.add('m-enter')
+      setTimeout(() => document.documentElement.classList.add('m-enter-done'), 700)
+      document.documentElement.classList.add('mo-js')
+      setTimeout(() => document.documentElement.classList.add('mo-safe'), 2500)
+    </script>
+    <link rel="modulepreload" href="/kit/moments/moments.js" />
+    <link rel="modulepreload" href="/kit/moments/lib.js" />
+    <link rel="modulepreload" href="/kit/moments/word-highlight/moment.js" />
 
     <!-- Share card defaults. These are rewritten per route at build time for
          the static pages (scripts/prerender.mjs), because social scrapers do
@@ -21,14 +50,14 @@
          A product page falls back to these until it is pre-rendered too. -->
     <meta property="og:site_name" content="SLS" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="SLS — Sound. Lights. Screens." />
+    <meta property="og:title" content="SLS — LED screens, lighting and sound, built to order" />
     <meta
       property="og:description"
-      content="LED screens, stage lighting and pro audio for events in Greece — supplied, installed and operated by one accountable team."
+      content="LED walls, lighting rigs and PA systems built to order for event companies and venues in Greece. Trade prices after approval."
     />
-    <meta property="og:image" content="/assets/hero-wide.jpg" />
+    <meta property="og:image" content="/assets/shots/photo-f39317346-960.jpg" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="theme-color" content="#05070c" />
+    <meta name="theme-color" content="#dedad3" />
 
     <!-- Who the site belongs to, for search results and knowledge panels. -->
     <script type="application/ld+json">
@@ -36,7 +65,7 @@
         "@context": "https://schema.org",
         "@type": "Organization",
         "name": "SLS — Sound. Lights. Screens.",
-        "description": "Supplier of LED screens, stage lighting and professional audio for events, music and brands.",
+        "description": "Builds LED walls, lighting rigs and PA systems to order for event companies and venues in Greece.",
         "areaServed": "GR",
         "logo": "/assets/logo.png"
       }

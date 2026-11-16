@@ -37,7 +37,7 @@ if (!site) {
 }
 
 const title = (route) =>
-  route.title === '' ? 'SLS — Sound. Lights. Screens.' : `${route.title} — SLS`
+  route.title === '' ? 'SLS — LED screens, lighting and sound, built to order' : `${route.title} — SLS`
 
 const absolute = (path) => (site ? `${site}${path}` : path)
 
@@ -65,7 +65,7 @@ function upsert(html, matcher, tag) {
 
 function render(template, route) {
   const url = escapeHtml(absolute(route.path))
-  const image = escapeHtml(absolute(route.image ?? '/assets/hero-wide.jpg'))
+  const image = escapeHtml(absolute(route.image ?? '/assets/shots/photo-f39317346-960.jpg'))
   const heading = escapeHtml(title(route))
   const description = escapeHtml(route.description)
   let html = template

@@ -1,148 +1,118 @@
-import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { FileText } from 'lucide-react'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
 import { useCart } from '../context/cart'
+import { useMainAction } from '../lib/mainAction'
 
+/**
+ * nav-split (dealt): four words on the left, the name on the centre line,
+ * the actions on the right. system.js binds the sheet, the Escape key and
+ * aria-expanded; nothing here duplicates that.
+ *
+ * Four words is the recipe's count — they share the left third, and a fifth
+ * reaches the name at 1024.
+ */
 type NavItem = { to: string; key: string; en: string; el: string }
 
 const NAV: NavItem[] = [
-  { to: '/', key: 'home', en: 'Home', el: 'Αρχική' },
-  { to: '/solutions', key: 'solutions', en: 'Solutions', el: 'Λύσεις' },
   { to: '/catalogue', key: 'catalogue', en: 'Catalogue', el: 'Κατάλογος' },
-  { to: '/projects', key: 'projects', en: 'Projects', el: 'Έργα' },
-  { to: '/about', key: 'about', en: 'About', el: 'Σχετικά' },
+  { to: '/solutions', key: 'solutions', en: 'Ranges', el: 'Σειρές' },
+  { to: '/ordering', key: 'ordering', en: 'Ordering', el: 'Παραγγελία' },
   { to: '/contact', key: 'contact', en: 'Contact', el: 'Επικοινωνία' },
 ]
 
 export default function Header() {
-  const { lang, setLang } = useLang()
+  const { lang, setLang, t } = useLang()
   const { user, isAdmin, logout } = useAuth()
   const cart = useCart()
   const { pathname } = useLocation()
   const navigate = useNavigate()
-  const [open, setOpen] = useState(false)
+  const action = useMainAction()
 
-  // Active nav item by first path segment.
-  const activeKey = (() => {
-    if (pathname === '/') return 'home'
-    if (pathname.startsWith('/solutions')) return 'solutions'
-    if (pathname.startsWith('/catalogue')) return 'catalogue'
-    if (pathname.startsWith('/projects')) return 'projects'
-    if (pathname.startsWith('/about')) return 'about'
-    if (pathname.startsWith('/contact')) return 'contact'
-    return ''
-  })()
-
-  const memberHref = isAdmin ? '/admin' : '/dashboard'
+  const activeKey =
+    NAV.find((n) => pathname === n.to || pathname.startsWith(`${n.to}/`))?.key ??
+    (pathname.startsWith('/product/') ? 'catalogue' : '')
 
   const onLogout = async () => {
-    setOpen(false)
     await logout()
     navigate('/')
   }
 
   return (
-    <header className="header">
-      <div className="container">
-        <Link className="brand" to="/">
-          <img src="/assets/logo.png" alt="SLS" />
-        </Link>
-        <nav className="nav">
+    <header className="nav nav--split">
+      <div className="wrap nav__bar">
+        <nav className="nav__links" aria-label={t('Main', 'Κύριο')}>
           {NAV.map((n) => (
-            <Link
-              key={n.key}
-              to={n.to}
-              className={n.key === activeKey ? 'active' : undefined}
-            >
-              {lang === 'el' ? n.el : n.en}
-            </Link>
+            <div className="nav__item" key={n.key}>
+              <Link
+                className="nav__link"
+                to={n.to}
+                aria-current={n.key === activeKey ? 'page' : undefined}
+              >
+                {lang === 'el' ? n.el : n.en}
+              </Link>
+            </div>
           ))}
         </nav>
-        <div className="spacer" />
-        <div className="actions">
-          {cart.count > 0 && (
-            <Link className="btn btn-ghost btn-sm quote-link" to="/quote" title={lang === 'el' ? 'Η παραγγελία σας' : 'Your order'}>
-              <FileText size={15} aria-hidden />
-              <span className="quote-link-label">{lang === 'el' ? 'Παραγγελία' : 'Order'}</span>
-              <span className="status blue">{cart.count}</span>
-            </Link>
-          )}
-          <div className="lang">
-            <button className={lang === 'en' ? 'on' : undefined} onClick={() => setLang('en')}>
+
+        <Link className="nav__logo" to="/">
+          <span className="mark mark--initial" aria-hidden="true">
+            S
+          </span>
+          SLS
+        </Link>
+
+        <div className="nav__actions">
+          <div className="lang-switch" role="group" aria-label={t('Language', 'Γλώσσα')}>
+            <button
+              type="button"
+              className={lang === 'en' ? 'is-on' : undefined}
+              aria-pressed={lang === 'en'}
+              onClick={() => setLang('en')}
+            >
               EN
             </button>
-            <button className={lang === 'el' ? 'on' : undefined} onClick={() => setLang('el')}>
+            <button
+              type="button"
+              className={lang === 'el' ? 'is-on' : undefined}
+              aria-pressed={lang === 'el'}
+              onClick={() => setLang('el')}
+            >
               ΕΛ
             </button>
           </div>
+
+          {cart.count > 0 && (
+            <Link className="nav__link" to="/quote">
+              {t('Order', 'Παραγγελία')} ({cart.count})
+            </Link>
+          )}
+
           {user ? (
             <>
-              <Link className="btn btn-ghost btn-sm" to={memberHref}>
-                {isAdmin ? (lang === 'el' ? 'Admin' : 'Admin') : lang === 'el' ? 'Πίνακας' : 'Dashboard'}
+              <Link className="nav__link" to={isAdmin ? '/admin' : '/dashboard'}>
+                {isAdmin ? 'Admin' : t('Dashboard', 'Πίνακας')}
               </Link>
-              <button className="btn btn-primary btn-sm" onClick={onLogout}>
-                {lang === 'el' ? 'Αποσύνδεση' : 'Logout'}
+              <button className="nav__link" type="button" onClick={onLogout}>
+                {t('Sign out', 'Αποσύνδεση')}
               </button>
             </>
           ) : (
-            <>
-              <Link className="btn btn-ghost btn-sm" to="/login">
-                {lang === 'el' ? 'Σύνδεση' : 'Login'}
-              </Link>
-              <Link className="btn btn-ghost btn-sm" to="/register">
-                {lang === 'el' ? 'Εγγραφή' : 'Register'}
-              </Link>
-              <Link className="btn btn-primary btn-sm" to="/apply">
-                {lang === 'el' ? 'Γίνετε Συνεργάτης' : 'Become a Partner'}
-              </Link>
-            </>
+            <Link className="nav__link" to="/login">
+              {t('Sign in', 'Σύνδεση')}
+            </Link>
           )}
-          <button className="burger" aria-label="Menu" onClick={() => setOpen((o) => !o)}>
-            ☰
-          </button>
-        </div>
-      </div>
 
-      <div className={`mobile-nav${open ? ' open' : ''}`}>
-        {cart.count > 0 && (
-          <Link className="active" to="/quote" onClick={() => setOpen(false)}>
-            {lang === 'el' ? 'Η παραγγελία σας' : 'Your order'} ({cart.count})
+          <Link className="btn btn--primary" to={action.to}>
+            {action.label}
           </Link>
-        )}
-        {NAV.map((n) => (
-          <Link
-            key={n.key}
-            to={n.to}
-            className={n.key === activeKey ? 'active' : undefined}
-            onClick={() => setOpen(false)}
-          >
-            {lang === 'el' ? n.el : n.en}
-          </Link>
-        ))}
-        {user ? (
-          <>
-            <Link className="btn btn-ghost btn-block" to={memberHref} onClick={() => setOpen(false)}>
-              {isAdmin ? 'Admin' : lang === 'el' ? 'Πίνακας' : 'Dashboard'}
-            </Link>
-            <button className="btn btn-primary btn-block" onClick={onLogout}>
-              {lang === 'el' ? 'Αποσύνδεση' : 'Logout'}
-            </button>
-          </>
-        ) : (
-          <>
-            <Link className="btn btn-ghost btn-block" to="/login" onClick={() => setOpen(false)}>
-              {lang === 'el' ? 'Σύνδεση' : 'Login'}
-            </Link>
-            <Link className="btn btn-ghost btn-block" to="/register" onClick={() => setOpen(false)}>
-              {lang === 'el' ? 'Εγγραφή' : 'Register'}
-            </Link>
-            <Link className="btn btn-primary btn-block" to="/apply" onClick={() => setOpen(false)}>
-              {lang === 'el' ? 'Γίνετε Συνεργάτης' : 'Become a Partner'}
-            </Link>
-          </>
-        )}
+        </div>
+
+        <button className="nav__toggle" type="button" aria-expanded="false" aria-label={t('Menu', 'Μενού')}>
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
+            <path d="M2 5h14M2 13h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
     </header>
   )

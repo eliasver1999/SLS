@@ -822,7 +822,7 @@ function ProductForm({
           <input
             value={form.image}
             onChange={(e) => upd('image', e.target.value)}
-            placeholder="/assets/led-wall.jpg"
+            placeholder="/assets/shots/photo-f167000710-960.jpg"
           />
           {form.image && !PRODUCT_IMAGES.includes(form.image as (typeof PRODUCT_IMAGES)[number]) && (
             <p className="muted mt8" style={{ fontSize: 12.5 }}>
@@ -1629,7 +1629,7 @@ function blankInput(): ProductInput {
     name: '',
     category: 'screens',
     placement_key: 'indoor',
-    image: '/assets/led-wall.jpg',
+    image: '/assets/shots/photo-f167000710-960.jpg',
     tag: ls(),
     blurb: ls(),
     thumbs: [],

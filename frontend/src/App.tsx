@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import Layout from './components/Layout'
 import Home from './pages/Home'
 import Solutions from './pages/Solutions'
@@ -6,7 +6,7 @@ import Catalogue from './pages/Catalogue'
 import Product from './pages/Product'
 import Apply from './pages/Apply'
 import About from './pages/About'
-import Projects from './pages/Projects'
+import Ordering from './pages/Ordering'
 import Contact from './pages/Contact'
 import OrderReceived from './pages/OrderReceived'
 import OrderDetail from './pages/OrderDetail'
@@ -36,7 +36,10 @@ export default function App() {
           <Route path="product/:slug" element={<Product />} />
           <Route path="apply" element={<Apply />} />
           <Route path="about" element={<About />} />
-          <Route path="projects" element={<Projects />} />
+          <Route path="ordering" element={<Ordering />} />
+          {/* /projects held six invented case studies with invented
+              figures; it is now the page that says how an order runs. */}
+          <Route path="projects" element={<Navigate to="/ordering" replace />} />
           <Route path="contact" element={<Contact />} />
           <Route path="order-received" element={<OrderReceived />} />
           <Route path="login" element={<Login />} />

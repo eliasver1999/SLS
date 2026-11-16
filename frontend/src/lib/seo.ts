@@ -24,13 +24,13 @@ export const SITE_URL = (
   import.meta.env.VITE_SITE_URL || (typeof window === 'undefined' ? '' : window.location.origin)
 ).replace(/\/$/, '')
 
-const DEFAULT_IMAGE = '/assets/hero-wide.jpg'
+const DEFAULT_IMAGE = '/assets/shots/photo-f39317346-960.jpg'
 
 export type Seo = {
   /** Page title, without the site name — that is appended. */
   title: string
   description: string
-  /** Absolute path to a share image, e.g. "/assets/led-wall.jpg". */
+  /** Absolute path to a share image, e.g. "/assets/shots/photo-f167000710-960.jpg". */
   image?: string
   /** Keep this page out of search results (account and admin screens). */
   noindex?: boolean
@@ -63,7 +63,7 @@ function link(rel: string, href: string) {
 }
 
 export function pageTitle(title: string) {
-  return title === '' ? 'SLS — Sound. Lights. Screens.' : `${title} — SLS`
+  return title === '' ? 'SLS — LED screens, lighting and sound, built to order' : `${title} — SLS`
 }
 
 export function useSeo({ title, description, image = DEFAULT_IMAGE, noindex = false }: Seo) {

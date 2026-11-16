@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
-import ProductCard from '../components/ProductCard'
+import { CatalogueRowList } from '../components/CatalogueRows'
 import { PRODUCTS, type Category, type Product } from '../data/products'
 import { fetchProducts } from '../lib/api'
-import { CircleCheck, Hourglass, Lock } from 'lucide-react'
+import { useMainAction } from '../lib/mainAction'
 
 type TypeFilter = 'all' | Category
 type Placement = 'all' | 'indoor' | 'outdoor'
@@ -19,26 +19,35 @@ const PITCH_BANDS = [
 
 type PitchKey = (typeof PITCH_BANDS)[number]['key']
 
+const CATEGORIES: Category[] = ['screens', 'lighting', 'sound', 'package']
+
+/**
+ * The catalogue.
+ *
+ * Three stacked coloured notice boxes used to sit above it, one per account
+ * state, and the approved one named a company — "Nova Events Ltd (VAT
+ * EL123456789)" — that every approved partner saw, whoever they were. There
+ * is one line now, and it says only what is true of the person reading it.
+ */
 export default function Catalogue() {
   const { t } = useLang()
-  const { isApproved } = useAuth()
-  const [type, setType] = useState<TypeFilter>('all')
-  const [placement, setPlacement] = useState<Placement>('all')
-  const [pitch, setPitch] = useState<PitchKey | null>(null)
+  const { isApproved, user } = useAuth()
+  const action = useMainAction()
+  const [params, setParams] = useSearchParams()
 
-  // Load from the API; the bundled list is the initial paint + offline fallback.
+  const type = (params.get('cat') ?? 'all') as TypeFilter
+  const placement = (params.get('placement') ?? 'all') as Placement
+  const pitch = (params.get('pitch') as PitchKey | null) ?? null
+
   const [all, setAll] = useState<Product[]>(PRODUCTS)
   const [page, setPage] = useState(1)
   const [lastPage, setLastPage] = useState(1)
   const [total, setTotal] = useState(PRODUCTS.length)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  // Refetch when approval changes: the API only includes pricing for approved
-  // partners, so signing in has to pull a fresh payload rather than reveal a
-  // price the guest response never contained.
   const band = PITCH_BANDS.find((b) => b.key === pitch)
 
-  const params = useMemo(
+  const query = useMemo(
     () => ({
       category: type === 'all' ? undefined : type,
       placement: placement === 'all' ? undefined : placement,
@@ -52,7 +61,7 @@ export default function Catalogue() {
   // the page already fetched — and so it still holds once "load more" is used.
   useEffect(() => {
     let current = true
-    fetchProducts({ ...params, page: 1 })
+    fetchProducts({ ...query, page: 1 })
       .then((res) => {
         if (!current) return
         setAll(res.items)
@@ -64,12 +73,12 @@ export default function Catalogue() {
     return () => {
       current = false
     }
-  }, [params, isApproved])
+  }, [query, isApproved])
 
   async function loadMore() {
     setLoadingMore(true)
     try {
-      const res = await fetchProducts({ ...params, page: page + 1 })
+      const res = await fetchProducts({ ...query, page: page + 1 })
       setAll((prev) => [...prev, ...res.items])
       setPage(res.page)
       setLastPage(res.lastPage)
@@ -81,218 +90,150 @@ export default function Catalogue() {
     }
   }
 
-  const shown = all
   const filtered = type !== 'all' || placement !== 'all' || pitch !== null
 
-  function clearFilters() {
-    setType('all')
-    setPlacement('all')
-    setPitch(null)
+  const set = (key: string, value: string | null) => {
+    const next = new URLSearchParams(params)
+    if (value === null || value === 'all') next.delete(key)
+    else next.set(key, value)
+    setParams(next, { replace: true })
   }
 
-  const typeChips: { key: TypeFilter; label: string }[] = [
-    { key: 'screens', label: t('Screens', 'Οθόνες') },
-    { key: 'lighting', label: t('Lighting', 'Φωτισμός') },
-    { key: 'sound', label: t('Sound', 'Ήχος') },
-  ]
+  const label = (c: Category) =>
+    ({
+      screens: t('Screens', 'Οθόνες'),
+      lighting: t('Lighting', 'Φωτισμός'),
+      sound: t('Sound', 'Ήχος'),
+      package: t('Packages', 'Πακέτα'),
+    })[c]
+
+  const priceLine = isApproved
+    ? t(
+        'Prices are your account’s, ex VAT. Greek VAT of 24% is added on the order.',
+        'Οι τιμές είναι του λογαριασμού σας, χωρίς ΦΠΑ. Ο ελληνικός ΦΠΑ 24% προστίθεται στην παραγγελία.',
+      )
+    : user
+      ? t(
+          'Your account is waiting for approval. The figures are open to everyone; the prices follow.',
+          'Ο λογαριασμός σας περιμένει έγκριση. Τα μεγέθη είναι ανοιχτά για όλους· οι τιμές ακολουθούν.',
+        )
+      : t(
+          'Every figure here is open to everyone. The prices open with an approved trade account.',
+          'Κάθε μέγεθος εδώ είναι ανοιχτό για όλους. Οι τιμές ανοίγουν με εγκεκριμένο λογαριασμό χονδρικής.',
+        )
 
   return (
     <>
-      <div className="page-head">
-        <div className="container">
-          <div className="crumb">Home / {t('Catalogue', 'Κατάλογος')}</div>
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              flexWrap: 'wrap',
-              gap: 16,
-            }}
-          >
+      {/* One section, two screens: a catalogue is one idea, and a whole
+          empty screen of page title before the models is a screen the buyer
+          scrolls past. */}
+      <section
+        className="section"
+        id="models"
+        data-enter
+        style={{ '--h': 2 } as React.CSSProperties}
+        aria-labelledby="cat-h"
+      >
+        <div className="wrap">
+          <div className="section-head section-head--row">
             <div>
-              <div className="eyebrow">{t('Catalogue', 'Κατάλογος')}</div>
-              <h1 className="h2 mt8">{t('Screens, lighting & sound', 'Οθόνες, φωτισμός & ήχος')}</h1>
+              <h1 id="cat-h">{t('Catalogue', 'Κατάλογος')}</h1>
+              <p>{priceLine}</p>
             </div>
+            {!isApproved && (
+              <Link className="btn btn--primary" to={action.to}>
+                {action.label}
+              </Link>
+            )}
           </div>
 
-          {/* auth banners — CSS shows the right one via body[data-auth] */}
-          <div className="notice mt16 guest-only guest-strict" style={{ marginTop: 18 }}>
-            <div className="ic"><Lock size={18} aria-hidden /></div>
-            <div>
-              <b>{t('Pricing is hidden for guests.', 'Οι τιμές είναι κρυφές για επισκέπτες.')}</b>
-              <span className="muted">
-                {t(
-                  ' Specs are open to all — register or apply for approved B2B access to see pricing and buy.',
-                  ' Οι προδιαγραφές είναι ανοιχτές — εγγραφείτε ή κάντε αίτηση για εγκεκριμένη B2B πρόσβαση.',
-                )}
-              </span>
-              <div className="mt8">
-                <Link className="btn btn-primary btn-sm" to="/register">
-                  {t('Create an account', 'Δημιουργία λογαριασμού')}
-                </Link>{' '}
-                <Link className="btn btn-ghost btn-sm" to="/apply">
-                  {t('Apply for access', 'Αίτηση πρόσβασης')}
-                </Link>
-              </div>
-            </div>
-          </div>
-          <div
-            className="notice mt16 pending-only"
-            style={{
-              marginTop: 18,
-              borderColor: 'rgba(255,206,84,.35)',
-              background: 'rgba(255,206,84,.08)',
-            }}
-          >
-            <div className="ic" style={{ color: 'var(--warn)' }}>
-              <Hourglass size={18} aria-hidden />
-            </div>
-            <div>
-              <b>{t('Your account is pending approval.', 'Ο λογαριασμός σας είναι σε αναμονή έγκρισης.')}</b>
-              <span className="muted">
-                {t(
-                  ' Specs are open — an admin will approve your account shortly, then pricing and ordering unlock.',
-                  ' Οι προδιαγραφές είναι ανοιχτές — μόλις εγκριθεί ο λογαριασμός σας ξεκλειδώνουν τιμές και παραγγελίες.',
-                )}
-              </span>
-            </div>
-          </div>
-          <div
-            className="notice mt16 approved-only"
-            style={{
-              marginTop: 18,
-              borderColor: 'rgba(72,211,138,.35)',
-              background: 'rgba(72,211,138,.08)',
-            }}
-          >
-            <div className="ic" style={{ color: 'var(--ok)' }}>
-              <CircleCheck size={18} aria-hidden />
-            </div>
-            <div>
-              <b>
-                {t(
-                  'Pricing unlocked — Nova Events Ltd (VAT EL123456789)',
-                  'Τιμές ξεκλειδωμένες — Nova Events Ltd (ΑΦΜ EL123456789)',
-                )}
-              </b>
-              <span className="muted">
-                {t(
-                  ' B2B net prices shown, VAT added at checkout.',
-                  ' Καθαρές B2B τιμές, ΦΠΑ στο ταμείο.',
-                )}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <section className="section-sm">
-        <div className="container split">
-          {/* FILTERS */}
-          <aside className="filters">
-            <h4>{t('Type', 'Τύπος')}</h4>
-            <div>
-              <span
-                className={`chip${type === 'all' ? ' on' : ''}`}
-                onClick={() => setType('all')}
+          <div className="grid">
+          <div className="span-3">
+            <p className="t-label muted">{t('Filter', 'Φίλτρο')}</p>
+            <div className="chip-row">
+              <button
+                type="button"
+                className={`pill${type === 'all' ? ' is-on' : ''}`}
+                onClick={() => set('cat', null)}
               >
                 {t('All', 'Όλα')}
-              </span>
-              {typeChips.map((c) => (
-                <span
-                  key={c.key}
-                  className={`chip${type === c.key ? ' on' : ''}`}
-                  onClick={() => setType(c.key)}
+              </button>
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  className={`pill${type === c ? ' is-on' : ''}`}
+                  onClick={() => set('cat', c)}
                 >
-                  {c.label}
-                </span>
+                  {label(c)}
+                </button>
               ))}
             </div>
+
             {/* Indoor/outdoor and pitch only classify screens, so these are
                 hidden when the selection cannot contain any — better than
                 offering a filter that would always return nothing. */}
             {(type === 'all' || type === 'screens') && (
               <>
-                <h4>{t('Placement', 'Τοποθέτηση')}</h4>
-                <div>
+                <p className="t-label muted">{t('Placement', 'Τοποθέτηση')}</p>
+                <div className="chip-row">
                   {(['all', 'indoor', 'outdoor'] as const).map((key) => (
-                    <span
+                    <button
                       key={key}
-                      className={`chip${placement === key ? ' on' : ''}`}
-                      onClick={() => setPlacement(key)}
+                      type="button"
+                      className={`pill${placement === key ? ' is-on' : ''}`}
+                      onClick={() => set('placement', key)}
                     >
                       {key === 'all'
                         ? t('Any', 'Όλα')
                         : key === 'indoor'
                           ? t('Indoor', 'Εσωτερικό')
                           : t('Outdoor', 'Εξωτερικό')}
-                    </span>
+                    </button>
                   ))}
                 </div>
 
-                <h4>{t('Pixel pitch', 'Pixel pitch')}</h4>
-                {PITCH_BANDS.map((b) => (
-                  <label
-                    key={b.key}
-                    className={`check${pitch === b.key ? ' on' : ''}`}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setPitch(pitch === b.key ? null : b.key)}
-                  >
-                    <i /> {b.label}
-                  </label>
-                ))}
+                <p className="t-label muted">{t('Pixel pitch', 'Pixel pitch')}</p>
+                <div className="chip-row">
+                  {PITCH_BANDS.map((b) => (
+                    <button
+                      key={b.key}
+                      type="button"
+                      className={`pill${pitch === b.key ? ' is-on' : ''}`}
+                      onClick={() => set('pitch', pitch === b.key ? null : b.key)}
+                    >
+                      {b.label}
+                    </button>
+                  ))}
+                </div>
               </>
             )}
+          </div>
 
-            {filtered && (
-              <button className="btn btn-ghost btn-sm mt16" onClick={clearFilters}>
-                {t('Clear filters', 'Καθαρισμός φίλτρων')}
+          <div className="span-8 start-5">
+            {all.length === 0 ? (
+              <p className="t-body">
+                {t(
+                  'Nothing in the catalogue matches that. Widen the pitch band or the placement.',
+                  'Τίποτα στον κατάλογο δεν ταιριάζει. Διευρύνετε το pitch ή την τοποθέτηση.',
+                )}
+              </p>
+            ) : (
+              <CatalogueRowList items={all} />
+            )}
+
+            <p className="t-small muted">
+              {filtered
+                ? t(`${total} of ${PRODUCTS.length} models`, `${total} από ${PRODUCTS.length} μοντέλα`)
+                : t(`${total} models`, `${total} μοντέλα`)}
+            </p>
+
+            {page < lastPage && (
+              <button className="btn btn--secondary" type="button" onClick={loadMore} disabled={loadingMore}>
+                {loadingMore ? t('Loading…', 'Φόρτωση…') : t('Show the rest', 'Δείτε τα υπόλοιπα')}
               </button>
             )}
-          </aside>
-
-          {/* GRID */}
-          <div>
-            <div className="muted" style={{ fontSize: 14, marginBottom: 16 }}>
-              {t(
-                filtered
-                  ? `${total} ${total === 1 ? 'match' : 'matches'}`
-                  : `Showing ${shown.length} of ${total} products`,
-                filtered
-                  ? `${total} ${total === 1 ? 'αποτέλεσμα' : 'αποτελέσματα'}`
-                  : `Εμφάνιση ${shown.length} από ${total} προϊόντα`,
-              )}
-            </div>
-            {shown.length === 0 ? (
-              <div className="panel center" style={{ padding: 36 }}>
-                <h3 style={{ fontSize: 17 }}>
-                  {t('Nothing matches those filters', 'Κανένα αποτέλεσμα')}
-                </h3>
-                <p className="muted mt8" style={{ fontSize: 14 }}>
-                  {t(
-                    'Try widening the pitch range or placement.',
-                    'Δοκιμάστε ευρύτερο pixel pitch ή τοποθέτηση.',
-                  )}
-                </p>
-                <button className="btn btn-ghost btn-sm mt16" onClick={clearFilters}>
-                  {t('Clear filters', 'Καθαρισμός φίλτρων')}
-                </button>
-              </div>
-            ) : (
-              <div className="grid g3">
-                {shown.map((p) => (
-                  <ProductCard key={p.slug} product={p} />
-                ))}
-              </div>
-            )}
-            {type === 'all' && page < lastPage && (
-              <div style={{ textAlign: 'center', marginTop: 24 }}>
-                <button className="btn btn-ghost" onClick={loadMore} disabled={loadingMore}>
-                  {loadingMore ? t('Loading…', 'Φόρτωση…') : t('Load more', 'Περισσότερα')}
-                </button>
-              </div>
-            )}
+          </div>
           </div>
         </div>
       </section>

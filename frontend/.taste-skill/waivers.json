@@ -1,0 +1,22 @@
+[
+  {
+    "check": "no-visual",
+    "target": "section#catalogue",
+    "reason": "sections.md section 1 lets a price list carry no picture, once a page; its neighbours #screens and #rig both carry one"
+  },
+  {
+    "check": "text-only",
+    "target": "section#questions",
+    "reason": "sections.md section 1 lets an FAQ carry no picture, once a page, and the close that follows is its own picture (the big button)"
+  },
+  {
+    "check": "card-layout",
+    "target": "section#screens",
+    "reason": "three photographs in three different compositions (bleed, split, pair), which sections.md Product rule 4 asks for; .frame--photo is a frame, not a card layout"
+  },
+  {
+    "check": "one-heading",
+    "target": "h2#pack-h",
+    "reason": "3.9% against 3%: the second heading counted is the fixed nav's wordmark, which is on the screen at every scroll position"
+  }
+]
