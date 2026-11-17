@@ -442,3 +442,16 @@ footer.closing.closing--bare {
   min-height: 0;
   padding-top: var(--s-8);
 }
+
+/* The kit's tonal secondary button is the ink at 8% over the ground: a soft
+   pill on the light ground, but 1.1:1 on the near-black, where it vanished.
+   On the dark ground it takes a lighter fill and a ring of the ink, so it
+   still reads as a button beside the blue one. (The html[data-buttons]
+   prefix matches the specificity of the kit's pill rule it sits over.) */
+html[data-buttons] .ground-inverse .btn--secondary {
+  background: color-mix(in oklab, var(--ink) 22%, var(--bg));
+  border-color: color-mix(in oklab, var(--ink) 40%, transparent);
+}
+html[data-buttons] .ground-inverse .btn--secondary:hover {
+  background: color-mix(in oklab, var(--ink) 30%, var(--bg));
+}

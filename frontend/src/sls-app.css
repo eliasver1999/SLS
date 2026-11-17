@@ -1987,10 +1987,11 @@ main.sls-app {
   letter-spacing: 0;
 }
 
-/* One pair of page edges for the whole site: the storefront's .wrap is
-   1280px from x 80 at 1440, so the tooling's container is 1280 of content
-   plus its own gutters, rather than 1280 including them (which put every
-   signed-in page 24px inside the header's line). */
+/* One pair of page edges for the whole site. The kit already sizes every
+   .container like its .wrap (1280px from x 80 at 1440, the gutter on a
+   phone); the tooling's own 24px padding on top of that put every signed-in
+   page 24px inside the header's line, so it goes. */
 .sls-app .container {
-  max-width: calc(var(--maxw) + 2 * var(--pad));
+  max-width: none;
+  padding-inline: 0;
 }

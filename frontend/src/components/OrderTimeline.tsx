@@ -25,13 +25,32 @@ export default function OrderTimeline({ order }: { order: Order }) {
     <div>
       {/* Stepper */}
       {!cancelled && (
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0, marginBottom: 20 }}>
+        // One row at every width: wrapped onto two lines on a phone, the
+        // connectors were left hanging off the end of each line.
+        <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 20 }}>
           {flow.map((s, i) => {
             const done = reachedIdx >= 0 && i <= reachedIdx
             const current = i === reachedIdx
             return (
-              <div key={s} style={{ display: 'flex', alignItems: 'center' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minWidth: 84 }}>
+              <div
+                key={s}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flex: i < flow.length - 1 ? '1 1 0' : 'none',
+                  minWidth: 0,
+                }}
+              >
+                <div
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 6,
+                    width: 72,
+                    flex: 'none',
+                  }}
+                >
                   <div
                     style={{
                       width: 26,
@@ -63,7 +82,8 @@ export default function OrderTimeline({ order }: { order: Order }) {
                 {i < flow.length - 1 && (
                   <div
                     style={{
-                      width: 34,
+                      flex: '1 1 0',
+                      minWidth: 8,
                       height: 2,
                       background: reachedIdx > i ? 'var(--ok)' : 'var(--line)',
                       marginBottom: 18,

@@ -17,7 +17,7 @@
   {
     "check": "one-heading",
     "target": "h2#pack-h",
-    "reason": "3.9% against 3%: the second heading counted is the fixed nav's wordmark, which is on the screen at every scroll position"
+    "reason": "5.5% against 3% (7 of 127 positions): the second heading counted is the fixed nav's wordmark, which is on the screen at every scroll position"
   },
   {
     "check": "scroll-reveal",

@@ -21,7 +21,7 @@ export default function Home() {
 
   return (
     <>
-      <section className="hero hero--product" data-enter aria-labelledby="hero-h">
+      <section className="hero hero--product ground-inverse" data-enter aria-labelledby="hero-h">
         <div className="wrap">
           <div className="hero-text hero__in">
             <div className="hero__head">

@@ -1,18 +1,25 @@
 /* ============ SLS tokens ============
 
-   The palette, the type pairing and the radius were dealt, not chosen:
+   The palette is the client's own, through start.mjs brand (the skill's
+   path for a client's colours, in place of a dealt palette). The type
+   pairing, the radius and the rest of the layout were dealt:
 
-     start.mjs deal --page tech --trade "event production equipment"
-       → putty-black-teal  (first printed, taken)
-       → plex: IBM Plex Sans + IBM Plex Mono  (first printed, taken)
+     start.mjs deal --page tech  → plex: IBM Plex Sans + IBM Plex Mono
      deal.mjs --type product --kind tech --has photo  → the `product` hero
      one-liner  → nav-split · footer-dark · close-type · dark-band · pill · initial
 
-   Why it fits the trade: every piece of this kit — panels, moving heads,
-   line arrays, racks — is matte black, and every photograph of it is dark.
-   On a warm stone ground the gear is the only dark thing on the page. The
-   near-black page this replaces could not do that: black on black, with a
-   blue glow behind it to make up the difference.
+   The colours are SLS's: the electric blue of the logo, its sky-blue
+   highlight and the near-black it sits on; the light ground is the cool
+   grey of the light theme the old site already had. The blue is the logo's
+   #1f8bff taken one step darker, to #1672e6, so a white label on it reads
+   at 4.6:1 (the logo blue gives 3.4) — and that one action colour still
+   stands at 3.9:1 on the light ground and 4.4:1 on the near-black, so a
+   button means the same on both.
+
+   Not everywhere: the site is light, and the near-black comes back where
+   the old site was strongest — the home page's first screen, the one
+   statement on the dark band and the footer — with the sky blue as its
+   accent there.
 
    The second block maps the signed-in tooling's own token names onto the
    same palette, so the dashboard and the admin follow the storefront
@@ -20,23 +27,23 @@
    opt-in dark mode and keeps the old near-black surfaces. */
 
 :root {
-  /* ── Dealt palette (start.mjs css --page tech --palette putty-black-teal
-        --type plex --radius soft); keep these lines as printed. ───────── */
-  --p-bg: #dedad3;
-  --p-surface: #d3cec6;
-  --p-ink: #0a0a0a;
-  --p-muted: #55514c;
-  --p-accent: #256f82;
+  /* ── The client's palette (start.mjs brand --page tech; the action blue
+        darkened until its white label passes 4.5:1). ───────────────────── */
+  --p-bg: #e8ecf2;
+  --p-surface: #dfe5ee;
+  --p-ink: #101a2b;
+  --p-muted: #54657a;
+  --p-accent: #1672e6;
   --p-accent-ink: #ffffff;
-  --p-action: #256f82;
+  --p-action: #1672e6;
   --p-action-ink: #ffffff;
-  --p-inv-bg: #0a0a0a;
-  --p-inv-surface: #151515;
-  --p-inv-ink: #dedad3;
-  --p-inv-muted: #84827e;
-  --p-inv-accent: #256f82;
-  --p-inv-accent-ink: #ffffff;
-  --p-inv-action: #256f82;
+  --p-inv-bg: #05070d;
+  --p-inv-surface: #121a28;
+  --p-inv-ink: #ffffff;
+  --p-inv-muted: #9aa6b2;
+  --p-inv-accent: #57c2ff;
+  --p-inv-accent-ink: #05070d;
+  --p-inv-action: #1672e6;
   --p-inv-action-ink: #ffffff;
   --font-display: 'IBM Plex Sans', system-ui, sans-serif;
   --font-text: 'IBM Plex Sans', system-ui, sans-serif;
@@ -47,8 +54,8 @@
   --ly-scale: 0.98;
 
   /* ── The tooling's names, on the same palette ───────────────────────
-     Contrast against --p-bg #dedad3: ink 16.9:1, muted 7.0:1, accent
-     4.8:1. The status colours are the ones already computed for a light
+     Contrast against --p-bg #e8ecf2: ink 14.7:1, muted 5.0:1, accent
+     3.9:1 (text-weight blues use --deep, 6.1:1). The status colours are the ones already computed for a light
      ground (5.1:1 and up); the dark ones were white-on-tint and vanish
      here. */
   --bg: var(--p-bg);
@@ -57,7 +64,7 @@
   --line: color-mix(in oklab, var(--p-ink) 17%, var(--p-bg));
   --electric: var(--p-accent);
   --sky: var(--p-accent);
-  --deep: #17505e;
+  --deep: #0a4fc4;
   --white: #ffffff;
   --grey: var(--p-muted);
   --grey-2: color-mix(in oklab, var(--p-ink) 62%, var(--p-bg));
@@ -77,8 +84,8 @@
   --warn-bg: rgba(138, 90, 0, 0.1);
   --danger: #b91c1c;
   --danger-bg: rgba(185, 28, 28, 0.1);
-  --info: var(--p-accent);
-  --info-bg: rgba(37, 111, 130, 0.12);
+  --info: var(--deep);
+  --info-bg: rgba(22, 114, 230, 0.12);
 
   --radius: 20px;
   --radius-sm: 8px;
@@ -87,7 +94,7 @@
   --pad: 24px;
   --glow: none;
   --glow-sm: none;
-  --shadow: 0 18px 50px rgba(10, 10, 10, 0.12);
+  --shadow: 0 18px 50px rgba(16, 26, 43, 0.12);
   --head: var(--font-display);
   --body: var(--font-text);
 }

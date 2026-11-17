@@ -9,7 +9,7 @@ Line 2 — **the deal** (dealt, not chosen):
 | part | dealt | note |
 |---|---|---|
 | hero | `product` | `deal.mjs --type product --kind tech --has photo` |
-| palette | `putty-black-teal` (bg #dedad3, surface #d3cec6, ink #0a0a0a, accent #256f82) | first printed. Every piece of this trade's kit is matte black and every photograph of it is dark; on a warm stone ground the gear is the only dark thing on the page, which the near-black page it replaces could never do. |
+| palette | **the client's own**, via `start.mjs brand`: bg #e8ecf2, ink #101a2b, action #1672e6 (the logo's #1f8bff darkened for a 4.5:1 white label), near-black #05070d with sky #57c2ff on the dark grounds (home hero, dark band, footer). Replaced the dealt `putty-black-teal` at the client's request. | Every piece of this trade's kit is matte black and every photograph of it is dark; on a warm stone ground the gear is the only dark thing on the page, which the near-black page it replaces could never do. |
 | type | `plex` — IBM Plex Sans + IBM Plex Mono | first printed. The page sells on 2.6 mm, 1500 nits, 3840 Hz: Plex Mono sets those as tabular figures. |
 | radius | `soft` | default for product/hardware |
 | nav | `nav-split` | |

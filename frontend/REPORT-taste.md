@@ -114,12 +114,14 @@ brand names, a distant stage build).
 
 **The look.** The site was near-black with an electric-blue glow, two radial gradients fixed behind
 every page, 16px rounded cards and Poppins — the default costume, worn by a company that sells
-daylight-visible hardware. The palette and the type pairing were dealt, not chosen
-(`start.mjs deal --page tech --trade "event production equipment"`, first of three taken):
-**putty-black-teal** on **IBM Plex Sans + IBM Plex Mono**. Every piece of this trade's kit is matte
-black and every photograph of it is dark; on a warm stone ground the gear is the only dark thing on
-the page. The glow is gone. The one dark band left is the dealt `dark-band` rhythm, and it carries
-the page's one admission.
+daylight-visible hardware. The first rebuild used a dealt palette (putty-black-teal); at the
+client's request the palette is now SLS's own, put through `start.mjs brand`: the cool grey of the
+old light theme as the ground, the logo's electric blue as the action colour, taken from `#1f8bff`
+one step darker to `#1672e6` so a white label passes 4.6:1 (it holds 3.9:1 on the light ground and
+4.4:1 on the near-black, so one button colour works on both), and the brand's near-black `#05070d`
+with its sky blue `#57c2ff` brought back where the old site was strongest — the home page's first
+screen, the dark band's one statement and the footer — not everywhere. The glow is gone; the type is
+**IBM Plex Sans + IBM Plex Mono** (dealt).
 
 **The structure.** Every page used to be the same skeleton: an eyebrow, an h2, three icon cards,
 repeated three times. The home page had six eyebrow labels; it has none. It is eight screens, one
