@@ -91,8 +91,8 @@ export default function OrderDocuments({
 
   return (
     <div>
-      <h4 className="head" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 10 }}>
-        {t('DOCUMENTS', 'ΕΓΓΡΑΦΑ')}
+      <h4 className="head" style={{ fontSize: 12.5, color: 'var(--grey)', marginBottom: 10 }}>
+        {t('Documents', 'Έγγραφα')}
       </h4>
 
       {documents.length === 0 && (
@@ -100,8 +100,8 @@ export default function OrderDocuments({
           {canManage
             ? t('Nothing attached yet.', 'Κανένα έγγραφο ακόμη.')
             : t(
-                'Your Scope of Work and invoice will appear here once our team issues them.',
-                'Το Scope of Work και το τιμολόγιο θα εμφανιστούν εδώ.',
+                'Invoices appear here as SLS issues them: the deposit when the order is accepted, the balance when it is finished.',
+                'Τα τιμολόγια εμφανίζονται εδώ μόλις εκδοθούν: η προκαταβολή με την αποδοχή, το υπόλοιπο με την ολοκλήρωση.',
               )}
         </p>
       )}

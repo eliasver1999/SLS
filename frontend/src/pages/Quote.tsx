@@ -57,7 +57,7 @@ export default function Quote() {
         delivery_address: deliveryAddress.trim() || undefined,
       })
       cart.clear()
-      navigate('/order-received', { state: { reference: order.reference, type: 'order' } })
+      navigate('/order-received', { state: { reference: order.reference, id: order.id } })
     } catch (e) {
       setError(
         errorMessage(
@@ -209,8 +209,8 @@ export default function Quote() {
                     </p>
                   )}
 
-                  <h4 className="head mt24" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)' }}>
-                    {t('EVENT DETAILS', 'ΣΤΟΙΧΕΙΑ ΕΚΔΗΛΩΣΗΣ')}
+                  <h4 className="head mt24" style={{ fontSize: 12.5, color: 'var(--grey)' }}>
+                    {t('Event details', 'Στοιχεία εκδήλωσης')}
                   </h4>
                   <div className="field mt8">
                     <label>{t('Event date', 'Ημερομηνία')}</label>

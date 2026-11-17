@@ -1,97 +1,77 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useLang } from '../context/language'
-import { Check, Hash } from 'lucide-react'
 
+/**
+ * After an order is placed.
+ *
+ * This page used to promise a "Scope of Work (SOW) to sign" and an emailed
+ * invoice — neither of which the order flow does any more — and, opened
+ * without an order behind it, it showed a made-up reference, SLS-ORD-50231.
+ * It now says what actually happens next, and shows a reference only when
+ * there is one.
+ */
 export default function OrderReceived() {
   const { t } = useLang()
   const { state } = useLocation()
-  const reference = (state as { reference?: string } | null)?.reference ?? 'SLS-ORD-50231'
-  return (
-    <>
-      <div className="page-head">
-        <div className="container">
-          <div className="crumb">
-            Home / {t('Catalogue', 'Κατάλογος')} / {t('Request received', 'Το αίτημα ελήφθη')}
-          </div>
-        </div>
-      </div>
+  const { reference, id } = (state ?? {}) as { reference?: string; id?: number }
 
-      <section className="section-sm">
-        <div className="container" style={{ maxWidth: 720, margin: '0 auto' }}>
-          <div className="form center">
-            <div
-              className="ic"
-              style={{
-                width: 66,
-                height: 66,
-                borderRadius: '50%',
-                background: 'rgba(31,139,255,.16)',
-                display: 'grid',
-                placeItems: 'center',
-                margin: '0 auto 18px',
-                color: 'var(--sky)',
-                fontSize: 30,
-                boxShadow: 'var(--glow)',
-              }}
-            >
-              <Check size={32} aria-hidden />
-            </div>
-            <div className="eyebrow center">{t('Request received', 'Το αίτημα ελήφθη')}</div>
-            <h1 className="h2 mt8">
-              {t('Thank you for your order', 'Ευχαριστούμε για την παραγγελία σας')}
-            </h1>
-            <p className="lead mt8" style={{ margin: '8px auto 0' }}>
+  return (
+    <section className="section" data-enter aria-labelledby="rec-h">
+      <div className="wrap grid">
+        <div className="span-5 stack-5">
+          <div className="section-head">
+            <h1 id="rec-h">{t('Order sent', 'Η παραγγελία στάλθηκε')}</h1>
+            <p>
               {t(
-                'No payment is taken on the website. Our team will email you shortly to finalise the paperwork — a Scope of Work (SOW) for purchases — and to send your invoice for payment by bank transfer (IBAN). We review requests and reply within one business day.',
-                'Δεν γίνεται καμία πληρωμή στον ιστότοπο. Η ομάδα μας θα σας στείλει σύντομα email για να ολοκληρώσουμε τα έγγραφα — ένα Scope of Work (SOW) για τις αγορές — και το τιμολόγιο για πληρωμή με τραπεζικό έμβασμα (IBAN). Ελέγχουμε τα αιτήματα και απαντάμε εντός μίας εργάσιμης ημέρας.',
+                'SLS reads it within one business day and either accepts it at the price you saw or sends it back repriced for you to accept. Nothing has been charged.',
+                'Η SLS τη διαβάζει εντός μίας εργάσιμης και είτε την αποδέχεται στην τιμή που είδατε είτε την επιστρέφει επανατιμολογημένη για αποδοχή. Δεν έχει χρεωθεί τίποτα.',
               )}
             </p>
-
-            <div style={{ display: 'grid', gap: 10, maxWidth: 460, margin: '24px auto 0', textAlign: 'left' }}>
-              <div className="flow" style={{ gap: 10 }}>
-                <div className="node blue">{t('1 · Request received', '1 · Το αίτημα ελήφθη')}</div>
-                <span className="arw">→</span>
-                <div className="node">
-                  {t('2 · We email you the SOW to sign', '2 · Σας στέλνουμε το SOW για υπογραφή')}
-                </div>
-              </div>
-              <div className="flow" style={{ gap: 10 }}>
-                <div className="node">
-                  {t('3 · Invoice by bank transfer (IBAN)', '3 · Τιμολόγιο με έμβασμα (IBAN)')}
-                </div>
-                <span className="arw">→</span>
-                <div className="node">{t('4 · Production / delivery', '4 · Παραγωγή / παράδοση')}</div>
-              </div>
-            </div>
-
-            <div className="notice mt24" style={{ textAlign: 'left' }}>
-              <div className="ic"><Hash size={17} aria-hidden /></div>
-              <div>
-                <b>
-                  {t('Reference: ', 'Αριθμός: ')}
-                  {reference}
-                </b>
-                <br />
-                <span className="muted" style={{ fontSize: 13.5 }}>
-                  {t(
-                    'A copy has been emailed to you. Questions? sales@sls.gr',
-                    'Αντίγραφο στάλθηκε στο email σας. Ερωτήσεις; sales@sls.gr',
-                  )}
-                </span>
-              </div>
-            </div>
-
-            <div className="cta-row" style={{ justifyContent: 'center', marginTop: 24 }}>
-              <Link className="btn btn-primary" to="/dashboard">
-                {t('Go to dashboard', 'Στον πίνακα ελέγχου')}
-              </Link>
-              <Link className="btn btn-ghost" to="/catalogue">
-                {t('Back to catalogue', 'Πίσω στον κατάλογο')}
-              </Link>
-            </div>
+          </div>
+          <div className="btn-row">
+            <Link className="btn btn--primary" to={id ? `/orders/${id}` : '/dashboard'}>
+              {id ? t('Open the order', 'Άνοιγμα παραγγελίας') : t('Your orders', 'Οι παραγγελίες σας')}
+            </Link>
+            <Link className="link" to="/catalogue">
+              {t('Back to the catalogue', 'Πίσω στον κατάλογο')}
+            </Link>
           </div>
         </div>
-      </section>
-    </>
+
+        <div className="span-6 start-7 auth__panel">
+          <p className="t-label muted">{t('What happens next', 'Τι ακολουθεί')}</p>
+          <ul className="rows rows--spec">
+            {reference && (
+              <li>
+                <span className="rows__name">{t('Reference', 'Αριθμός')}</span>
+                <span className="rows__value mono">{reference}</span>
+              </li>
+            )}
+            <li>
+              <span className="rows__name">{t('SLS accepts or reprices it', 'Η SLS την αποδέχεται ή την επανατιμολογεί')}</span>
+              <span className="rows__value">{t('Within a day', 'Εντός ημέρας')}</span>
+            </li>
+            <li>
+              <span className="rows__name">{t('Deposit invoice, half the total', 'Τιμολόγιο προκαταβολής, το μισό')}</span>
+              <span className="rows__value">{t('On acceptance', 'Με την αποδοχή')}</span>
+            </li>
+            <li>
+              <span className="rows__name">{t('Built to order', 'Κατασκευή κατά παραγγελία')}</span>
+              <span className="rows__value">{t('2 to 5 weeks', '2 έως 5 εβδομάδες')}</span>
+            </li>
+            <li>
+              <span className="rows__name">{t('Balance invoice', 'Τιμολόγιο υπολοίπου')}</span>
+              <span className="rows__value">{t('When it is done', 'Με την ολοκλήρωση')}</span>
+            </li>
+          </ul>
+          <p className="t-small muted">
+            {t(
+              'Every step, and every invoice, appears on the order page as it happens. Questions go to sales@sls.gr.',
+              'Κάθε βήμα και κάθε τιμολόγιο εμφανίζεται στη σελίδα της παραγγελίας. Ερωτήσεις στο sales@sls.gr.',
+            )}
+          </p>
+        </div>
+      </div>
+    </section>
   )
 }

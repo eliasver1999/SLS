@@ -129,11 +129,11 @@
 }
 
 /* Blue-tinted "on" states were white-on-tint; on the stone ground they need
-   the ink they sit on. */
-:root:not([data-theme='dark']) .chip.on,
-:root:not([data-theme='dark']) .dash-tabs button.on,
-:root:not([data-theme='dark']) .side nav a.on,
-:root:not([data-theme='dark']) .side nav a:hover {
+   the ink they sit on. ThemeProvider puts data-theme on <body>, not <html>. */
+body:not([data-theme='dark']) .chip.on,
+body:not([data-theme='dark']) .dash-tabs button.on,
+body:not([data-theme='dark']) .side nav a.on,
+body:not([data-theme='dark']) .side nav a:hover {
   color: var(--info);
 }
 

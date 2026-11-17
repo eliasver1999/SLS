@@ -1,20 +1,35 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
-import { CircleAlert } from 'lucide-react'
+import AuthLayout, { Field } from '../components/AuthLayout'
 
+/**
+ * Sign in.
+ *
+ * The demo-account box used to be on this page in every build, so the
+ * production sign-in page published the admin's address and password. It is
+ * a development aid, and it only renders in development now.
+ */
 export default function Login() {
   const { t } = useLang()
   const { login } = useAuth()
   const navigate = useNavigate()
-  const [email, setEmail] = useState('')
+  // Arriving from a new password: say it worked, and keep the address.
+  const arrived = (useLocation().state ?? {}) as {
+    passwordSet?: boolean
+    email?: string
+  }
+  const [email, setEmail] = useState(arrived.email ?? '')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
   async function onSubmit(e: FormEvent) {
+    // The kit's form script (system.js) checks the fields first and cancels
+    // the submit when one fails; it shows the reason under the field.
+    if (e.nativeEvent.defaultPrevented) return
     e.preventDefault()
     setBusy(true)
     setError('')
@@ -22,105 +37,121 @@ export default function Login() {
       const u = await login(email, password)
       navigate(u.role === 'admin' ? '/admin' : '/dashboard')
     } catch (err) {
-      if (axios.isAxiosError(err) && (err.response?.status === 422 || err.response?.status === 401)) {
-        setError(t('These credentials do not match our records.', 'Τα στοιχεία δεν είναι σωστά.'))
+      if (
+        axios.isAxiosError(err) &&
+        (err.response?.status === 422 || err.response?.status === 401)
+      ) {
+        setError(
+          t(
+            'That email and password do not match an account.',
+            'Το email και ο κωδικός δεν αντιστοιχούν σε λογαριασμό.',
+          ),
+        )
       } else {
-        setError(t('Could not sign in. Please try again.', 'Αποτυχία σύνδεσης. Δοκιμάστε ξανά.'))
+        setError(
+          t(
+            'Sign-in did not go through. Try again in a moment.',
+            'Η σύνδεση δεν ολοκληρώθηκε. Δοκιμάστε ξανά σε λίγο.',
+          ),
+        )
       }
     } finally {
       setBusy(false)
     }
   }
 
-  const fill = (e: string, p: string) => {
-    setEmail(e)
-    setPassword(p)
-  }
-
   return (
-    <>
-      <div className="page-head">
-        <div className="container">
-          <div className="crumb">Home / {t('Login', 'Σύνδεση')}</div>
-          <div className="eyebrow">{t('Member area', 'Περιοχή μελών')}</div>
-          <h1 className="h2 mt8">{t('Sign in', 'Σύνδεση')}</h1>
-          <p className="lead mt8">
+    <AuthLayout
+      id="login"
+      title={t('Sign in', 'Σύνδεση')}
+      lead={t(
+        'For trade accounts and the SLS team. Your orders, their invoices and the catalogue prices are on the other side.',
+        'Για λογαριασμούς χονδρικής και την ομάδα της SLS. Οι παραγγελίες σας, τα τιμολόγιά τους και οι τιμές του καταλόγου είναι από την άλλη πλευρά.',
+      )}
+      aside={
+        <p className="t-body">
+          {t('No account yet? ', 'Δεν έχετε λογαριασμό; ')}
+          <Link className="link" to="/apply">
+            {t('Apply for trade pricing', 'Αίτηση για τιμές χονδρικής')}
+          </Link>
+        </p>
+      }
+    >
+      <form className="form form--single" onSubmit={onSubmit} noValidate>
+        {arrived.passwordSet && !error && (
+          <p className="form__status form__status--ok" role="status">
             {t(
-              'Approved partners see pricing and manage bookings. Admins manage products and approvals.',
-              'Οι εγκεκριμένοι συνεργάτες βλέπουν τιμές και κρατήσεις. Οι διαχειριστές διαχειρίζονται προϊόντα και εγκρίσεις.',
+              'Password set. Sign in with it now.',
+              'Ο κωδικός ορίστηκε. Συνδεθείτε τώρα με αυτόν.',
             )}
           </p>
-        </div>
-      </div>
+        )}
+        <Field id="email" label={t('Email', 'Email')}>
+          <input
+            id="email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            autoComplete="username"
+            required
+          />
+        </Field>
+        <Field id="password" label={t('Password', 'Κωδικός')}>
+          <input
+            id="password"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
+          />
+        </Field>
 
-      <section className="section-sm">
-        <div className="container split split-even">
-          <form className="form" onSubmit={onSubmit} noValidate>
-            <div className="field">
-              <label>{t('Email', 'Email')}</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
-                autoComplete="username"
-              />
-            </div>
-            <div className="field">
-              <label>{t('Password', 'Κωδικός')}</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                autoComplete="current-password"
-              />
-            </div>
-            {error && (
-              <div
-                className="notice"
-                style={{ borderColor: 'rgba(185, 28, 28, .35)', background: 'rgba(255,86,86,.08)' }}
+        {error && (
+          <p className="form__status" role="alert">
+            {error}
+          </p>
+        )}
+
+        <div className="btn-row">
+          <button className="btn btn--primary" type="submit" disabled={busy}>
+            {busy ? t('Signing in…', 'Σύνδεση…') : t('Sign in', 'Σύνδεση')}
+          </button>
+          <Link className="link" to="/forgot-password">
+            {t('Forgotten password', 'Ξέχασα τον κωδικό')}
+          </Link>
+        </div>
+
+        {import.meta.env.DEV && (
+          <div className="dev-accounts">
+            <p className="t-label muted">
+              {t('Development only: seeded accounts', 'Μόνο για ανάπτυξη: λογαριασμοί δοκιμής')}
+            </p>
+            <div className="chip-row">
+              <button
+                type="button"
+                className="pill"
+                onClick={() => {
+                  setEmail('admin@sls.gr')
+                  setPassword('password')
+                }}
               >
-                <div className="ic" style={{ color: 'var(--danger)' }}><CircleAlert size={18} aria-hidden /></div>
-                <div>{error}</div>
-              </div>
-            )}
-            <button className="btn btn-primary btn-block mt16" type="submit" disabled={busy}>
-              {busy ? t('Signing in…', 'Σύνδεση…') : t('Sign in', 'Σύνδεση')}
-            </button>
-            <p className="muted mt16" style={{ fontSize: 13 }}>
-              <Link to="/forgot-password" style={{ color: 'var(--sky)' }}>
-                {t('Forgot your password?', 'Ξεχάσατε τον κωδικό;')}
-              </Link>
-            </p>
-            <p className="muted mt16" style={{ fontSize: 13 }}>
-              {t('No account? ', 'Δεν έχετε λογαριασμό; ')}
-              <Link to="/register" style={{ color: 'var(--sky)' }}>
-                {t('Create one', 'Δημιουργήστε έναν')}
-              </Link>
-              {t(' or ', ' ή ')}
-              <Link to="/apply" style={{ color: 'var(--sky)' }}>
-                {t('apply for B2B access', 'κάντε αίτηση B2B πρόσβασης')}
-              </Link>
-            </p>
-          </form>
-
-          <aside className="panel">
-            <div className="eyebrow">{t('Demo accounts', 'Λογαριασμοί demo')}</div>
-            <p className="muted mt8" style={{ fontSize: 13 }}>
-              {t('Click to fill, then sign in.', 'Κάντε κλικ για συμπλήρωση και συνδεθείτε.')}
-            </p>
-            <div style={{ display: 'grid', gap: 10, marginTop: 14 }}>
-              <button type="button" className="node blue" style={{ textAlign: 'left', cursor: 'pointer' }} onClick={() => fill('admin@sls.gr', 'password')}>
-                <b>Admin</b> · admin@sls.gr / password
+                Admin · admin@sls.gr
               </button>
-              <button type="button" className="node" style={{ textAlign: 'left', cursor: 'pointer' }} onClick={() => fill('maria@novaevents.gr', 'password')}>
-                <b>{t('Customer', 'Πελάτης')}</b> · maria@novaevents.gr / password
+              <button
+                type="button"
+                className="pill"
+                onClick={() => {
+                  setEmail('maria@novaevents.gr')
+                  setPassword('password')
+                }}
+              >
+                {t('Customer', 'Πελάτης')} · maria@novaevents.gr
               </button>
             </div>
-          </aside>
-        </div>
-      </section>
-    </>
+          </div>
+        )}
+      </form>
+    </AuthLayout>
   )
 }

@@ -29,9 +29,9 @@
 .sls-app h4,
 .sls-app .head {
   font-family: var(--head);
-  font-weight: 700;
-  line-height: 1.08;
-  letter-spacing: 0.2px;
+  font-weight: var(--display-weight, 500);
+  line-height: 1.1;
+  letter-spacing: var(--display-tracking, -0.02em);
 }
 
 .sls-app a {
@@ -357,7 +357,7 @@
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: rgba(31, 139, 255, 0.14);
+  background: color-mix(in oklab, var(--electric) 14%, transparent);
   display: grid;
   place-items: center;
   color: var(--sky);
@@ -391,7 +391,7 @@
 }
 
 .sls-app .card:hover {
-  border-color: rgba(31, 139, 255, 0.6);
+  border-color: color-mix(in oklab, var(--electric) 60%, transparent);
   box-shadow: var(--shadow);
   transform: translateY(-3px);
 }
@@ -480,7 +480,7 @@
   color: var(--sky);
   font-size: 13px;
   font-weight: 700;
-  border: 1px dashed rgba(87, 194, 255, 0.45);
+  border: 1px dashed color-mix(in oklab, var(--electric) 45%, transparent);
   padding: 8px 12px;
   border-radius: 10px;
 }
@@ -498,7 +498,7 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: rgba(31, 139, 255, 0.14);
+  background: color-mix(in oklab, var(--electric) 14%, transparent);
   display: grid;
   place-items: center;
   color: var(--sky);
@@ -679,7 +679,7 @@
 }
 
 .sls-app .chip.on {
-  background: rgba(31, 139, 255, 0.16);
+  background: color-mix(in oklab, var(--electric) 16%, transparent);
   border-color: var(--electric);
   color: #fff;
 }
@@ -810,8 +810,8 @@
   color: var(--sky);
   font-size: 14px;
   font-weight: 700;
-  background: rgba(87, 194, 255, 0.08);
-  border: 1px solid rgba(87, 194, 255, 0.25);
+  background: color-mix(in oklab, var(--electric) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--electric) 25%, transparent);
   padding: 12px 14px;
   border-radius: 12px;
   margin: 14px 0;
@@ -871,7 +871,7 @@
 }
 
 .sls-app .cal .d.range {
-  background: rgba(31, 139, 255, 0.2);
+  background: color-mix(in oklab, var(--electric) 20%, transparent);
 }
 
 /* dashboard */
@@ -923,7 +923,7 @@
 
 .sls-app .side nav a.on,
 .sls-app .side nav a:hover {
-  background: rgba(31, 139, 255, 0.12);
+  background: color-mix(in oklab, var(--electric) 12%, transparent);
   color: #fff;
 }
 
@@ -1077,8 +1077,8 @@
   display: flex;
   gap: 14px;
   align-items: flex-start;
-  background: rgba(31, 139, 255, 0.08);
-  border: 1px solid rgba(31, 139, 255, 0.3);
+  background: color-mix(in oklab, var(--electric) 8%, transparent);
+  border: 1px solid color-mix(in oklab, var(--electric) 30%, transparent);
   border-radius: 14px;
   padding: 18px;
 }
@@ -1087,7 +1087,7 @@
   width: 40px;
   height: 40px;
   border-radius: 11px;
-  background: rgba(31, 139, 255, 0.18);
+  background: color-mix(in oklab, var(--electric) 18%, transparent);
   display: grid;
   place-items: center;
   color: var(--sky);
@@ -1315,8 +1315,8 @@
   }
 
 .sls-app .dash-tabs button.on {
-    background: rgba(31, 139, 255, 0.16);
-    border-color: rgba(31, 139, 255, 0.5);
+    background: color-mix(in oklab, var(--electric) 16%, transparent);
+    border-color: color-mix(in oklab, var(--electric) 50%, transparent);
     color: #fff;
   }
 
@@ -1827,4 +1827,170 @@
     text-align: left;
     margin-bottom: 10px;
   }
+}
+
+
+/* ===== The tooling, brought in line with the storefront =====
+   The rules above are the originals. These come after them and restyle the
+   handful of pieces every signed-in screen is built from, so the dashboard,
+   the order pages and the admin read as the same site as the storefront
+   without three thousand lines of markup being rewritten. */
+
+/* The label above a heading was set in capitals, tracked 3px, in the brand
+   blue: the one device that marked every old page. It is a quiet label now,
+   in the kit's .t-label style. */
+.sls-app .eyebrow {
+  font-family: var(--body);
+  text-transform: none;
+  letter-spacing: 0.01em;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--grey);
+}
+
+.sls-app .page-head {
+  padding: 40px 0 24px;
+}
+.sls-app .page-head .h2,
+.sls-app .page-head h1 {
+  font-size: clamp(32px, 3vw, 44px);
+}
+.sls-app .crumb {
+  font-size: 13px;
+  color: var(--grey);
+}
+
+/* Cards and panels are flat: one fill and a hairline, no gradient, no lift
+   and glow on hover. A card that is a link still answers the pointer, with
+   its border. */
+.sls-app .card {
+  background: var(--panel);
+}
+.sls-app .card:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--grey-2);
+}
+.sls-app .panel {
+  padding: 24px;
+}
+
+/* A notice is information, not an alert: the surface step and a hairline,
+   its icon in the ink rather than on a tinted tile. The coloured ones
+   (inline border and background on the element) keep their colour. */
+.sls-app .notice {
+  background: var(--panel-2);
+  border-color: var(--line);
+  border-radius: var(--radius-sm);
+}
+.sls-app .notice .ic {
+  width: auto;
+  height: auto;
+  background: none;
+  color: var(--text);
+}
+
+/* Numbered "nodes" joined by arrows were the old way to draw a process. */
+.sls-app .node {
+  font-weight: 500;
+}
+.sls-app .node.blue {
+  border-color: var(--electric);
+}
+
+.sls-app .status {
+  font-family: var(--body);
+  font-weight: 500;
+}
+
+.sls-app .feature .ic {
+  background: none;
+  width: auto;
+  height: auto;
+  color: var(--text);
+}
+
+.sls-app .side .u .av {
+  background: var(--electric);
+}
+
+/* A focused field shows a ring as well as a border colour: the glow that
+   used to mark it is gone, and a 1px colour change alone is easy to miss. */
+.sls-app .field input:focus,
+.sls-app .field textarea:focus,
+.sls-app .field select:focus {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--electric) 28%, transparent);
+}
+
+/* White text on a pale tint vanishes on the light ground; selected chips and
+   tabs take the ink they sit on. */
+body:not([data-theme='dark']) .sls-app :is(.chip.on, .dash-tabs button.on) {
+  color: var(--text);
+}
+
+/* ===== The kit's classes, switched off inside the tooling =====
+   The tooling and the kit share a handful of class names. Its sections are
+   already out of reach (Layout puts them one level under <main>); these are
+   the rest, each set back to what the tooling's own rules expect. */
+
+/* The kit's nav bar is fixed; the storefront's sections pad for it, the
+   tooling's page does it once here. */
+main.sls-app {
+  padding-top: var(--nav);
+}
+
+/* .grid: the kit's is twelve columns with every child spanning all of them,
+   which stacked every .g2/.g3 row into one column. */
+.sls-app .grid > * {
+  grid-column: auto;
+}
+.sls-app .grid:where(:not(.g2, .g3, .g4)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+/* .form: the kit's is a two-column grid; the tooling lays out its own rows. */
+.sls-app .form {
+  display: block;
+}
+
+/* .card: the kit's is a padded flex column; the tooling's cards are a
+   picture and a body. */
+.sls-app .card {
+  display: block;
+  padding: 0;
+}
+
+/* .panel: the kit's is a 264px-tall picture frame on a lit gradient ground,
+   which turned every info box on the dashboard into an empty beige block.
+   The gradient rule carries a very specific selector (it is keyed to the
+   page's site-kind meta), hence the two !important declarations. */
+.sls-app .panel {
+  min-height: 0;
+  flex: none;
+  overflow: visible;
+  isolation: auto;
+  border-radius: var(--radius);
+  background-color: var(--panel) !important;
+  background-image: none !important;
+}
+.sls-app .panel::before,
+.sls-app .panel::after {
+  content: none;
+}
+
+/* Column labels: the capitals and tracking were the old site's voice. */
+.sls-app .tbl th,
+.sls-app .tbl td::before,
+.sls-app .feed-day,
+.sls-app .filters h4 {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* One pair of page edges for the whole site: the storefront's .wrap is
+   1280px from x 80 at 1440, so the tooling's container is 1280 of content
+   plus its own gutters, rather than 1280 including them (which put every
+   signed-in page 24px inside the header's line). */
+.sls-app .container {
+  max-width: calc(var(--maxw) + 2 * var(--pad));
 }

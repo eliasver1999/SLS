@@ -952,8 +952,8 @@ function ProductForm({
 
         {form.modes.includes('buy') && (
           <div className="mt16">
-            <h4 className="head" style={{ fontSize: 13, color: 'var(--grey)', letterSpacing: 1 }}>
-              {t('BUY PRICE', 'ΤΙΜΗ ΑΓΟΡΑΣ')}
+            <h4 className="head" style={{ fontSize: 13, color: 'var(--grey)' }}>
+              {t('Buy price', 'Τιμή αγοράς')}
             </h4>
             <div className="row2 mt8">
               <div className="field" style={field}>
@@ -1025,7 +1025,7 @@ function SpecEditor({
 
   return (
     <div className="mt16">
-      <h4 className="head" style={{ fontSize: 13, color: 'var(--grey)', letterSpacing: 1, marginBottom: 8 }}>
+      <h4 className="head" style={{ fontSize: 13, color: 'var(--grey)', marginBottom: 8 }}>
         {title.toUpperCase()}
       </h4>
       {specs.map((s, i) => (
@@ -1413,8 +1413,8 @@ function AdminOrderDetail({
 
       {(order.event_date || order.venue || order.event_type) && (
         <>
-          <h4 className="head mt16" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 8 }}>
-            {t('EVENT', 'ΕΚΔΗΛΩΣΗ')}
+          <h4 className="head mt16" style={{ fontSize: 12.5, color: 'var(--grey)', marginBottom: 8 }}>
+            {t('Event', 'Εκδήλωση')}
           </h4>
           <div className="panel" style={{ padding: 12, fontSize: 13, lineHeight: 1.7 }}>
             {order.event_date && (
@@ -1445,8 +1445,8 @@ function AdminOrderDetail({
         </>
       )}
 
-      <h4 className="head mt16" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 8 }}>
-        {t('LINE ITEMS', 'ΕΙΔΗ')}
+      <h4 className="head mt16" style={{ fontSize: 12.5, color: 'var(--grey)', marginBottom: 8 }}>
+        {t('Line items', 'Είδη')}
       </h4>
       {items.map((it, i) => (
         <div key={i} style={{ display: 'grid', gridTemplateColumns: '1fr 56px 84px auto', gap: 6, marginBottom: 6, alignItems: 'center' }}>

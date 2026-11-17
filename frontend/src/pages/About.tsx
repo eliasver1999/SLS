@@ -20,24 +20,44 @@ export default function About() {
 
   return (
     <>
-      <section className="section section--hero" data-enter aria-labelledby="about-h">
+      {/* The opening was a full screen of two paragraphs; it is the dealt
+          product hero now, the kit lit, with the same two facts. */}
+      <section className="hero hero--product" data-enter aria-labelledby="about-h">
         <div className="wrap">
-          <div className="hero-text">
-            <div className="section-head">
-              <h1 id="about-h">{t('About SLS', 'Σχετικά με τη SLS')}</h1>
-              <p>
-                {t(
-                  'SLS supplies LED walls, stage lighting and sound systems to the companies that build events in Greece. The catalogue is six models; almost all of it is made to order.',
-                  'Η SLS προμηθεύει LED τοίχους, φωτισμό σκηνής και ηχητικά συστήματα στις εταιρείες που στήνουν εκδηλώσεις στην Ελλάδα. Ο κατάλογος είναι έξι μοντέλα· σχεδόν όλα κατασκευάζονται κατά παραγγελία.',
-                )}
-              </p>
+          <div className="hero-text hero__in">
+            <div className="hero__head">
+              <div>
+                <h1 id="about-h">{t('About SLS', 'Σχετικά με τη SLS')}</h1>
+                <p className="hero__lead">
+                  {t(
+                    'SLS supplies LED walls, stage lighting and sound systems to the companies that build events in Greece. Six models, almost all made to order, sold from Athens to businesses with a VAT number.',
+                    'Η SLS προμηθεύει LED τοίχους, φωτισμό σκηνής και ηχητικά συστήματα στις εταιρείες που στήνουν εκδηλώσεις στην Ελλάδα. Έξι μοντέλα, σχεδόν όλα κατά παραγγελία, από την Αθήνα σε επιχειρήσεις με ΑΦΜ.',
+                  )}
+                </p>
+              </div>
+              <div className="btn-row">
+                <Link className="btn btn--primary" to={action.to}>
+                  {action.label}
+                </Link>
+              </div>
             </div>
-            <p className="t-body measure">
-              {t(
-                'The name is the three things it sells: sound, lights, screens. SLS works from Athens and sells to businesses with a VAT number, which is why the prices are behind an approved account rather than on the page.',
-                'Το όνομα είναι τα τρία πράγματα που πουλάει: ήχος, φώτα, οθόνες. Η SLS λειτουργεί από την Αθήνα και πουλάει σε επιχειρήσεις με ΑΦΜ — γι᾽ αυτό οι τιμές είναι πίσω από εγκεκριμένο λογαριασμό και όχι πάνω στη σελίδα.',
-              )}
-            </p>
+            <div className="hero__stage">
+              <img
+                src="/assets/shots/photo-f2162506-960.jpg"
+                srcSet="/assets/shots/photo-f2162506-500.jpg 500w, /assets/shots/photo-f2162506-960.jpg 960w"
+                sizes="(max-width: 639px) 166vw, 100vw"
+                width={960}
+                height={722}
+                alt={t(
+                  'Moving heads on stands throwing beams across a covered stage',
+                  'Moving heads σε βάσεις ρίχνουν δέσμες φωτός σε μια στεγασμένη σκηνή',
+                )}
+                style={{ '--ly-pos': '50% 40%' } as React.CSSProperties}
+                fetchPriority="high"
+                data-source="stand-in"
+                data-subject="fixtures lit"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -105,7 +125,7 @@ export default function About() {
 
       <section className="section" id="limits" aria-labelledby="lim-h">
         <div className="wrap grid">
-          <div className="span-6">
+          <div className="span-7">
             <div className="section-head">
               <h2 id="lim-h">{t('What SLS does not do', 'Τι δεν κάνει η SLS')}</h2>
             </div>
@@ -138,19 +158,6 @@ export default function About() {
                 </p>
               </li>
             </ul>
-          </div>
-          <div className="span-5 start-8">
-            <p className="t-body">
-              {t(
-                'If that fits how you work, the account takes a few minutes to apply for.',
-                'Αν αυτό ταιριάζει με τον τρόπο που δουλεύετε, η αίτηση για λογαριασμό παίρνει λίγα λεπτά.',
-              )}
-            </p>
-            <p>
-              <Link className="link" to={action.to}>
-                {action.label}
-              </Link>
-            </p>
           </div>
         </div>
       </section>

@@ -14,22 +14,41 @@ export default function Solutions() {
 
   return (
     <>
-      <section className="section section--hero" data-enter aria-labelledby="ranges-h">
+      <section className="hero hero--product" data-enter aria-labelledby="ranges-h">
         <div className="wrap">
-          <div className="hero-text">
-            <div className="section-head">
-              <h1 id="ranges-h">{t('The three ranges', 'Οι τρεις σειρές')}</h1>
-              <p>
-                {t(
-                  'Screens, lighting and sound, from the same catalogue and on the same order. Six models in all, each with its figures and its lead time.',
-                  'Οθόνες, φωτισμός και ήχος, από τον ίδιο κατάλογο και στην ίδια παραγγελία. Έξι μοντέλα συνολικά, το καθένα με τα μεγέθη του και τον χρόνο παράδοσής του.',
-                )}
-              </p>
+          <div className="hero-text hero__in">
+            <div className="hero__head">
+              <div>
+                <h1 id="ranges-h">{t('The three ranges', 'Οι τρεις σειρές')}</h1>
+                <p className="hero__lead">
+                  {t(
+                    'Screens, lighting and sound, from the same catalogue and on the same order. Six models in all, each with its figures and its lead time.',
+                    'Οθόνες, φωτισμός και ήχος, από τον ίδιο κατάλογο και στην ίδια παραγγελία. Έξι μοντέλα συνολικά, το καθένα με τα μεγέθη του και τον χρόνο παράδοσής του.',
+                  )}
+                </p>
+              </div>
+              <div className="btn-row">
+                <Link className="btn btn--secondary" to="/catalogue">
+                  {t('See the catalogue', 'Δείτε τον κατάλογο')}
+                </Link>
+              </div>
             </div>
-            <div className="btn-row">
-              <Link className="btn btn--secondary" to="/catalogue">
-                {t('See the catalogue', 'Δείτε τον κατάλογο')}
-              </Link>
+            <div className="hero__stage">
+              <img
+                src="/assets/shots/photo-f39317346-960.jpg"
+                srcSet="/assets/shots/photo-f39317346-500.jpg 500w, /assets/shots/photo-f39317346-960.jpg 960w"
+                sizes="(max-width: 639px) 166vw, 100vw"
+                width={960}
+                height={722}
+                alt={t(
+                  'Rows of moving-head fixtures clamped to aluminium truss in a warehouse',
+                  'Σειρές από moving head στερεωμένα σε αλουμινένιο truss σε αποθήκη',
+                )}
+                style={{ '--ly-pos': '50% 46%' } as React.CSSProperties}
+                fetchPriority="high"
+                data-source="stand-in"
+                data-subject="the kit on truss"
+              />
             </div>
           </div>
         </div>
@@ -84,18 +103,18 @@ export default function Solutions() {
 
       <section className="photo-band photo-band--bleed" aria-labelledby="lit-h">
         <img
-          src="/assets/shots/photo-f39317346-960.jpg"
-          srcSet="/assets/shots/photo-f39317346-500.jpg 500w, /assets/shots/photo-f39317346-960.jpg 960w"
+          src="/assets/shots/photo-f2162506-960.jpg"
+          srcSet="/assets/shots/photo-f2162506-500.jpg 500w, /assets/shots/photo-f2162506-960.jpg 960w"
           sizes="100vw"
           width={960}
           height={722}
           alt={t(
-            'Rows of moving-head fixtures clamped to aluminium truss in a warehouse',
-            'Σειρές από moving head στερεωμένα σε αλουμινένιο truss σε αποθήκη',
+            'Moving heads on stands throwing beams across a covered stage',
+            'Moving heads σε βάσεις ρίχνουν δέσμες φωτός σε μια στεγασμένη σκηνή',
           )}
           loading="lazy"
           data-source="stand-in"
-          data-subject="fixtures on truss"
+          data-subject="fixtures lit"
         />
         <div className="photo-band__text">
           <h2 id="lit-h">{t('Moving heads on DMX-512', 'Moving heads σε DMX-512')}</h2>
@@ -164,24 +183,24 @@ export default function Solutions() {
             </p>
           </div>
           <div className="grid">
-            <figure className="frame frame--photo span-6" style={{ '--ratio': '75%' } as React.CSSProperties}>
+            <figure className="frame frame--photo span-6">
               <img
                 className="frame__img"
-                src="/assets/shots/photo-f2162506-960.jpg"
-                srcSet="/assets/shots/photo-f2162506-500.jpg 500w, /assets/shots/photo-f2162506-960.jpg 960w"
+                src="/assets/shots/photo-f181466405-960.jpg"
+                srcSet="/assets/shots/photo-f181466405-500.jpg 500w, /assets/shots/photo-f181466405-960.jpg 960w"
                 sizes="(max-width: 1023px) 100vw, 50vw"
                 width={960}
-                height={722}
+                height={720}
                 alt={t(
-                  'Moving heads on stands throwing beams across a covered stage',
-                  'Moving heads σε βάσεις ρίχνουν δέσμες φωτός σε μια στεγασμένη σκηνή',
+                  'Two foam-lined flight cases open on a yard, the way fixtures travel',
+                  'Δύο flight cases με αφρολέξ ανοιχτά σε μια αυλή, έτσι ταξιδεύουν τα φωτιστικά',
                 )}
                 loading="lazy"
                 data-source="stand-in"
-                data-subject="fixtures lit"
+                data-subject="flight cases"
               />
             </figure>
-            <figure className="frame frame--photo span-6" style={{ '--ratio': '75%' } as React.CSSProperties}>
+            <figure className="frame frame--photo span-6">
               <img
                 className="frame__img"
                 src="/assets/shots/photo-f116189302-960.jpg"

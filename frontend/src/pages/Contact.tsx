@@ -1,8 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { createInquiry, type InquiryPayload } from '../lib/api'
+import AuthLayout, { Field } from '../components/AuthLayout'
 import { useMainAction } from '../lib/mainAction'
 
 const EVENT_TYPES: [string, string][] = [
@@ -45,6 +46,9 @@ export default function Contact() {
     setForm((f) => ({ ...f, [k]: v }))
 
   async function onSubmit(e: FormEvent) {
+    // The kit's form script (system.js) checks the fields first and cancels
+    // the submit when one fails; it shows the reason under the field.
+    if (e.nativeEvent.defaultPrevented) return
     e.preventDefault()
     setStatus('saving')
     setErrors({})
@@ -71,183 +75,164 @@ export default function Contact() {
   }
 
   return (
-    <>
-      <section className="section section--hero" data-enter aria-labelledby="c-h">
-        <div className="wrap">
-          <div className="hero-text">
-            <div className="section-head">
-              <h1 id="c-h">{t('Contact', 'Επικοινωνία')}</h1>
-              <p>
-                {t(
-                  'The venue, the date and what the job has to do. Send those three and SLS comes back with a specification and a price, within one business day.',
-                  'Ο χώρος, η ημερομηνία και τι πρέπει να κάνει η δουλειά. Στείλτε αυτά τα τρία και η SLS επανέρχεται με προδιαγραφή και τιμή, εντός μίας εργάσιμης.',
-                )}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="section" id="message" aria-labelledby="m-h">
-        <div className="wrap grid">
-          <div className="span-6">
-            <div className="section-head">
-              <h2 id="m-h">
-                {status === 'done'
-                  ? t('Sent', 'Στάλθηκε')
-                  : t('Tell SLS about the job', 'Πείτε στη SLS για τη δουλειά')}
-              </h2>
-            </div>
-
-            {status === 'done' ? (
-              <>
-                <p className="t-body">
-                  {t(
-                    'SLS has your message and your date. The reply comes to the address you gave.',
-                    'Η SLS έχει το μήνυμα και την ημερομηνία σας. Η απάντηση έρχεται στη διεύθυνση που δώσατε.',
-                  )}
-                </p>
-                <div className="btn-row">
-                  <button className="btn btn--secondary" type="button" onClick={() => setStatus('idle')}>
-                    {t('Send another message', 'Στείλτε άλλο μήνυμα')}
-                  </button>
-                </div>
-              </>
-            ) : (
-              <form className="form" onSubmit={onSubmit} noValidate>
-                <Field id="name" label={t('Name', 'Όνομα')} error={errors.name}>
-                  <input
-                    id="name"
-                    value={form.name}
-                    onChange={(e) => update('name', e.target.value)}
-                    autoComplete="name"
-                  />
-                </Field>
-                <Field id="email" label={t('Email', 'Email')} error={errors.email}>
-                  <input
-                    id="email"
-                    type="email"
-                    value={form.email}
-                    onChange={(e) => update('email', e.target.value)}
-                    autoComplete="email"
-                  />
-                </Field>
-                <Field id="phone" label={t('Phone, if you prefer a call', 'Τηλέφωνο, αν προτιμάτε κλήση')} error={errors.phone}>
-                  <input
-                    id="phone"
-                    value={form.phone}
-                    onChange={(e) => update('phone', e.target.value)}
-                    autoComplete="tel"
-                  />
-                </Field>
-                <Field id="date" label={t('Event date', 'Ημερομηνία εκδήλωσης')} error={errors.event_date}>
-                  <input
-                    id="date"
-                    type="date"
-                    value={form.event_date}
-                    onChange={(e) => update('event_date', e.target.value)}
-                  />
-                </Field>
-                <Field id="etype" label={t('Event type', 'Τύπος εκδήλωσης')} error={errors.event_type} full>
-                  <select
-                    id="etype"
-                    value={form.event_type}
-                    onChange={(e) => update('event_type', e.target.value)}
-                  >
-                    {EVENT_TYPES.map(([en, el]) => (
-                      <option key={en} value={en}>
-                        {lang === 'el' ? el : en}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field
-                  id="msg"
-                  label={t('The venue, the size and what it has to do', 'Ο χώρος, το μέγεθος και τι πρέπει να κάνει')}
-                  error={errors.message}
-                  full
-                >
-                  <textarea
-                    id="msg"
-                    rows={4}
-                    value={form.message}
-                    onChange={(e) => update('message', e.target.value)}
-                  />
-                </Field>
-
-                {errorMsg && <p className="form__status">{errorMsg}</p>}
-
-                <div className="btn-row">
-                  <button className="btn btn--primary" type="submit" disabled={status === 'saving'}>
-                    {status === 'saving' ? t('Sending…', 'Αποστολή…') : t('Send the message', 'Αποστολή μηνύματος')}
-                  </button>
-                </div>
-              </form>
+    <AuthLayout
+      id="contact"
+      title={t('Contact', 'Επικοινωνία')}
+      lead={t(
+        'The venue, the date and what the job has to do. Send those three and SLS comes back with a specification and a price, within one business day.',
+        'Ο χώρος, η ημερομηνία και τι πρέπει να κάνει η δουλειά. Στείλτε αυτά τα τρία και η SLS επανέρχεται με προδιαγραφή και τιμή, εντός μίας εργάσιμης.',
+      )}
+      aside={
+        <div className="stack-4">
+          <p className="t-label muted">{t('Or write directly', 'Ή γράψτε απευθείας')}</p>
+          <ul className="rows rows--spec">
+            <li>
+              <span className="rows__name">{t('Anything', 'Οτιδήποτε')}</span>
+              <span className="rows__value">
+                <a href="mailto:hello@sls.gr">hello@sls.gr</a>
+              </span>
+            </li>
+            <li>
+              <span className="rows__name">{t('A price or an order', 'Τιμή ή παραγγελία')}</span>
+              <span className="rows__value">
+                <a href="mailto:sales@sls.gr">sales@sls.gr</a>
+              </span>
+            </li>
+            <li>
+              <span className="rows__name">{t('A trade account', 'Λογαριασμός χονδρικής')}</span>
+              <span className="rows__value">
+                <a href="mailto:partners@sls.gr">partners@sls.gr</a>
+              </span>
+            </li>
+            <li>
+              <span className="rows__name">{t('Based in', 'Έδρα')}</span>
+              <span className="rows__value">{t('Athens', 'Αθήνα')}</span>
+            </li>
+          </ul>
+          <p className="t-small muted">
+            {t(
+              'Prices need an approved trade account rather than a message.',
+              'Οι τιμές θέλουν εγκεκριμένο λογαριασμό χονδρικής, όχι μήνυμα.',
             )}
-          </div>
-
-          <div className="span-5 start-8">
-            <p className="t-label muted">{t('Or write directly', 'Ή γράψτε απευθείας')}</p>
-            <ul className="rows rows--spec">
-              <li>
-                <span className="rows__name">{t('Anything', 'Οτιδήποτε')}</span>
-                <span className="rows__value">
-                  <a href="mailto:hello@sls.gr">hello@sls.gr</a>
-                </span>
-              </li>
-              <li>
-                <span className="rows__name">{t('A price or an order', 'Τιμή ή παραγγελία')}</span>
-                <span className="rows__value">
-                  <a href="mailto:sales@sls.gr">sales@sls.gr</a>
-                </span>
-              </li>
-              <li>
-                <span className="rows__name">{t('A trade account', 'Λογαριασμός χονδρικής')}</span>
-                <span className="rows__value">
-                  <a href="mailto:partners@sls.gr">partners@sls.gr</a>
-                </span>
-              </li>
-              <li>
-                <span className="rows__name">{t('Based in', 'Έδρα')}</span>
-                <span className="rows__value">{t('Athens', 'Αθήνα')}</span>
-              </li>
-            </ul>
-            <p className="t-small muted">
+          </p>
+          <p>
+            <Link className="link" to={action.to}>
+              {action.label}
+            </Link>
+          </p>
+        </div>
+      }
+    >
+      {status === 'done' ? (
+        <div className="stack-4" role="status">
+          <h2 className="t-card">{t('Sent', 'Στάλθηκε')}</h2>
+          <>
+            <p className="t-body">
               {t(
-                'Prices need an approved trade account rather than a message.',
-                'Οι τιμές θέλουν εγκεκριμένο λογαριασμό χονδρικής, όχι μήνυμα.',
+                'SLS has your message and your date. The reply comes to the address you gave.',
+                'Η SLS έχει το μήνυμα και την ημερομηνία σας. Η απάντηση έρχεται στη διεύθυνση που δώσατε.',
               )}
             </p>
-            <p>
-              <Link className="link" to={action.to}>
-                {action.label}
-              </Link>
-            </p>
-          </div>
+            <div className="btn-row">
+              <button
+                className="btn btn--secondary"
+                type="button"
+                onClick={() => setStatus('idle')}
+              >
+                {t('Send another message', 'Στείλτε άλλο μήνυμα')}
+              </button>
+            </div>
+          </>
         </div>
-      </section>
-    </>
-  )
-}
+      ) : (
+        <form className="form" onSubmit={onSubmit} noValidate>
+          <Field id="name" label={t('Name', 'Όνομα')} error={errors.name}>
+            <input
+              id="name"
+              value={form.name}
+              onChange={(e) => update('name', e.target.value)}
+              autoComplete="name"
+            />
+          </Field>
+          <Field id="email" label={t('Email', 'Email')} error={errors.email}>
+            <input
+              id="email"
+              type="email"
+              value={form.email}
+              onChange={(e) => update('email', e.target.value)}
+              autoComplete="email"
+            />
+          </Field>
+          <Field
+            id="phone"
+            label={t('Phone, if you prefer a call', 'Τηλέφωνο, αν προτιμάτε κλήση')}
+            error={errors.phone}
+          >
+            <input
+              id="phone"
+              value={form.phone}
+              onChange={(e) => update('phone', e.target.value)}
+              autoComplete="tel"
+            />
+          </Field>
+          <Field
+            id="date"
+            label={t('Event date', 'Ημερομηνία εκδήλωσης')}
+            error={errors.event_date}
+          >
+            <input
+              id="date"
+              type="date"
+              value={form.event_date}
+              onChange={(e) => update('event_date', e.target.value)}
+            />
+          </Field>
+          <Field
+            id="etype"
+            label={t('Event type', 'Τύπος εκδήλωσης')}
+            error={errors.event_type}
+            full
+          >
+            <select
+              id="etype"
+              value={form.event_type}
+              onChange={(e) => update('event_type', e.target.value)}
+            >
+              {EVENT_TYPES.map(([en, el]) => (
+                <option key={en} value={en}>
+                  {lang === 'el' ? el : en}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field
+            id="msg"
+            label={t(
+              'The venue, the size and what it has to do',
+              'Ο χώρος, το μέγεθος και τι πρέπει να κάνει',
+            )}
+            error={errors.message}
+            full
+          >
+            <textarea
+              id="msg"
+              rows={4}
+              value={form.message}
+              onChange={(e) => update('message', e.target.value)}
+            />
+          </Field>
 
-function Field({
-  id,
-  label,
-  error,
-  full,
-  children,
-}: {
-  id: string
-  label: string
-  error?: string[]
-  full?: boolean
-  children: ReactNode
-}) {
-  return (
-    <div className={`field${full ? ' field--full' : ''}`}>
-      <label htmlFor={id}>{label}</label>
-      {children}
-      {error?.length ? <span className="field__error">{error[0]}</span> : null}
-    </div>
+          {errorMsg && <p className="form__status">{errorMsg}</p>}
+
+          <div className="btn-row">
+            <button className="btn btn--primary" type="submit" disabled={status === 'saving'}>
+              {status === 'saving'
+                ? t('Sending…', 'Αποστολή…')
+                : t('Send the message', 'Αποστολή μηνύματος')}
+            </button>
+          </div>
+        </form>
+      )}
+    </AuthLayout>
   )
 }

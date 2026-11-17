@@ -8,12 +8,23 @@ import { runKit } from '../lib/kit'
 import { useLang } from '../context/language'
 import { useMainAction } from '../lib/mainAction'
 
-/** The storefront. Everything else is the signed-in tooling, which keeps its
- *  own stylesheet scoped under .sls-app (src/sls-app.css). */
-const STOREFRONT = ['/', '/solutions', '/catalogue', '/product', '/about', '/ordering', '/contact', '/apply']
+/** The signed-in tooling and the pages still built on its stylesheet, which
+ *  is scoped under .sls-app (src/sls-app.css). Everything else is the
+ *  storefront — including any address that is not a route, so the 404 page
+ *  is drawn in the storefront's system rather than the tooling's. */
+const TOOLING = [
+  '/dashboard',
+  '/profile',
+  '/documents',
+  '/orders',
+  '/admin',
+  '/quote',
+  '/ui-kit',
+  '/sitemap',
+]
 
 const isStorefront = (path: string) =>
-  STOREFRONT.some((p) => path === p || (p !== '/' && path.startsWith(`${p}/`)))
+  !TOOLING.some((p) => path === p || path.startsWith(`${p}/`))
 
 /**
  * The phone action bar. The kit wants it as a direct child of <body>
@@ -60,10 +71,23 @@ export default function Layout() {
           it runs, and it has to run again for the new page's action bar.
           A fresh node means the old listeners go with the old one. */}
       <Header key={`nav:${pathname}`} />
-      <main id="main" className={storefront ? undefined : 'sls-app'}>
-        <Outlet />
-      </main>
-      <Footer />
+      {storefront ? (
+        <main id="main">
+          <Outlet />
+        </main>
+      ) : (
+        // The kit sizes every `main > section` to the screen and lays its
+        // .container out as a column. The tooling's sections are not built for
+        // that, so they sit one level down, where those rules do not reach.
+        <main id="main" className="sls-app">
+          <div className="sls-app__page">
+            <Outlet />
+          </div>
+        </main>
+      )}
+      {/* Inside the account area the big call to apply or order is noise:
+          the footer keeps its links and drops the close. */}
+      <Footer showClose={storefront} />
       {storefront && <ActionBar key={`bar:${pathname}`} />}
     </>
   )

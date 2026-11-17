@@ -88,8 +88,8 @@ export default function Sitemap() {
             </div>
           </div>
 
-          <h3 className="head mt40" style={{ letterSpacing: 1, color: 'var(--grey)', fontSize: 14 }}>
-            {t('FLOW 1 · ACCESS & APPROVAL', 'ΡΟΗ 1 · ΠΡΟΣΒΑΣΗ & ΕΓΚΡΙΣΗ')}
+          <h3 className="head mt40" style={{ color: 'var(--grey)', fontSize: 14 }}>
+            {t('Flow 1 · Access and approval', 'Ροή 1 · Πρόσβαση και έγκριση')}
           </h3>
           <div className="panel mt16">
             <div className="flow">
@@ -111,7 +111,7 @@ export default function Sitemap() {
 
           <div className="grid g2 mt24">
             <div>
-              <h3 className="head" style={{ letterSpacing: 1, color: 'var(--grey)', fontSize: 14 }}>
+              <h3 className="head" style={{ color: 'var(--grey)', fontSize: 14 }}>
                 {t('FLOW 2 · BUY (made-to-order)', 'ΡΟΗ 2 · ΑΓΟΡΑ (κατά παραγγελία)')}
               </h3>
               <div className="panel mt16">

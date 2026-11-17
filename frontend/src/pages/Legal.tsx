@@ -68,8 +68,8 @@ function privacy(t: (en: string, el: string) => string): Doc {
         heading: t('What we do not collect', 'Τι δεν συλλέγουμε'),
         body: [
           t(
-            'No payment or card details are ever entered on this website. Nothing is charged online: our team confirms your requirements, sends a Scope of Work, and invoices for bank transfer. We run no advertising, analytics or tracking on this site.',
-            'Δεν εισάγονται στοιχεία πληρωμής ή κάρτας στον ιστότοπο. Δεν γίνεται χρέωση online: η ομάδα μας επιβεβαιώνει, στέλνει Scope of Work και τιμολογεί για τραπεζικό έμβασμα. Δεν χρησιμοποιούμε διαφήμιση, analytics ή tracking.',
+            'No payment or card details are ever entered on this website. Nothing is charged online: SLS accepts or reprices an order, and invoices it for payment by bank transfer. We run no advertising, analytics or tracking on this site.',
+            'Δεν εισάγονται στοιχεία πληρωμής ή κάρτας στον ιστότοπο. Δεν γίνεται χρέωση online: η SLS αποδέχεται ή επανατιμολογεί μια παραγγελία και την τιμολογεί για πληρωμή με τραπεζικό έμβασμα. Δεν χρησιμοποιούμε διαφήμιση, analytics ή tracking.',
           ),
         ],
       },
@@ -189,8 +189,8 @@ function terms(t: (en: string, el: string) => string): Doc {
         heading: t('Nothing is sold on this website', 'Δεν γίνεται πώληση στον ιστότοπο'),
         body: [
           t(
-            'Submitting a quote or order request through this site is a request, not a purchase, and it does not form a contract. No payment is taken online. Our team reviews what you have asked for, confirms the details, sends a Scope of Work, and invoices for payment by bank transfer.',
-            'Η υποβολή αιτήματος δεν αποτελεί αγορά ούτε σύμβαση. Δεν γίνεται πληρωμή online. Η ομάδα μας ελέγχει, επιβεβαιώνει, στέλνει Scope of Work και τιμολογεί για πληρωμή με τραπεζικό έμβασμα.',
+            'Placing an order through this site is a request, not a purchase, and it does not form a contract until SLS accepts it. No payment is taken online. SLS reviews the order and either accepts it at the price shown or sends it back repriced for you to accept; the deposit and the balance are invoiced for payment by bank transfer.',
+            'Η υποβολή παραγγελίας δεν αποτελεί αγορά ούτε σύμβαση μέχρι να την αποδεχθεί η SLS. Δεν γίνεται πληρωμή online. Η SLS ελέγχει την παραγγελία και είτε την αποδέχεται στην τιμή που εμφανίζεται είτε την επιστρέφει επανατιμολογημένη για αποδοχή· η προκαταβολή και το υπόλοιπο τιμολογούνται για πληρωμή με τραπεζικό έμβασμα.',
           ),
         ],
       },
@@ -231,65 +231,64 @@ export default function Legal({ doc }: { doc: keyof typeof DOCS }) {
   const { t } = useLang()
   const content = DOCS[doc](t)
 
-  return (
-    <>
-      <div className="page-head">
-        <div className="container">
-          <div className="crumb">Home / {content.title}</div>
-          <div className="eyebrow">{t('Legal', 'Νομικά')}</div>
-          <h1 className="h2 mt8">{content.title}</h1>
-          <p className="muted mt8" style={{ maxWidth: '70ch' }}>
-            {content.intro}
-          </p>
-        </div>
-      </div>
+  // The headings, numbered in order, so the contents column can link to them.
+  const headed = content.blocks.map((block, i) => ({ ...block, id: `part-${i + 1}` }))
 
-      <section className="section-sm">
-        <div className="container" style={{ maxWidth: '75ch' }}>
-          {content.blocks.map((block, i) => (
-            <div key={i} style={{ marginBottom: 30 }}>
-              {block.heading && <h2 style={{ fontSize: 19, marginBottom: 10 }}>{block.heading}</h2>}
-              {block.body.map((paragraph, j) => (
-                <p
-                  key={j}
-                  className={paragraph.startsWith(PLACEHOLDER) ? undefined : 'muted'}
-                  style={
-                    paragraph.startsWith(PLACEHOLDER)
-                      ? {
-                          background: 'var(--warn-bg)',
-                          border: '1px solid var(--line)',
-                          borderRadius: 10,
-                          padding: '12px 14px',
-                          fontSize: 14,
-                          marginBottom: 10,
-                        }
-                      : { fontSize: 15, marginBottom: 10 }
-                  }
-                >
-                  {paragraph}
-                </p>
-              ))}
+  return (
+    <section className="section legal" data-enter aria-labelledby="legal-h">
+      <div className="wrap grid">
+        <aside className="span-4 legal__aside">
+          <div className="section-head">
+            <h1 id="legal-h">{content.title}</h1>
+            <p>{content.intro}</p>
+          </div>
+          <nav aria-label={t('On this page', 'Σε αυτή τη σελίδα')}>
+            <p className="t-label muted">{t('On this page', 'Σε αυτή τη σελίδα')}</p>
+            <ol className="legal__toc">
+              {headed
+                .filter((b) => b.heading)
+                .map((b) => (
+                  <li key={b.id}>
+                    <a href={`#${b.id}`}>{b.heading}</a>
+                  </li>
+                ))}
+            </ol>
+          </nav>
+        </aside>
+
+        <div className="span-7 start-6 legal__body">
+          {headed.map((block) => (
+            <div key={block.id} id={block.id} className="legal__part">
+              {block.heading && <h2 className="t-card">{block.heading}</h2>}
+              {block.body.map((paragraph, j) =>
+                paragraph.startsWith(PLACEHOLDER) ? (
+                  // Left visible on purpose: these pages are not reviewed policy
+                  // until the marked parts are filled in by someone who can.
+                  <p key={j} className="legal__todo">
+                    {paragraph}
+                  </p>
+                ) : (
+                  <p key={j}>{paragraph}</p>
+                ),
+              )}
               {block.list && (
-                <ul style={{ paddingLeft: 20, marginTop: 6 }}>
+                <ul className="legal__list">
                   {block.list.map((item, j) => (
-                    <li key={j} className="muted" style={{ fontSize: 15, marginBottom: 7 }}>
-                      {item}
-                    </li>
+                    <li key={j}>{item}</li>
                   ))}
                 </ul>
               )}
             </div>
           ))}
 
-          <p className="muted" style={{ fontSize: 13 }}>
-            {t('Questions about any of this? ', 'Ερωτήσεις; ')}
-            <Link to="/contact" style={{ color: 'var(--sky)' }}>
-              {t('Get in touch', 'Επικοινωνήστε')}
+          <p className="t-small muted">
+            {t('Questions about any of this go to ', 'Ερωτήσεις για οτιδήποτε από αυτά: ')}
+            <Link className="link" to="/contact">
+              {t('Contact', 'Επικοινωνία')}
             </Link>
-            .
           </p>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   )
 }

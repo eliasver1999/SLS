@@ -1,43 +1,34 @@
 import { Link } from 'react-router-dom'
-import { Compass } from 'lucide-react'
 import { useLang } from '../context/language'
 
+/**
+ * Not found. The address that failed is shown back, so a mistyped link is
+ * recognisable, and the ways on are the ones a visitor here most likely
+ * wanted: the catalogue, the order flow, a person.
+ */
 export default function NotFound() {
   const { t } = useLang()
 
   return (
-    <section className="section">
-      <div className="container">
-        <div className="form center" style={{ maxWidth: 520, margin: '0 auto' }}>
-          <div
-            className="ic"
-            style={{
-              width: 64,
-              height: 64,
-              borderRadius: '50%',
-              background: 'rgba(31,139,255,.16)',
-              display: 'grid',
-              placeItems: 'center',
-              margin: '0 auto 18px',
-              color: 'var(--sky)',
-            }}
-          >
-            <Compass size={30} aria-hidden />
+    <section className="section" data-enter aria-labelledby="nf-h">
+      <div className="wrap grid">
+        <div className="span-6 stack-5">
+          <div className="section-head">
+            <p className="t-label muted mono">404 · {window.location.pathname}</p>
+            <h1 id="nf-h">{t('No page at this address', 'Δεν υπάρχει σελίδα σε αυτή τη διεύθυνση')}</h1>
+            <p>
+              {t(
+                'The link is out of date or was mistyped. The catalogue, the ranges and the order pages are where they always were.',
+                'Ο σύνδεσμος είναι παλιός ή γράφτηκε λάθος. Ο κατάλογος, οι σειρές και οι παραγγελίες είναι εκεί που ήταν πάντα.',
+              )}
+            </p>
           </div>
-          <div className="eyebrow center">404</div>
-          <h1 className="h2 mt8">{t('Page not found', 'Η σελίδα δεν βρέθηκε')}</h1>
-          <p className="muted mt8">
-            {t(
-              'That link may be out of date. Try the catalogue, or get in touch and we will point you the right way.',
-              'Ο σύνδεσμος μπορεί να είναι παλιός. Δείτε τον κατάλογο ή επικοινωνήστε μαζί μας.',
-            )}
-          </p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap', marginTop: 20 }}>
-            <Link className="btn btn-primary" to="/catalogue">
-              {t('Browse catalogue', 'Δείτε κατάλογο')}
+          <div className="btn-row">
+            <Link className="btn btn--primary" to="/catalogue">
+              {t('See the catalogue', 'Δείτε τον κατάλογο')}
             </Link>
-            <Link className="btn btn-ghost" to="/">
-              {t('Back to home', 'Αρχική')}
+            <Link className="link" to="/contact">
+              {t('Ask SLS', 'Ρωτήστε τη SLS')}
             </Link>
           </div>
         </div>

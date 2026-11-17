@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { useAuth } from '../context/auth'
 import { useMainAction } from '../lib/mainAction'
@@ -54,10 +54,14 @@ const COLS: Col[] = [
   },
 ]
 
-export default function Footer() {
+export default function Footer({ showClose = true }: { showClose?: boolean }) {
   const { lang, t } = useLang()
   const { isApproved } = useAuth()
   const action = useMainAction()
+  // On the page the main action leads to, the close would send you to the
+  // page you are already reading: it goes, and the footer starts at the links.
+  const onActionPage = useLocation().pathname === action.to
+  const hasClose = showClose && !onActionPage
 
   const closeLine = isApproved
     ? t('Order panels, lights and sound', 'Παραγγείλτε panels, φώτα και ήχο')
@@ -65,8 +69,8 @@ export default function Footer() {
 
   const closeNote = isApproved
     ? t(
-        'Built to your size in three to four weeks.',
-        'Κατασκευή στο μέγεθός σας σε τρεις έως τέσσερις εβδομάδες.',
+        'Made to order in two to five weeks.',
+        'Κατά παραγγελία σε δύο έως πέντε εβδομάδες.',
       )
     : t(
         'An approved account sees every price in the catalogue.',
@@ -74,21 +78,26 @@ export default function Footer() {
       )
 
   return (
-    <footer className="footer closing footer--dark ground-inverse" aria-labelledby="close-h">
+    <footer
+      className={`footer closing footer--dark ground-inverse${hasClose ? '' : ' closing--bare'}`}
+      aria-labelledby={hasClose ? 'close-h' : undefined}
+    >
       <div className="wrap">
-        <div className="closing__cta close--type">
-          <div className="section-head">
-            <h2 id="close-h">{closeLine}</h2>
+        {hasClose && (
+          <div className="closing__cta close--type">
+            <div className="section-head">
+              <h2 id="close-h">{closeLine}</h2>
+            </div>
+            <p className="t-small muted">{closeNote}</p>
+            <Link className="btn btn--primary btn--xl" to={action.to}>
+              {action.label}
+              <svg className="m-arrow" viewBox="0 0 12 12" aria-hidden="true">
+                <path className="m-arrow__stem" d="M1 6h8" />
+                <path className="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" />
+              </svg>
+            </Link>
           </div>
-          <p className="t-small muted">{closeNote}</p>
-          <Link className="btn btn--primary btn--xl" to={action.to}>
-            {action.label}
-            <svg className="m-arrow" viewBox="0 0 12 12" aria-hidden="true">
-              <path className="m-arrow__stem" d="M1 6h8" />
-              <path className="m-arrow__head" d="M4.5 2.5 8 6l-3.5 3.5" />
-            </svg>
-          </Link>
-        </div>
+        )}
 
         <div className="closing__links">
           <div className="grid">

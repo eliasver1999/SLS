@@ -70,8 +70,8 @@ export default function Reports() {
             </div>
           </div>
 
-          <h3 className="head mt40" style={{ fontSize: 15, letterSpacing: 1, color: 'var(--grey)' }}>
-            {t('LAST 6 MONTHS', 'ΤΕΛΕΥΤΑΙΟΙ 6 ΜΗΝΕΣ')}
+          <h3 className="head mt40" style={{ fontSize: 15, color: 'var(--grey)' }}>
+            {t('Last six months', 'Τελευταίοι έξι μήνες')}
           </h3>
           <div className="panel mt16">
             <div style={{ display: 'flex', alignItems: 'flex-end', gap: 14, height: 160 }}>
@@ -99,8 +99,8 @@ export default function Reports() {
             </div>
           </div>
 
-          <h3 className="head mt40" style={{ fontSize: 15, letterSpacing: 1, color: 'var(--grey)' }}>
-            {t('BY STATUS', 'ΑΝΑ ΚΑΤΑΣΤΑΣΗ')}
+          <h3 className="head mt40" style={{ fontSize: 15, color: 'var(--grey)' }}>
+            {t('By status', 'Ανά κατάσταση')}
           </h3>
           <div className="table-scroll mt16">
             <table className="tbl">

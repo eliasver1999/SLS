@@ -311,3 +311,134 @@
   font-family: var(--font-mono);
   font-size: var(--t-small);
 }
+
+/* ── The account pages (components/AuthLayout.tsx) ─────────────────
+   The form sits on the surface ground, so it reads as the thing to fill in
+   beside the words that say what it is for. One column of fields when there
+   are two or three of them: a two-up grid of "Email | Password" splits a
+   pair that is read as one line of thought. */
+.auth__panel {
+  align-self: start;
+  padding: var(--s-7);
+  background: var(--surface);
+  border-radius: var(--r-lg);
+}
+.form--single {
+  grid-template-columns: minmax(0, 1fr);
+}
+.form .btn-row .link {
+  margin-left: var(--s-3);
+}
+.form__status {
+  color: var(--error);
+  font-weight: 500;
+}
+.form__status--ok {
+  color: var(--ink);
+}
+.dev-accounts {
+  grid-column: 1 / -1;
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: 1px dashed var(--line-strong);
+}
+@media (max-width: 639px) {
+  .auth__panel {
+    padding: var(--s-5);
+  }
+}
+/* The kit draws a field in the page's own ground colour. On the surface
+   panel that is a step darker than what it sits in, so the boxes read as
+   holes. They take a lighter step instead, wherever a form sits on a panel. */
+.auth__panel .field :is(input, select, textarea) {
+  background: color-mix(in oklab, #ffffff 55%, var(--bg));
+}
+
+/* ── The legal pages ───────────────────────────────────────────────
+   Long text, so the one place on the site that runs past a screen on
+   purpose: the title and the contents stay in the left column while the
+   text scrolls beside them. Body copy is in the ink at the body size; it
+   used to be the muted grey at 15px, which is the wrong way round for the
+   one page people read every word of. */
+main > section.legal.section {
+  height: auto;
+  min-height: 100vh;
+}
+.legal__aside {
+  align-self: start;
+  position: sticky;
+  top: calc(var(--nav) + var(--s-6));
+  display: grid;
+  gap: var(--s-6);
+}
+.legal__toc {
+  display: grid;
+  gap: var(--s-2);
+  margin-top: var(--s-3);
+  padding: 0;
+  list-style: decimal inside;
+  font-size: var(--t-small);
+}
+.legal__toc a {
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+.legal__toc a:hover {
+  text-decoration-color: currentColor;
+}
+.legal__body {
+  display: grid;
+  gap: var(--s-7);
+  max-width: 68ch;
+}
+.legal__part {
+  display: grid;
+  gap: var(--s-3);
+  scroll-margin-top: calc(var(--nav) + var(--s-6));
+}
+.legal__list {
+  display: grid;
+  gap: var(--s-2);
+  padding-left: 1.2em;
+  list-style: disc;
+}
+.legal__todo {
+  padding: var(--s-3) var(--s-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-sm);
+  font-family: var(--font-mono);
+  font-size: var(--t-small);
+}
+@media (max-width: 1023px) {
+  .legal__aside {
+    position: static;
+  }
+}
+
+/* A link inside a sentence is underlined and nothing more; the kit's arrow
+   belongs to a link that stands on its own line. */
+.link.link--inline {
+  display: inline;
+  font-weight: inherit;
+}
+.link.link--inline::after {
+  content: none;
+}
+
+/* "Sign out" is a button in the bar, styled as the words beside it. */
+button.nav__link {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+/* A footer without its close (the account area, the main action's own page)
+   is only its links, so it is only as tall as they are: the kit sizes
+   footer.closing to a screen because it expects the close in it. */
+footer.closing.closing--bare {
+  height: auto;
+  min-height: 0;
+  padding-top: var(--s-8);
+}

@@ -84,8 +84,8 @@ export default function OrderTimeline({ order }: { order: Order }) {
       )}
 
       {/* Audit trail */}
-      <h4 className="head" style={{ fontSize: 12.5, letterSpacing: 1, color: 'var(--grey)', marginBottom: 12 }}>
-        {t('HISTORY', 'ΙΣΤΟΡΙΚΟ')}
+      <h4 className="head" style={{ fontSize: 12.5, color: 'var(--grey)', marginBottom: 12 }}>
+        {t('History', 'Ιστορικό')}
       </h4>
       {history.length === 0 && (
         <p className="muted" style={{ fontSize: 14 }}>

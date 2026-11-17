@@ -115,8 +115,8 @@ export default function Documents() {
               <h3 style={{ fontSize: 17 }}>{t('Nothing here yet', 'Κανένα έγγραφο ακόμη')}</h3>
               <p className="muted mt8" style={{ fontSize: 14 }}>
                 {t(
-                  'Your Scope of Work and invoice appear here once our team issues them.',
-                  'Το Scope of Work και τα τιμολόγια εμφανίζονται εδώ μόλις εκδοθούν.',
+                  'Invoices appear here as SLS issues them: the deposit when an order is accepted, the balance when it is finished.',
+                  'Τα τιμολόγια εμφανίζονται εδώ μόλις εκδοθούν: η προκαταβολή με την αποδοχή, το υπόλοιπο με την ολοκλήρωση.',
                 )}
               </p>
             </div>

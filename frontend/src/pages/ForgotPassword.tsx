@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { forgotPassword } from '../lib/api'
-import { ArrowLeft, CircleCheck } from 'lucide-react'
+import AuthLayout, { Field } from '../components/AuthLayout'
 
 export default function ForgotPassword() {
   const { t } = useLang()
@@ -11,72 +11,67 @@ export default function ForgotPassword() {
   const [busy, setBusy] = useState(false)
 
   async function onSubmit(e: FormEvent) {
+    // The kit's form script (system.js) checks the fields first and cancels
+    // the submit when one fails; it shows the reason under the field.
+    if (e.nativeEvent.defaultPrevented) return
     e.preventDefault()
     setBusy(true)
     try {
       await forgotPassword(email)
-      setSent(true)
     } catch {
-      // Still show the generic confirmation — we never reveal if an email exists.
-      setSent(true)
+      // The same answer either way: the page never says whether an address
+      // has an account.
     } finally {
+      setSent(true)
       setBusy(false)
     }
   }
 
   return (
-    <>
-      <div className="page-head">
-        <div className="container">
-          <div className="crumb">Home / {t('Reset password', 'Επαναφορά κωδικού')}</div>
-          <div className="eyebrow">{t('Member area', 'Περιοχή μελών')}</div>
-          <h1 className="h2 mt8">{t('Forgot your password?', 'Ξεχάσατε τον κωδικό;')}</h1>
-          <p className="lead mt8">
+    <AuthLayout
+      id="forgot"
+      title={t('Forgotten password', 'Ξέχασα τον κωδικό')}
+      lead={t(
+        'Give the email the account uses. A link to set a new password goes to it, and works for an hour.',
+        'Δώστε το email του λογαριασμού. Ένας σύνδεσμος για νέο κωδικό πηγαίνει εκεί και ισχύει για μία ώρα.',
+      )}
+      aside={
+        <p className="t-body">
+          <Link className="link" to="/login">
+            {t('Back to sign in', 'Πίσω στη σύνδεση')}
+          </Link>
+        </p>
+      }
+    >
+      {sent ? (
+        <div className="stack-4" role="status">
+          <h2 className="t-card">{t('Check the inbox', 'Ελέγξτε τα εισερχόμενα')}</h2>
+          <p className="t-body">
             {t(
-              "Enter your email and we'll send a link to reset your password.",
-              'Δώστε το email σας και θα σας στείλουμε σύνδεσμο επαναφοράς.',
+              'If that address has an account, the link is on its way. Nothing arrives if it does not.',
+              'Αν η διεύθυνση έχει λογαριασμό, ο σύνδεσμος στάλθηκε. Αν δεν έχει, δεν θα έρθει τίποτα.',
             )}
           </p>
         </div>
-      </div>
-
-      <section className="section-sm">
-        <div className="container" style={{ maxWidth: 460 }}>
-          {sent ? (
-            <div className="notice" style={{ borderColor: 'rgba(72,211,138,.35)', background: 'rgba(72,211,138,.08)' }}>
-              <div className="ic" style={{ color: 'var(--ok)' }}><CircleCheck size={18} aria-hidden /></div>
-              <div>
-                {t(
-                  'If that email has an account, a reset link is on its way. Check your inbox.',
-                  'Αν υπάρχει λογαριασμός με αυτό το email, ο σύνδεσμος επαναφοράς στάλθηκε. Ελέγξτε το inbox σας.',
-                )}
-              </div>
-            </div>
-          ) : (
-            <form className="form" onSubmit={onSubmit} noValidate>
-              <div className="field">
-                <label>{t('Email', 'Email')}</label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@company.com"
-                  autoComplete="username"
-                />
-              </div>
-              <button className="btn btn-primary btn-block mt16" type="submit" disabled={busy}>
-                {busy ? t('Sending…', 'Αποστολή…') : t('Send reset link', 'Αποστολή συνδέσμου')}
-              </button>
-            </form>
-          )}
-          <p className="muted mt16" style={{ fontSize: 13 }}>
-            <Link to="/login" style={{ color: 'var(--sky)' }}>
-              <ArrowLeft size={14} aria-hidden />
-              {t('Back to sign in', 'Πίσω στη σύνδεση')}
-            </Link>
-          </p>
-        </div>
-      </section>
-    </>
+      ) : (
+        <form className="form form--single" onSubmit={onSubmit} noValidate>
+          <Field id="email" label={t('Email', 'Email')}>
+            <input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="username"
+              required
+            />
+          </Field>
+          <div className="btn-row">
+            <button className="btn btn--primary" type="submit" disabled={busy}>
+              {busy ? t('Sending…', 'Αποστολή…') : t('Send the link', 'Αποστολή συνδέσμου')}
+            </button>
+          </div>
+        </form>
+      )}
+    </AuthLayout>
   )
 }

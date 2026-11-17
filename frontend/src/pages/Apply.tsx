@@ -1,8 +1,9 @@
-import { useState, type FormEvent, type ReactNode } from 'react'
+import { useState, type FormEvent } from 'react'
 import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { useLang } from '../context/language'
 import { createPartnerApplication } from '../lib/api'
+import AuthLayout, { Field } from '../components/AuthLayout'
 
 /**
  * The trade account application — the site's main action.
@@ -45,11 +46,13 @@ export default function Apply() {
 
   const toggle = (k: string) => setChips((c) => ({ ...c, [k]: !c[k] }))
   const set =
-    (k: keyof typeof fields) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    (k: keyof typeof fields) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setFields((f) => ({ ...f, [k]: e.target.value }))
 
   const onSubmit = async (e: FormEvent) => {
+    // The kit's form script (system.js) checks the fields first and cancels
+    // the submit when one fails; it shows the reason under the field.
+    if (e.nativeEvent.defaultPrevented) return
     e.preventDefault()
     setSaving(true)
     setErrors({})
@@ -116,154 +119,151 @@ export default function Apply() {
   }
 
   return (
-    <>
-      <section className="section section--hero" data-enter aria-labelledby="ap-h">
-        <div className="wrap">
-          <div className="hero-text">
-            <div className="section-head">
-              <h1 id="ap-h">{t('Apply for trade pricing', 'Αίτηση για τιμές χονδρικής')}</h1>
-              <p>
-                {t(
-                  'An account is for a company with a VAT number. Once SLS approves it, every price in the catalogue is visible and the order form opens.',
-                  'Ο λογαριασμός είναι για εταιρεία με ΑΦΜ. Μόλις η SLS τον εγκρίνει, κάθε τιμή του καταλόγου είναι ορατή και ανοίγει η φόρμα παραγγελίας.',
-                )}
-              </p>
-            </div>
-          </div>
+    <AuthLayout
+      id="apply"
+      title={t('Apply for trade pricing', 'Αίτηση για τιμές χονδρικής')}
+      lead={t(
+        'An account is for a company with a VAT number. Once SLS approves it, every price in the catalogue is visible and the order form opens.',
+        'Ο λογαριασμός είναι για εταιρεία με ΑΦΜ. Μόλις η SLS τον εγκρίνει, κάθε τιμή του καταλόγου είναι ορατή και ανοίγει η φόρμα παραγγελίας.',
+      )}
+      aside={
+        <div className="stack-4">
+          <p className="t-label muted">{t('What happens next', 'Τι ακολουθεί')}</p>
+          <ul className="rows rows--spec">
+            <li>
+              <span className="rows__name">{t('You send this', 'Στέλνετε αυτό')}</span>
+              <span className="rows__value">{t('Now', 'Τώρα')}</span>
+            </li>
+            <li>
+              <span className="rows__name">{t('SLS reads it', 'Η SLS το διαβάζει')}</span>
+              <span className="rows__value">{t('About a day', 'Περίπου μία ημέρα')}</span>
+            </li>
+            <li>
+              <span className="rows__name">
+                {t('The outcome by email', 'Το αποτέλεσμα με email')}
+              </span>
+              <span className="rows__value">
+                {t('With a password link', 'Με σύνδεσμο κωδικού')}
+              </span>
+            </li>
+            <li>
+              <span className="rows__name">
+                {t('Prices and ordering', 'Τιμές και παραγγελίες')}
+              </span>
+              <span className="rows__value">{t('On approval', 'Με την έγκριση')}</span>
+            </li>
+          </ul>
+          <p className="t-small muted">
+            {t(
+              'The account belongs to the company and is tied to its VAT number, because that is what the invoice is made out to.',
+              'Ο λογαριασμός ανήκει στην εταιρεία και συνδέεται με το ΑΦΜ της, γιατί σε αυτό εκδίδεται το τιμολόγιο.',
+            )}
+          </p>
+          <p className="t-body">
+            {t('Already have an account? ', 'Έχετε ήδη λογαριασμό; ')}
+            <Link className="link" to="/login">
+              {t('Sign in', 'Σύνδεση')}
+            </Link>
+          </p>
         </div>
-      </section>
+      }
+    >
+      <form className="form" onSubmit={onSubmit}>
+        <Field id="company" label={t('Company name', 'Επωνυμία εταιρείας')} error={errors.company}>
+          <input
+            id="company"
+            value={fields.company}
+            onChange={set('company')}
+            autoComplete="organization"
+          />
+        </Field>
+        <Field id="vat" label={t('VAT number', 'ΑΦΜ')} error={errors.vat}>
+          <input id="vat" value={fields.vat} onChange={set('vat')} />
+        </Field>
+        <Field id="contact" label={t('Your name', 'Το όνομά σας')} error={errors.contact_name}>
+          <input
+            id="contact"
+            value={fields.contact_name}
+            onChange={set('contact_name')}
+            autoComplete="name"
+          />
+        </Field>
+        <Field id="role" label={t('Your role', 'Ο ρόλος σας')} error={errors.role}>
+          <input
+            id="role"
+            value={fields.role}
+            onChange={set('role')}
+            autoComplete="organization-title"
+          />
+        </Field>
+        <Field id="email" label={t('Business email', 'Επαγγελματικό email')} error={errors.email}>
+          <input
+            id="email"
+            type="email"
+            value={fields.email}
+            onChange={set('email')}
+            autoComplete="email"
+          />
+        </Field>
+        <Field id="phone" label={t('Phone', 'Τηλέφωνο')} error={errors.phone}>
+          <input id="phone" value={fields.phone} onChange={set('phone')} autoComplete="tel" />
+        </Field>
 
-      <section className="section" id="form" aria-labelledby="f-h">
-        <div className="wrap grid">
-          <div className="span-6">
-            <div className="section-head">
-              <h2 id="f-h">{t('The company', 'Η εταιρεία')}</h2>
-            </div>
-            <form className="form" onSubmit={onSubmit}>
-              <Field id="company" label={t('Company name', 'Επωνυμία εταιρείας')} error={errors.company}>
-                <input id="company" value={fields.company} onChange={set('company')} autoComplete="organization" />
-              </Field>
-              <Field id="vat" label={t('VAT number', 'ΑΦΜ')} error={errors.vat}>
-                <input id="vat" value={fields.vat} onChange={set('vat')} />
-              </Field>
-              <Field id="contact" label={t('Your name', 'Το όνομά σας')} error={errors.contact_name}>
-                <input id="contact" value={fields.contact_name} onChange={set('contact_name')} autoComplete="name" />
-              </Field>
-              <Field id="role" label={t('Your role', 'Ο ρόλος σας')} error={errors.role}>
-                <input id="role" value={fields.role} onChange={set('role')} autoComplete="organization-title" />
-              </Field>
-              <Field id="email" label={t('Business email', 'Επαγγελματικό email')} error={errors.email}>
-                <input id="email" type="email" value={fields.email} onChange={set('email')} autoComplete="email" />
-              </Field>
-              <Field id="phone" label={t('Phone', 'Τηλέφωνο')} error={errors.phone}>
-                <input id="phone" value={fields.phone} onChange={set('phone')} autoComplete="tel" />
-              </Field>
-
-              <div className="field field--full">
-                <span className="t-label">{t('What you buy', 'Τι αγοράζετε')}</span>
-                <div className="chip-row">
-                  {BUYS.map((b) => (
-                    <button
-                      key={b.key}
-                      type="button"
-                      className={`pill${chips[b.key] ? ' is-on' : ''}`}
-                      aria-pressed={!!chips[b.key]}
-                      onClick={() => toggle(b.key)}
-                    >
-                      {lang === 'el' ? b.el : b.en}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <Field
-                id="msg"
-                label={t('What the company does', 'Τι κάνει η εταιρεία')}
-                error={errors.message}
-                full
+        <div className="field field--full">
+          <span className="t-label">{t('What you buy', 'Τι αγοράζετε')}</span>
+          <div className="chip-row">
+            {BUYS.map((b) => (
+              <button
+                key={b.key}
+                type="button"
+                className={`pill${chips[b.key] ? ' is-on' : ''}`}
+                aria-pressed={!!chips[b.key]}
+                onClick={() => toggle(b.key)}
               >
-                <textarea id="msg" rows={3} value={fields.message} onChange={set('message')} />
-              </Field>
-
-              <div className="field field--full">
-                <label htmlFor="agree" className="agree">
-                  <input
-                    id="agree"
-                    type="checkbox"
-                    checked={agree}
-                    onChange={(e) => setAgree(e.target.checked)}
-                  />
-                  <span>
-                    {t('I agree to the ', 'Συμφωνώ με την ')}
-                    <Link className="link" to="/privacy">
-                      {t('privacy policy', 'πολιτική απορρήτου')}
-                    </Link>
-                    {t(' and to SLS holding these details.', ' και με την τήρηση αυτών των στοιχείων από τη SLS.')}
-                  </span>
-                </label>
-              </div>
-
-              {errorMsg && <p className="form__status">{errorMsg}</p>}
-
-              <div className="btn-row">
-                <button className="btn btn--primary" type="submit" disabled={saving || !agree}>
-                  {saving ? t('Sending…', 'Αποστολή…') : t('Send the application', 'Αποστολή αίτησης')}
-                </button>
-              </div>
-            </form>
-          </div>
-
-          <div className="span-5 start-8">
-            <p className="t-label muted">{t('What happens next', 'Τι ακολουθεί')}</p>
-            <ul className="rows rows--spec">
-              <li>
-                <span className="rows__name">{t('You send this', 'Στέλνετε αυτό')}</span>
-                <span className="rows__value">{t('Now', 'Τώρα')}</span>
-              </li>
-              <li>
-                <span className="rows__name">{t('SLS reads it', 'Η SLS το διαβάζει')}</span>
-                <span className="rows__value">{t('About a day', 'Περίπου μία ημέρα')}</span>
-              </li>
-              <li>
-                <span className="rows__name">{t('The outcome by email', 'Το αποτέλεσμα με email')}</span>
-                <span className="rows__value">{t('With a password link', 'Με σύνδεσμο κωδικού')}</span>
-              </li>
-              <li>
-                <span className="rows__name">{t('Prices and ordering', 'Τιμές και παραγγελίες')}</span>
-                <span className="rows__value">{t('On approval', 'Με την έγκριση')}</span>
-              </li>
-            </ul>
-            <p className="t-small muted">
-              {t(
-                'The account belongs to the company and is tied to its VAT number, because that is what the invoice is made out to.',
-                'Ο λογαριασμός ανήκει στην εταιρεία και συνδέεται με το ΑΦΜ της, γιατί σε αυτό εκδίδεται το τιμολόγιο.',
-              )}
-            </p>
+                {lang === 'el' ? b.el : b.en}
+              </button>
+            ))}
           </div>
         </div>
-      </section>
-    </>
-  )
-}
 
-function Field({
-  id,
-  label,
-  error,
-  full,
-  children,
-}: {
-  id: string
-  label: string
-  error?: string[]
-  full?: boolean
-  children: ReactNode
-}) {
-  return (
-    <div className={`field${full ? ' field--full' : ''}`}>
-      <label htmlFor={id}>{label}</label>
-      {children}
-      {error?.length ? <span className="field__error">{error[0]}</span> : null}
-    </div>
+        <Field
+          id="msg"
+          label={t('What the company does', 'Τι κάνει η εταιρεία')}
+          error={errors.message}
+          full
+        >
+          <textarea id="msg" rows={3} value={fields.message} onChange={set('message')} />
+        </Field>
+
+        <div className="field field--full">
+          <label htmlFor="agree" className="agree">
+            <input
+              id="agree"
+              type="checkbox"
+              checked={agree}
+              onChange={(e) => setAgree(e.target.checked)}
+            />
+            <span>
+              {t('I agree to the ', 'Συμφωνώ με την ')}
+              <Link className="link link--inline" to="/privacy">
+                {t('privacy policy', 'πολιτική απορρήτου')}
+              </Link>
+              {t(
+                ' and to SLS holding these details.',
+                ' και με την τήρηση αυτών των στοιχείων από τη SLS.',
+              )}
+            </span>
+          </label>
+        </div>
+
+        {errorMsg && <p className="form__status">{errorMsg}</p>}
+
+        <div className="btn-row">
+          <button className="btn btn--primary" type="submit" disabled={saving || !agree}>
+            {saving ? t('Sending…', 'Αποστολή…') : t('Send the application', 'Αποστολή αίτησης')}
+          </button>
+        </div>
+      </form>
+    </AuthLayout>
   )
 }

@@ -230,12 +230,12 @@ export default function Dashboard() {
           </div>
         )}
 
-        <h3 className="head mt40" style={{ fontSize: 15, letterSpacing: 1, color: 'var(--grey)' }}>
+        <h3 className="head mt40" style={{ fontSize: 15, color: 'var(--grey)' }}>
           {view === 'quote'
-            ? t('YOUR QUOTES', 'ΟΙ ΠΡΟΣΦΟΡΕΣ ΣΑΣ')
+            ? t('Your quotes', 'Οι προσφορές σας')
             : view === 'order'
-              ? t('YOUR ORDERS', 'ΟΙ ΠΑΡΑΓΓΕΛΙΕΣ ΣΑΣ')
-              : t('RECENT QUOTES & ORDERS', 'ΠΡΟΣΦΑΤΕΣ ΠΡΟΣΦΟΡΕΣ & ΠΑΡΑΓΓΕΛΙΕΣ')}
+              ? t('Your orders', 'Οι παραγγελίες σας')
+              : t('Recent orders', 'Πρόσφατες παραγγελίες')}
         </h3>
         <div className="table-scroll">
           <table className="tbl mt16">
@@ -285,11 +285,11 @@ export default function Dashboard() {
 
         <div className="grid g2 mt24">
           <div className="panel">
-            <h3 style={{ fontSize: 16 }}>{t('Need something?', 'Χρειάζεστε κάτι;')}</h3>
+            <h3 style={{ fontSize: 16 }}>{t('A new order', 'Νέα παραγγελία')}</h3>
             <p className="muted mt8" style={{ fontSize: 14 }}>
               {t(
-                'Browse the catalogue to request a quote or submit an order — our team follows up by email.',
-                'Δείτε τον κατάλογο για αίτημα προσφοράς ή παραγγελία — η ομάδα μας επικοινωνεί με email.',
+                'Choose the models in the catalogue and send the order. SLS accepts it at that price or reprices it within one business day.',
+                'Επιλέξτε μοντέλα στον κατάλογο και στείλτε την παραγγελία. Η SLS την αποδέχεται σε αυτή την τιμή ή την επανατιμολογεί εντός μίας εργάσιμης.',
               )}
             </p>
             <Link className="btn btn-ghost btn-sm mt16" to="/catalogue">

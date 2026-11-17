@@ -117,7 +117,7 @@ export default function Product() {
     setError(null)
     try {
       const order = await createOrder({ items: [item()], ...eventDetails() })
-      navigate('/order-received', { state: { reference: order.reference, type: 'order' } })
+      navigate('/order-received', { state: { reference: order.reference, id: order.id } })
     } catch (e) {
       setError(
         errorMessage(

@@ -18,5 +18,10 @@
     "check": "one-heading",
     "target": "h2#pack-h",
     "reason": "3.9% against 3%: the second heading counted is the fixed nav's wordmark, which is on the screen at every scroll position"
+  },
+  {
+    "check": "scroll-reveal",
+    "target": "closing__cta",
+    "reason": "nothing on this button animates on scroll: no transitionstart fires when it enters the viewport (checked by hand). The IntersectionObserver watching it is the kit's own phone action bar, which observes the main action's twins to know when to hide itself; the finding comes and goes between runs"
   }
 ]
