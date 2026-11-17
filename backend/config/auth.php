@@ -99,6 +99,19 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        // The link in the "your application is approved" email, which sets a
+        // new partner's first password. It used the reset broker above, so
+        // it died after an hour — and an approval email is read the next
+        // morning as often as not. It gets a week, and a table of its own:
+        // with one shared table, a forgotten-password token could be
+        // presented as an invite and live for a week too.
+        'invites' => [
+            'provider' => 'users',
+            'table' => env('AUTH_INVITE_TOKEN_TABLE', 'partner_invite_tokens'),
+            'expire' => 60 * 24 * 7,
+            'throttle' => 0,
+        ],
     ],
 
     /*

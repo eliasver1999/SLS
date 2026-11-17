@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\PartnerApplication;
 use App\Models\User;
+use App\Services\TransactionalMail;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
@@ -81,27 +82,103 @@ class PartnerOnboardingTest extends TestCase
             ->assertStatus(422);
     }
 
-    public function test_the_applicant_is_emailed_a_working_set_password_link(): void
+    /**
+     * Approve, and return the set-password link from the email that went
+     * out — the real one, not a token minted by the test.
+     *
+     * @return array<string, string>
+     */
+    private function approveAndCatchLink(): array
     {
+        $vars = null;
+        $this->mock(TransactionalMail::class, function ($mock) use (&$vars) {
+            $mock->shouldReceive('send')->andReturnUsing(function ($event, $to, $v) use (&$vars) {
+                if ($event === 'application.approved') {
+                    $vars = $v;
+                }
+
+                return true;
+            });
+        });
+
         $this->approve($this->application());
 
-        $user = User::where('email', 'kostas@aegean-av.gr')->sole();
+        $this->assertNotNull($vars, 'No approval email was sent.');
+        parse_str((string) parse_url($vars['set_password_url'], PHP_URL_QUERY), $query);
 
-        // The link is the ordinary reset flow, so the proof is that a
-        // password set through it actually works.
-        $token = Password::createToken($user);
+        return $query;
+    }
 
-        $this->postJson('/api/reset-password', [
-            'token' => $token,
-            'email' => $user->email,
-            'password' => 'a-brand-new-password',
-            'password_confirmation' => 'a-brand-new-password',
-        ])->assertOk();
+    private function setPassword(array $link, string $password = 'a-brand-new-password')
+    {
+        return $this->postJson('/api/reset-password', [
+            ...$link,
+            'password' => $password,
+            'password_confirmation' => $password,
+        ]);
+    }
+
+    public function test_the_applicant_is_emailed_a_working_set_password_link(): void
+    {
+        $link = $this->approveAndCatchLink();
+
+        $this->setPassword($link)->assertOk();
 
         $this->postJson('/api/login', [
-            'email' => $user->email,
+            'email' => 'kostas@aegean-av.gr',
             'password' => 'a-brand-new-password',
         ])->assertOk()->assertJsonPath('user.approved', true);
+    }
+
+    public function test_the_set_password_link_still_works_the_next_day(): void
+    {
+        // It used the forgotten-password broker and died after an hour; an
+        // approval email is often opened the next morning.
+        $link = $this->approveAndCatchLink();
+
+        $this->travel(30)->hours();
+
+        $this->setPassword($link)->assertOk();
+    }
+
+    public function test_the_set_password_link_expires_after_a_week(): void
+    {
+        $link = $this->approveAndCatchLink();
+
+        $this->travel(8)->days();
+
+        $this->setPassword($link)->assertStatus(422);
+    }
+
+    public function test_a_forgotten_password_link_still_lasts_an_hour(): void
+    {
+        $user = User::factory()->create(['email' => 'nikos@stagepro.gr']);
+        $token = Password::createToken($user);
+
+        $this->travel(2)->hours();
+
+        $this->setPassword(['token' => $token, 'email' => $user->email])->assertStatus(422);
+    }
+
+    public function test_a_reset_token_cannot_be_passed_off_as_an_invite(): void
+    {
+        // The two kinds of token are kept in separate tables, so flagging a
+        // reset link as an invite cannot stretch it to a week.
+        $user = User::factory()->create(['email' => 'nikos@stagepro.gr']);
+        $token = Password::createToken($user);
+
+        $this->travel(2)->hours();
+
+        $this->setPassword(['token' => $token, 'email' => $user->email, 'invite' => '1'])
+            ->assertStatus(422);
+    }
+
+    public function test_an_invite_token_only_works_as_an_invite(): void
+    {
+        $link = $this->approveAndCatchLink();
+        unset($link['invite']);
+
+        $this->setPassword($link)->assertStatus(422);
     }
 
     public function test_an_applicant_who_already_has_an_account_is_approved_not_duplicated(): void

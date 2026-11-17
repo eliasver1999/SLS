@@ -89,9 +89,17 @@ class AuthController extends Controller
             'token' => ['required', 'string'],
             'email' => ['required', 'email'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'invite' => ['sometimes', 'boolean'],
         ]);
 
-        $status = Password::reset($data, function (User $user, string $password) {
+        // A first-password link from the approval email lives in its own
+        // broker (a week); everything else is a forgotten-password reset (an
+        // hour). Each token is only ever looked up in the table it was
+        // written to, so the flag cannot stretch a reset link's life.
+        $broker = $request->boolean('invite') ? 'invites' : null;
+        unset($data['invite']);
+
+        $status = Password::broker($broker)->reset($data, function (User $user, string $password) {
             // 'hashed' cast on the model hashes this on save.
             $user->forceFill(['password' => $password])->save();
             $user->tokens()->delete(); // revoke existing sessions

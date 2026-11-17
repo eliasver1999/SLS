@@ -241,7 +241,7 @@ class TransactionalMail
             'paid' => Money::format(0),
             'outstanding' => Money::format(620000),
             'set_password_url' => rtrim((string) config('app.frontend_url'), '/')
-                .'/reset-password?token=sample-token&email=maria%40novaevents.gr',
+                .'/reset-password?token=sample-token&email=maria%40novaevents.gr&invite=1',
             'deposit' => Money::format(620000),
             'balance' => Money::format(620000),
             'vat_number' => 'EL123456789',

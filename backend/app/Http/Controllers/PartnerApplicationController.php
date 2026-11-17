@@ -143,15 +143,17 @@ class PartnerApplicationController extends Controller
     }
 
     /**
-     * The same link "forgot your password" sends, so there is one code path
-     * that can set a password and one token format to keep valid.
+     * The page "forgot your password" leads to, so there is one screen that
+     * sets a password — but the token comes from the `invites` broker, which
+     * keeps it for a week rather than an hour. `invite=1` tells the reset
+     * endpoint which broker to check it against.
      */
     private function setPasswordUrl(User $user): string
     {
-        $token = Password::createToken($user);
+        $token = Password::broker('invites')->createToken($user);
         $frontend = rtrim((string) config('app.frontend_url'), '/');
 
-        return $frontend.'/reset-password?token='.$token.'&email='.urlencode($user->email);
+        return $frontend.'/reset-password?token='.$token.'&email='.urlencode($user->email).'&invite=1';
     }
 
     /**

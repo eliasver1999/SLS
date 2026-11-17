@@ -72,6 +72,9 @@ export async function resetPassword(payload: {
   email: string
   password: string
   password_confirmation: string
+  /** The approval email's first-password link: checked against the
+   *  week-long invite tokens rather than the hour-long reset ones. */
+  invite?: boolean
 }) {
   const { data } = await api.post<{ message: string }>('/reset-password', payload)
   return data
